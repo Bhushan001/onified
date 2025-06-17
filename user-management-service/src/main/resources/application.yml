@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: user-management-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ums_db # Replace with your PostgreSQL connection string
+    username: postgres                        # Replace with your DB username
+    password: root                    # Replace with your DB password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update # Options: none, update, create, create-drop. 'update' is good for development.
+      # Use 'none' for production and manage schema migrations via Flyway/Liquibase
+    show-sql: true     # Log SQL statements
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false # Recommended to be false in Spring Boot applications to avoid N+1 issues in templates
+
+server:
+  port: 9083 # Port for the User Management Service
+
+feign:
+  client:
+    config:
+      permission-registry-service:
+        url: http://localhost:9082 # Replace with the actual URL of your Permission Registry Service
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG # Show SQL queries
+    org.hibernate.orm.jdbc.bind: TRACE # Show parameter binding
+    com.onified.ai.ums: DEBUG # Set your application's logging level
+    com.onified.ai.ums.client.PermissionRegistryFeignClient: DEBUG # To see Feign client request/response
+    org.springframework.cloud.openfeign: DEBUG # For more detailed Feign logging
