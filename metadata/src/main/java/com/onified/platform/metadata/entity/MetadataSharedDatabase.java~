@@ -1,0 +1,4 @@
+package com.onified.platform.metadata.entity;
+
+public class MetadataSharedDatabase {
+}
