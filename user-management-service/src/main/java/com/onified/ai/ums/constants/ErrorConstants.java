@@ -1,4 +1,4 @@
-package com.onified.ai.ums;
+package com.onified.ai.ums.constants;
 
 public final class ErrorConstants {
 

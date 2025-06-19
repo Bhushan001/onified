@@ -1,0 +1,154 @@
+<div class="login-page">
+  <main class="login-main">
+    <div class="container">
+      <div class="login-content">
+        <!-- Left side - Brand and Testimonial -->
+        <div class="brand-testimonial-section">
+          <!-- Brand title at the very top -->
+          <h1 class="brand-title">
+            ONIFIED<span class="brand-accent">.AI</span>
+          </h1>
+          
+          <div class="brand-section">
+            <p class="brand-subtitle">
+              Power Up Your Business with Onified.ai's Product Suite
+            </p>
+            <p class="brand-description">
+              All in one solution for your business needs. Embrace the future of business with ONIFIED.AI and unlock your full potential.
+            </p>
+          </div>
+          
+          <div class="testimonial-container">
+            <app-testimonial [testimonial]="testimonial"></app-testimonial>
+          </div>
+        </div>
+        
+        <!-- Right side - Login Form -->
+        <div class="login-form-section">
+          <div class="login-form-container">
+            <div class="login-form-card">
+              <div class="form-header">
+                <h2>Welcome to Onified.ai</h2>
+                <p class="form-subtitle" *ngIf="currentStep === 'identifier'">
+                  Sign in with your username, phone, or domain
+                </p>
+                <p class="form-subtitle" *ngIf="currentStep === 'password'">
+                  Enter your password to continue
+                </p>
+              </div>
+              
+              <form class="login-form" (ngSubmit)="onContinue()">
+                <!-- Identifier Step (Username/Phone/Domain) -->
+                <div class="form-group" *ngIf="currentStep === 'identifier'">
+                  <label for="identifier" class="form-label">
+                    {{ getIdentifierLabel() }}
+                  </label>
+                  <input
+                    type="text"
+                    id="identifier"
+                    name="identifier"
+                    class="form-control"
+                    [(ngModel)]="identifier"
+                    [placeholder]="getIdentifierPlaceholder()"
+                    (input)="onIdentifierChange()"
+                    (keypress)="onKeyPress($event)"
+                    required
+                    autocomplete="username"
+                    [class.error]="errorMessage && identifierType === 'username' && !authService.isValidUsername(identifier)"
+                  />
+                  <div class="input-hint" *ngIf="identifierType === 'username'">
+                    <small class="hint-text">
+                      Username should be 3-30 characters (letters, numbers, _, -)
+                    </small>
+                  </div>
+                  <div class="input-hint" *ngIf="identifierType === 'phone'">
+                    <small class="hint-text">
+                      You'll receive an OTP for phone authentication
+                    </small>
+                  </div>
+                  <div class="input-hint" *ngIf="identifierType === 'domain'">
+                    <small class="hint-text">
+                      Enter your organization's domain name
+                    </small>
+                  </div>
+                </div>
+                
+                <!-- Password Step -->
+                <div class="form-group" *ngIf="currentStep === 'password'">
+                  <label for="password" class="form-label">
+                    {{ getPasswordPlaceholder() }}
+                  </label>
+                  <div class="password-input-container">
+                    <input
+                      type="password"
+                      id="password"
+                      name="password"
+                      class="form-control"
+                      [(ngModel)]="password"
+                      [placeholder]="getPasswordPlaceholder()"
+                      (keypress)="onKeyPress($event)"
+                      required
+                      autocomplete="current-password"
+                    />
+                  </div>
+                  <div class="back-to-identifier">
+                    <button type="button" class="back-link" (click)="onBackToIdentifier()">
+                      ← Back to change {{ identifierType === 'domain' ? 'domain' : 'username' }}
+                    </button>
+                    <span class="current-identifier">{{ identifier }}</span>
+                  </div>
+                  <div class="forgot-password">
+                    <button type="button" class="forgot-link" (click)="onForgotPassword()">
+                      Forgot your password?
+                    </button>
+                  </div>
+                </div>
+                
+                <!-- Error Message -->
+                <div class="error-message" *ngIf="errorMessage">
+                  <p class="small text-error">{{ errorMessage }}</p>
+                </div>
+                
+                <!-- Submit Button -->
+                <button
+                  type="submit"
+                  class="btn btn-primary btn-lg w-100 continue-btn"
+                  [disabled]="isLoading || (identifierType === 'username' && !authService.isValidUsername(identifier))"
+                >
+                  {{ getButtonText() }}
+                </button>
+              </form>
+              
+              <!-- Show alternative login only on identifier step -->
+              <div class="form-divider" *ngIf="currentStep === 'identifier'">
+                <div class="divider-line"></div>
+                <span class="divider-text small">or</span>
+                <div class="divider-line"></div>
+              </div>
+              
+              <div class="alternative-login" *ngIf="currentStep === 'identifier'">
+                <button
+                  type="button"
+                  class="btn btn-secondary w-100 qr-btn"
+                  (click)="onQRLogin()"
+                  [disabled]="isQRLoading"
+                >
+                  {{ isQRLoading ? 'Scanning...' : 'Login with QR Code' }}
+                </button>
+                
+                <div class="auth-links">
+                  <span class="auth-text">Don't have an account?</span>
+                  <button type="button" class="signup-link" (click)="onSignUp()">
+                    Sign Up
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  
+  <app-footer></app-footer>
+</div>

@@ -1,0 +1,236 @@
+/**
+ * Local Font Definitions for Onified.ai Application
+ * 
+ * This file defines @font-face rules for locally hosted Roboto fonts
+ * instead of loading them from Google Fonts. This improves performance,
+ * ensures fonts are available offline, and eliminates external dependencies.
+ * 
+ * Font files are located in: src/assets/fonts/Roboto/static/
+ * 
+ * Performance optimizations:
+ * - font-display: swap for better loading performance
+ * - Comprehensive fallback font stack
+ * - Only essential font weights included
+ */
+
+/* ===== ROBOTO FONT FACES ===== */
+
+/**
+ * Roboto Regular (400) - Primary body text font
+ * Most commonly used weight, loaded first for better performance
+ */
+@font-face {
+  font-family: 'Roboto';
+  src: url('/assets/fonts/Roboto/static/Roboto-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap; /* Improves loading performance by showing fallback first */
+}
+
+/**
+ * Roboto Medium (500) - Emphasized text and buttons
+ * Second most important weight for UI elements
+ */
+@font-face {
+  font-family: 'Roboto';
+  src: url('/assets/fonts/Roboto/static/Roboto-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/**
+ * Roboto Bold (700) - Headings and strong emphasis
+ * Essential for headings and important text
+ */
+@font-face {
+  font-family: 'Roboto';
+  src: url('/assets/fonts/Roboto/static/Roboto-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/**
+ * Roboto Regular Italic (400) - Emphasized body text
+ * For italicized content and quotes
+ */
+@font-face {
+  font-family: 'Roboto';
+  src: url('/assets/fonts/Roboto/static/Roboto-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+/**
+ * Roboto Medium Italic (500) - Emphasized UI elements
+ * For italicized buttons and emphasized text
+ */
+@font-face {
+  font-family: 'Roboto';
+  src: url('/assets/fonts/Roboto/static/Roboto-MediumItalic.ttf') format('truetype');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+/**
+ * Roboto Bold Italic (700) - Emphasized headings
+ * For italicized headings and strong emphasis
+ */
+@font-face {
+  font-family: 'Roboto';
+  src: url('/assets/fonts/Roboto/static/Roboto-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+/**
+ * Roboto Light (300) - Subtle text and large displays
+ * Optional weight for lighter text elements
+ */
+@font-face {
+  font-family: 'Roboto';
+  src: url('/assets/fonts/Roboto/static/Roboto-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+/**
+ * Roboto Light Italic (300) - Subtle emphasized text
+ * Optional weight for lighter italicized text
+ */
+@font-face {
+  font-family: 'Roboto';
+  src: url('/assets/fonts/Roboto/static/Roboto-LightItalic.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ===== TYPOGRAPHY VARIABLES ===== */
+
+/**
+ * Font Family Definitions
+ * 
+ * Comprehensive fallback stack ensures text remains readable
+ * even if Roboto fails to load for any reason.
+ */
+
+// Primary font stack with comprehensive fallbacks
+$font-family-large: 'Roboto', 
+                    -apple-system,           // macOS system font
+                    BlinkMacSystemFont,      // macOS system font (older)
+                    'Segoe UI',              // Windows system font
+                    'Helvetica Neue',        // macOS/iOS
+                    'Arial',                 // Universal fallback
+                    'Noto Sans',             // Android system font
+                    'Liberation Sans',       // Linux
+                    sans-serif;              // Generic fallback
+
+// Secondary font stack for serif text
+$font-family-small: ui-serif,               // System serif font
+                    'Georgia',               // Classic serif
+                    'Times New Roman',       // Universal serif fallback
+                    'Times',                 // Fallback
+                    serif;                   // Generic fallback
+
+/**
+ * Font Size Scale
+ * 
+ * Reduced by 10% from standard sizes for better readability
+ * and more compact design. Based on a modular scale for
+ * consistent typography hierarchy.
+ */
+$font-size-xs: 0.675rem;    // 10.8px - Small captions, labels
+$font-size-sm: 0.7875rem;   // 12.6px - Small text, metadata
+$font-size-base: 0.9rem;    // 14.4px - Body text, default
+$font-size-lg: 1.0125rem;   // 16.2px - Large body text
+$font-size-xl: 1.125rem;    // 18px - Small headings
+$font-size-2xl: 1.35rem;    // 21.6px - Medium headings
+$font-size-3xl: 1.6875rem;  // 27px - Large headings
+$font-size-4xl: 2.025rem;   // 32.4px - Extra large headings
+$font-size-5xl: 2.7rem;     // 43.2px - Display headings
+
+/**
+ * Line Height Scale
+ * 
+ * Optimized for readability across different text sizes
+ * and use cases.
+ */
+$line-height-tight: 1.25;   // For headings and compact text
+$line-height-normal: 1.5;   // For body text and general content
+$line-height-relaxed: 1.75; // For large text blocks and reading
+
+/**
+ * Font Weight Scale
+ * 
+ * Semantic weight names mapped to numeric values
+ * for consistent usage across the application.
+ */
+$font-weight-light: 300;    // Light text, large displays
+$font-weight-normal: 400;   // Body text, default weight
+$font-weight-medium: 500;   // Emphasized text, buttons
+$font-weight-semibold: 600; // Semi-bold text, important elements
+$font-weight-bold: 700;     // Headings, strong emphasis
+
+/**
+ * Font Loading Optimization
+ * 
+ * CSS custom properties for dynamic font loading states
+ * and progressive enhancement.
+ */
+:root {
+  --font-family-primary: #{$font-family-large};
+  --font-family-secondary: #{$font-family-small};
+  
+  // Font loading states
+  --font-loading: 'Arial', sans-serif; // Fallback during loading
+  --font-loaded: #{$font-family-large}; // After fonts are loaded
+}
+
+/**
+ * Font Loading Detection
+ * 
+ * Progressive enhancement for better font loading experience
+ * This class can be added by JavaScript when fonts are loaded
+ */
+.fonts-loaded {
+  font-family: var(--font-loaded);
+}
+
+/**
+ * Font Performance Utilities
+ * 
+ * Utility classes for optimizing font rendering
+ */
+.font-smooth {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.font-crisp {
+  -webkit-font-smoothing: auto;
+  -moz-osx-font-smoothing: auto;
+}
+
+/**
+ * Responsive Font Scaling
+ * 
+ * Fluid typography that scales with viewport size
+ * for better responsive design.
+ */
+@media (max-width: 768px) {
+  :root {
+    --font-scale: 0.9; // Slightly smaller fonts on mobile
+  }
+}
+
+@media (min-width: 1200px) {
+  :root {
+    --font-scale: 1.1; // Slightly larger fonts on large screens
+  }
+}

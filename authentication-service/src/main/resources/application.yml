@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: authentication-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/auth_db # Replace with your PostgreSQL connection string
+    username: postgres                        # Replace with your DB username
+    password: root                    # Replace with your DB password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update # Options: none, update, create, create-drop. 'update' is good for development.
+      # Use 'none' for production and manage schema migrations via Flyway/Liquibase
+    show-sql: true     # Log SQL statements
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false # Recommended to be false in Spring Boot applications to avoid N+1 issues in templates
+
+server:
+  port: 9080 # Port for the User Management Service
+
+jwt:
+  secret: yourVerySecretKeyForJWTTokenGenerationThatShouldBeLongAndComplex12345!@#$%^&*() # !! IMPORTANT: Change this in production !!
+  expiration: 3600000 # 1 hour in milliseconds (adjust as needed)
+
+feign:
+  client:
+    config:
+      user-management-service:
+        url: http://localhost:9083 # URL of your User Management Service
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    ai.onified.auth: DEBUG # Set your application's logging level
+    ai.onified.auth.client.UserManagementFeignClient: DEBUG # To see Feign client request/response
+    org.springframework.cloud.openfeign: DEBUG # For more detailed Feign logging

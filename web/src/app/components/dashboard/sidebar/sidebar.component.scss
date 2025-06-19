@@ -1,0 +1,307 @@
+// Import font variables
+@use '../../../../styles/fonts' as fonts;
+
+.sidebar {
+  width: 280px;
+  height: 100vh;
+  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+
+  &.collapsed {
+    width: 80px;
+  }
+}
+
+.sidebar-header {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: fonts.$font-size-xl;
+  font-weight: fonts.$font-weight-bold;
+  backdrop-filter: blur(10px);
+}
+
+.logo-text {
+  font-size: fonts.$font-size-lg;
+  font-weight: fonts.$font-weight-bold;
+  white-space: nowrap;
+}
+
+.user-profile {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: fonts.$font-size-sm;
+  font-weight: fonts.$font-weight-bold;
+  color: white;
+}
+
+.user-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.user-name {
+  font-size: fonts.$font-size-sm;
+  font-weight: fonts.$font-weight-medium;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.user-role {
+  font-size: fonts.$font-size-xs;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-nav {
+  flex: 1;
+  padding: 20px 0;
+  overflow-y: auto;
+  
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+  }
+}
+
+.nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-item {
+  margin-bottom: 4px;
+
+  &.active > .nav-link {
+    background: rgba(255, 255, 255, 0.15);
+    border-right: 3px solid white;
+  }
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  padding: 12px 20px;
+  color: white;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  position: relative;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.nav-text {
+  flex: 1;
+  font-size: fonts.$font-size-sm;
+  font-weight: fonts.$font-weight-normal;
+  white-space: nowrap;
+}
+
+.nav-badge {
+  background: #ff4757;
+  color: white;
+  font-size: fonts.$font-size-xs;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-left: 8px;
+}
+
+.nav-arrow {
+  margin-left: 8px;
+  transition: transform 0.2s ease;
+  
+  &.expanded {
+    transform: rotate(90deg);
+  }
+  
+  &::before {
+    content: '›';
+    font-size: 14px;
+  }
+}
+
+.nav-submenu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.nav-subitem {
+  margin: 0;
+}
+
+.nav-sublink {
+  display: flex;
+  align-items: center;
+  padding: 10px 20px 10px 52px;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+  }
+}
+
+.nav-subicon {
+  width: 16px;
+  height: 16px;
+  margin-right: 10px;
+  font-size: 14px;
+}
+
+.nav-subtext {
+  font-size: fonts.$font-size-xs;
+}
+
+.sidebar-footer {
+  padding: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  gap: 8px;
+}
+
+.collapse-btn,
+.logout-btn {
+  flex: 1;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: fonts.$font-size-sm;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+.icon-chevron {
+  transition: transform 0.2s ease;
+  
+  &.rotated {
+    transform: rotate(180deg);
+  }
+  
+  &::before {
+    content: '‹';
+    font-size: 16px;
+    font-weight: bold;
+  }
+}
+
+// Icon styles (you can replace these with actual icon fonts)
+.icon-dashboard::before { content: '⊞'; }
+.icon-chart::before { content: '📊'; }
+.icon-users::before { content: '👥'; }
+.icon-file-text::before { content: '📄'; }
+.icon-settings::before { content: '⚙️'; }
+.icon-bar-chart::before { content: '📈'; }
+.icon-help-circle::before { content: '❓'; }
+.icon-list::before { content: '📋'; }
+.icon-shield::before { content: '🛡️'; }
+.icon-activity::before { content: '📊'; }
+.icon-page::before { content: '📃'; }
+.icon-image::before { content: '🖼️'; }
+.icon-search::before { content: '🔍'; }
+.icon-gear::before { content: '⚙️'; }
+.icon-lock::before { content: '🔒'; }
+.icon-plug::before { content: '🔌'; }
+.icon-logout::before { content: '🚪'; }
+
+// Responsive design
+@media (max-width: 1024px) {
+  .sidebar {
+    transform: translateX(-100%);
+    
+    &.collapsed {
+      transform: translateX(-100%);
+    }
+    
+    &.mobile-open {
+      transform: translateX(0);
+    }
+  }
+}

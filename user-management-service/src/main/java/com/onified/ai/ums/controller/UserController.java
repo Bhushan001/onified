@@ -20,6 +20,17 @@ public class UserController {
         this.userService = userService;
     }
 
+    @GetMapping("/auth-details/{username}")
+    public ResponseEntity<ApiResponse<UserAuthDetailsResponse>> getUserAuthDetailsByUsername(@PathVariable String username) {
+        UserAuthDetailsResponse userAuthDetails = userService.getUserAuthDetailsByUsername(username);
+        ApiResponse<UserAuthDetailsResponse> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                MessageConstants.STATUS_SUCCESS,
+                userAuthDetails
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @PostMapping
     public ResponseEntity<ApiResponse<UserResponse>> createUser(@Valid @RequestBody UserCreateRequest request) {
         UserResponse userResponse = userService.createUser(request);

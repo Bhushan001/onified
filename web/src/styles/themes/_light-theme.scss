@@ -1,0 +1,59 @@
+@use 'sass:map';
+@use 'variables';
+
+// Light theme implementation using specified colors
+.theme-light {
+  // Primary theme colors (as specified)
+  --color-card-background: #{map.get(variables.$primary-colors, card-background)};
+  --color-header: #{map.get(variables.$primary-colors, header)};
+  --color-text: #{map.get(variables.$primary-colors, text)};
+  --color-primary-button: #{map.get(variables.$primary-colors, primary-button)};
+  --color-button: #{map.get(variables.$primary-colors, button)};
+  
+  // Extended color system
+  --color-primary-50: #{map.get(variables.$colors, primary-50)};
+  --color-primary-100: #{map.get(variables.$colors, primary-100)};
+  --color-primary-500: #{map.get(variables.$colors, primary-500)};
+  --color-primary-600: #{map.get(variables.$colors, primary-600)};
+  --color-primary-700: #{map.get(variables.$colors, primary-700)};
+  --color-primary-800: #{map.get(variables.$colors, primary-800)};
+  --color-primary-900: #{map.get(variables.$colors, primary-900)};
+  
+  // Neutral colors
+  --color-gray-50: #{map.get(variables.$colors, gray-50)};
+  --color-gray-100: #{map.get(variables.$colors, gray-100)};
+  --color-gray-200: #{map.get(variables.$colors, gray-200)};
+  --color-gray-300: #{map.get(variables.$colors, gray-300)};
+  --color-gray-400: #{map.get(variables.$colors, gray-400)};
+  --color-gray-500: #{map.get(variables.$colors, gray-500)};
+  --color-gray-600: #{map.get(variables.$colors, gray-600)};
+  --color-gray-700: #{map.get(variables.$colors, gray-700)};
+  --color-gray-800: #{map.get(variables.$colors, gray-800)};
+  --color-gray-900: #{map.get(variables.$colors, gray-900)};
+  
+  // Semantic colors
+  --color-success: #{map.get(variables.$colors, success)};
+  --color-warning: #{map.get(variables.$colors, warning)};
+  --color-error: #{map.get(variables.$colors, error)};
+  --color-info: #{map.get(variables.$colors, info)};
+  
+  // Background and surface
+  --color-background: #{map.get(variables.$colors, background)};
+  --color-surface: #{map.get(variables.$colors, surface)};
+  
+  // Border colors
+  --color-border: #{map.get(variables.$colors, border)};
+  --color-border-focus: #{map.get(variables.$colors, border-focus)};
+  
+  // Text colors for different contexts
+  --color-text-primary: #{map.get(variables.$primary-colors, text)};
+  --color-text-secondary: #{map.get(variables.$colors, gray-500)};
+  --color-text-muted: #{map.get(variables.$colors, gray-400)};
+  --color-text-inverse: #{map.get(variables.$colors, gray-50)};
+  
+  // Button variations
+  --color-button-primary: #{map.get(variables.$primary-colors, primary-button)};
+  --color-button-primary-hover: #{map.get(variables.$colors, primary-600)};
+  --color-button-secondary: #{map.get(variables.$colors, gray-100)};
+  --color-button-secondary-hover: #{map.get(variables.$colors, gray-200)};
+}
