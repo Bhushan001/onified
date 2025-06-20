@@ -1,0 +1,369 @@
+<div class="node-editor-overlay">
+  <div class="node-editor">
+    <!-- Header -->
+    <header class="editor-header">
+      <div class="header-center">
+        <div class="node-info">
+          <div class="node-icon" [style.background]="getApiColor()">
+            {{ getApiIcon() }}
+          </div>
+          <div class="node-details">
+            <h1>{{ getDisplayName() | titlecase }} Configuration</h1>
+            <span class="node-type">{{ node.data.apiConfiguration.baseURL || 'Trigger Node' }}</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="header-right">
+        <button class="test-btn" (click)="testConnection()" [disabled]="isTestingConnection || isExecuting">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,16.5L6.5,12L7.91,10.59L11,13.67L16.59,8.09L18,9.5L11,16.5Z"/>
+          </svg>
+          {{ isTestingConnection ? 'Testing...' : 'Test step' }}
+        </button>
+        <button class="execute-btn" (click)="executeNode()" [disabled]="isTestingConnection || isExecuting">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M8,5.14V19.14L19,12.14L8,5.14Z"/>
+          </svg>
+          {{ isExecuting ? 'Executing...' : 'Execute node' }}
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="editor-body">
+      <!-- Left Sidebar - Configuration -->
+      <div class="config-sidebar">
+        <div class="config-content">
+          
+          <!-- Parameters Section -->
+          <div class="config-section">
+            <h3>Parameters</h3>
+            
+            <!-- HTTP Method -->
+            <div class="parameter-group">
+              <label class="parameter-label">HTTP Request Method</label>
+              <div class="parameter-control">
+                <select [(ngModel)]="selectedMethod" class="n8n-select">
+                  <option *ngFor="let method of httpMethods" [value]="method">{{ method }}</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- URL -->
+            <div class="parameter-group">
+              <label class="parameter-label">URL</label>
+              <div class="parameter-control">
+                <input 
+                  type="text" 
+                  class="n8n-input" 
+                  [value]="node.data.apiConfiguration.baseURL"
+                  readonly
+                  placeholder="https://api.example.com/endpoint"
+                >
+              </div>
+            </div>
+
+            <!-- Authentication -->
+            <div class="parameter-group">
+              <label class="parameter-label">Authentication</label>
+              <div class="parameter-control">
+                <select [(ngModel)]="authType" class="n8n-select">
+                  <option *ngFor="let auth of authTypes" [value]="auth.value">{{ auth.label }}</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Auth Details -->
+            <div *ngIf="authType === 'basic'" class="auth-details">
+              <div class="parameter-group">
+                <label class="parameter-label">User</label>
+                <div class="parameter-control">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="basicAuth.username" 
+                    class="n8n-input"
+                    placeholder="Username"
+                  >
+                </div>
+              </div>
+              <div class="parameter-group">
+                <label class="parameter-label">Password</label>
+                <div class="parameter-control">
+                  <input 
+                    type="password" 
+                    [(ngModel)]="basicAuth.password" 
+                    class="n8n-input"
+                    placeholder="Password"
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="authType === 'bearer'" class="auth-details">
+              <div class="parameter-group">
+                <label class="parameter-label">Token</label>
+                <div class="parameter-control">
+                  <input 
+                    type="password" 
+                    [(ngModel)]="bearerToken.token" 
+                    class="n8n-input"
+                    placeholder="Bearer token"
+                  >
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="authType === 'apikey'" class="auth-details">
+              <div class="parameter-group">
+                <label class="parameter-label">API Key</label>
+                <div class="parameter-control">
+                  <input 
+                    type="password" 
+                    [(ngModel)]="apiKey.value" 
+                    class="n8n-input"
+                    placeholder="API Key"
+                  >
+                </div>
+              </div>
+              <div class="parameter-group">
+                <label class="parameter-label">Header Name</label>
+                <div class="parameter-control">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="apiKey.key" 
+                    class="n8n-input"
+                    placeholder="X-API-Key"
+                  >
+                </div>
+              </div>
+            </div>
+
+            <!-- Send Query Parameters -->
+            <div class="parameter-group">
+              <label class="parameter-label">Send Query Parameters</label>
+              <div class="parameter-control">
+                <select [(ngModel)]="sendQueryParams" class="n8n-select">
+                  <option value="none">None</option>
+                  <option value="custom">Custom</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Query Parameters -->
+            <div *ngIf="sendQueryParams === 'custom'" class="parameter-group">
+              <label class="parameter-label">Query Parameters</label>
+              <div class="parameter-list">
+                <div *ngFor="let param of parameters; let i = index" class="parameter-item">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="param.key" 
+                    class="n8n-input small"
+                    placeholder="Name"
+                  >
+                  <input 
+                    type="text" 
+                    [(ngModel)]="param.value" 
+                    class="n8n-input small"
+                    placeholder="Value"
+                  >
+                  <button 
+                    class="remove-param-btn" 
+                    (click)="removeParameter(i)"
+                    [disabled]="parameters.length === 1"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+                    </svg>
+                  </button>
+                </div>
+                <button class="add-param-btn" (click)="addParameter()">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
+                  </svg>
+                  Add Parameter
+                </button>
+              </div>
+            </div>
+
+            <!-- Send Headers -->
+            <div class="parameter-group">
+              <label class="parameter-label">Send Headers</label>
+              <div class="parameter-control">
+                <select [(ngModel)]="sendHeaders" class="n8n-select">
+                  <option value="none">None</option>
+                  <option value="custom">Custom</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Headers -->
+            <div *ngIf="sendHeaders === 'custom'" class="parameter-group">
+              <label class="parameter-label">Headers</label>
+              <div class="parameter-list">
+                <div *ngFor="let header of customHeaders; let i = index" class="parameter-item">
+                  <input 
+                    type="text" 
+                    [(ngModel)]="header.key" 
+                    class="n8n-input small"
+                    placeholder="Name"
+                  >
+                  <input 
+                    type="text" 
+                    [(ngModel)]="header.value" 
+                    class="n8n-input small"
+                    placeholder="Value"
+                  >
+                  <button 
+                    class="remove-param-btn" 
+                    (click)="removeHeader(i)"
+                    [disabled]="customHeaders.length === 1"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M19,6.41L17.59,5L12,10.59L6.41,5L5,6.41L10.59,12L5,17.59L6.41,19L12,13.41L17.59,19L19,17.59L13.41,12L19,6.41Z"/>
+                    </svg>
+                  </button>
+                </div>
+                <button class="add-param-btn" (click)="addHeader()">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z"/>
+                  </svg>
+                  Add Header
+                </button>
+              </div>
+            </div>
+
+            <!-- Send Body -->
+            <div class="parameter-group" *ngIf="selectedMethod !== 'GET'">
+              <label class="parameter-label">Send Body</label>
+              <div class="parameter-control">
+                <select [(ngModel)]="sendBody" class="n8n-select">
+                  <option value="none">None</option>
+                  <option value="json">JSON</option>
+                  <option value="form">Form Data</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Body Content -->
+            <div *ngIf="sendBody === 'json' && selectedMethod !== 'GET'" class="parameter-group">
+              <label class="parameter-label">JSON</label>
+              <div class="parameter-control">
+                <div class="json-editor-wrapper">
+                  <textarea 
+                    [(ngModel)]="requestBody" 
+                    class="n8n-textarea json-editor"
+                    [placeholder]="getRequestBodyPlaceholder()"
+                    rows="8"
+                  ></textarea>
+                  <div class="json-status" [class.error]="!isValidJson() && requestBody.trim()">
+                    {{ getJsonStatus() }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Panel - Output/Response -->
+      <div class="output-panel">
+        <div class="output-header">
+          <div class="output-tabs">
+            <button 
+              class="output-tab" 
+              [class.active]="activeTab === 'table'"
+              (click)="activeTab = 'table'"
+            >
+              Table
+            </button>
+            <button 
+              class="output-tab" 
+              [class.active]="activeTab === 'json'"
+              (click)="activeTab = 'json'"
+            >
+              JSON
+            </button>
+            <button 
+              class="output-tab" 
+              [class.active]="activeTab === 'schema'"
+              (click)="activeTab = 'schema'"
+            >
+              Schema
+            </button>
+          </div>
+          <div class="output-info">
+            <span class="execution-type" *ngIf="lastExecutionType">
+              {{ lastExecutionType === 'test' ? 'Test Result' : 'Execution Result' }}
+            </span>
+            <span class="execution-time" *ngIf="executionTime">{{ executionTime }}ms</span>
+            <span class="item-count" *ngIf="responseData && !responseData.error">{{ getItemCount() }} items</span>
+          </div>
+        </div>
+
+        <div class="output-content">
+          <!-- Empty State -->
+          <div *ngIf="!responseData" class="empty-output">
+            <div class="empty-icon">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M12,17A1.5,1.5 0 0,1 10.5,15.5A1.5,1.5 0 0,1 12,14A1.5,1.5 0 0,1 13.5,15.5A1.5,1.5 0 0,1 12,17M12,10.5C12.8,10.5 13.5,9.8 13.5,9C13.5,8.2 12.8,7.5 12,7.5C11.2,7.5 10.5,8.2 10.5,9C10.5,9.8 11.2,10.5 12,10.5Z"/>
+              </svg>
+            </div>
+            <h3>No execution data</h3>
+            <p>Test the connection or execute the node to see results.</p>
+            <div class="empty-actions">
+              <button class="test-empty-btn" (click)="testConnection()" [disabled]="isTestingConnection || isExecuting">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2M11,16.5L6.5,12L7.91,10.59L11,13.67L16.59,8.09L18,9.5L11,16.5Z"/>
+                </svg>
+                {{ isTestingConnection ? 'Testing...' : 'Test step' }}
+              </button>
+              <button class="execute-empty-btn" (click)="executeNode()" [disabled]="isTestingConnection || isExecuting">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M8,5.14V19.14L19,12.14L8,5.14Z"/>
+                </svg>
+                {{ isExecuting ? 'Executing...' : 'Execute node' }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Table View -->
+          <div *ngIf="responseData && activeTab === 'table'" class="table-view">
+            <div class="table-container">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th *ngFor="let key of getTableHeaders()">{{ key }}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of getTableData()">
+                    <td *ngFor="let key of getTableHeaders()">
+                      {{ formatTableValue(item[key]) }}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- JSON View -->
+          <div *ngIf="responseData && activeTab === 'json'" class="json-view">
+            <pre class="json-output">{{ formatJsonOutput() }}</pre>
+          </div>
+
+          <!-- Schema View -->
+          <div *ngIf="responseData && activeTab === 'schema'" class="schema-view">
+            <div class="schema-tree">
+              <div *ngFor="let field of getSchemaFields()" class="schema-field">
+                <span class="field-name">{{ field.name }}</span>
+                <span class="field-type">{{ field.type }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

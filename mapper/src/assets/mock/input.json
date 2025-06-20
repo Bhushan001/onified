@@ -1,0 +1,98 @@
+{
+  "configuration": [
+    {
+      "api_name": "manual_trigger",
+      "baseURL": "",
+      "headers": [],
+      "request_body": {},
+      "node_type": "trigger"
+    },
+    {
+      "api_name": "jsonplaceholder",
+      "baseURL": "https://jsonplaceholder.typicode.com",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "request_body": {
+        "title": "Sample Post Title",
+        "body": "This is a sample post body for testing",
+        "userId": 1
+      }
+    },
+    {
+      "api_name": "httpbin",
+      "baseURL": "https://httpbin.org",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "key": "User-Agent",
+          "value": "TestClient/1.0"
+        }
+      ],
+      "request_body": {
+        "test_data": "sample_value",
+        "timestamp": "2025-06-19T10:00:00Z",
+        "environment": "testing"
+      }
+    },
+    {
+      "api_name": "catfacts",
+      "baseURL": "https://catfact.ninja",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "request_body": {
+        "max_length": 200
+      }
+    },
+    {
+      "api_name": "reqres",
+      "baseURL": "https://reqres.in/api",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "request_body": {
+        "name": "John Doe",
+        "job": "Software Developer",
+        "email": "john.doe@example.com"
+      }
+    },
+    {
+      "api_name": "openai",
+      "baseURL": "https://api.openai.com/v1/chat/completions",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "key": "Authorization",
+          "value": "Bearer YOUR_API_KEY"
+        }
+      ],
+      "request_body": {
+        "model": "gpt-3.5-turbo",
+        "messages": [
+          {
+            "role": "user",
+            "content": "Hello, how can you help me today?"
+          }
+        ],
+        "max_tokens": 150,
+        "temperature": 0.7
+      }
+    }
+  ]
+}

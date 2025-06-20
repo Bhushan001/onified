@@ -1,0 +1,33 @@
+<div *ngIf="visible" class="dialog-overlay" (click)="onCancel()">
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <div class="dialog-header">
+      <h3>Rename Node</h3>
+    </div>
+    
+    <div class="dialog-content">
+      <label for="nodeName">Node Name</label>
+      <input 
+        id="nodeName"
+        type="text" 
+        [(ngModel)]="newName" 
+        class="form-control"
+        placeholder="Enter node name"
+        (keydown)="onKeyDown($event)"
+        #nameInput
+      >
+    </div>
+    
+    <div class="dialog-actions">
+      <button class="btn btn-secondary" (click)="onCancel()">
+        Cancel
+      </button>
+      <button 
+        class="btn btn-primary" 
+        (click)="onSave()"
+        [disabled]="!newName.trim()"
+      >
+        Save
+      </button>
+    </div>
+  </div>
+</div>
