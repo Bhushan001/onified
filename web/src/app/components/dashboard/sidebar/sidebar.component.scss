@@ -1,126 +1,101 @@
-// Import font variables
+@use 'sass:map';
+@use '../../../../styles/themes/variables' as vars;
 @use '../../../../styles/fonts' as fonts;
 
 .sidebar {
-  width: 280px;
-  height: 100vh;
-  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  width: 240px; // w-60 = 240px
+  height: calc(100vh - 70px); // Subtract header height
+  background: white;
+  border-right: 1px solid map.get(vars.$colors, gray-200);
   position: fixed;
-  left: 0;
-  top: 0;
-  z-index: 1000;
+  left: 12px;
+  top: 60px;
+  z-index: 900;
   display: flex;
   flex-direction: column;
-  transition: width 0.3s ease;
-  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  overflow-y: auto;
 
   &.collapsed {
-    width: 80px;
+    width: 60px;
   }
 }
 
 .sidebar-header {
-  padding: 20px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
+  padding: 16px; // p-4
+  border-bottom: 1px solid map.get(vars.$colors, gray-200);
 
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+  .hub-title {
+    background: map.get(vars.$colors, purple-100);
+    border-radius: 6px; // rounded-md
+    padding: 8px; // p-2
+    margin-bottom: 0; // Remove bottom margin
+    display: flex;
+    align-items: center;
+    gap: 8px; // space-x-2
+    color: map.get(vars.$colors, purple-600);
 
-.logo-icon {
-  width: 40px;
-  height: 40px;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: fonts.$font-size-xl;
-  font-weight: fonts.$font-weight-bold;
-  backdrop-filter: blur(10px);
-}
+    .hub-icon {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+    }
 
-.logo-text {
-  font-size: fonts.$font-size-lg;
-  font-weight: fonts.$font-weight-bold;
-  white-space: nowrap;
-}
-
-.user-profile {
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.user-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  position: relative;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+    .hub-text {
+      font-weight: fonts.$font-weight-medium;
+      font-size: fonts.$font-size-sm;
+    }
   }
 }
 
-.avatar-placeholder {
-  width: 100%;
-  height: 100%;
-  background: rgba(255, 255, 255, 0.2);
+.sidebar-toggle {
+  position: absolute;
+  top: 16px;
+  right: -12px;
+  width: 24px;
+  height: 24px;
+  background: white;
+  border: 1px solid map.get(vars.$colors, border);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: fonts.$font-size-sm;
-  font-weight: fonts.$font-weight-bold;
-  color: white;
+  cursor: pointer;
+  z-index: 1001;
+  transition: all 0.2s ease;
+  box-shadow: map.get(vars.$shadows, sm);
+
+  &:hover {
+    background: map.get(vars.$colors, primary-50);
+    border-color: map.get(vars.$colors, primary-300);
+  }
 }
 
-.user-info {
-  flex: 1;
-  min-width: 0;
-}
+.toggle-icon {
+  font-size: 12px;
+  color: map.get(vars.$colors, gray-600);
+  transition: transform 0.3s ease;
 
-.user-name {
-  font-size: fonts.$font-size-sm;
-  font-weight: fonts.$font-weight-medium;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.user-role {
-  font-size: fonts.$font-size-xs;
-  opacity: 0.8;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  &.rotated {
+    transform: rotate(90deg);
+  }
 }
 
 .sidebar-nav {
   flex: 1;
-  padding: 20px 0;
+  padding: 16px; // Consistent padding
   overflow-y: auto;
-  
+
   &::-webkit-scrollbar {
     width: 4px;
   }
-  
+
   &::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
+    background: map.get(vars.$colors, gray-100);
   }
-  
+
   &::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
+    background: map.get(vars.$colors, gray-300);
     border-radius: 2px;
   }
 }
@@ -132,65 +107,121 @@
 }
 
 .nav-item {
-  margin-bottom: 4px;
+  margin-bottom: 16px; // mb-4
 
-  &.active > .nav-link {
-    background: rgba(255, 255, 255, 0.15);
-    border-right: 3px solid white;
+  &.section-header {
+    margin-bottom: 0;
   }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.section-title {
+  font-size: fonts.$font-size-xs; // text-xs
+  color: map.get(vars.$colors, gray-500);
+  font-weight: fonts.$font-weight-medium;
+  margin-bottom: 8px; // mb-2
+  text-transform: uppercase;
+  padding: 0 8px; // Add horizontal padding
 }
 
 .nav-link {
   display: flex;
   align-items: center;
-  padding: 12px 20px;
-  color: white;
-  text-decoration: none;
+  width: 100%;
+  font-size: fonts.$font-size-sm; // text-sm
+  color: map.get(vars.$colors, gray-700);
+  padding: 4px 8px; // px-2 py-1
+  border: none;
+  background: none;
+  border-radius: 4px; // rounded
+  cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
 
-  &:hover {
-    background: rgba(255, 255, 255, 0.1);
+  // Parent link styling (with icons and potential children)
+  &:not(.child-link) {
+    margin-left: 5px; // Indent parent links 5px to the right
+    background: map.get(vars.$colors, gray-50);
+    border: 1px solid map.get(vars.$colors, gray-200);
+    font-weight: fonts.$font-weight-medium;
+    padding: 6px 10px; // Slightly more padding for parent links
+    border-radius: 6px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+
+    &:hover {
+      background: map.get(vars.$colors, gray-100);
+      border-color: map.get(vars.$colors, gray-300);
+      transform: translateX(2px);
+    }
+
+    &.active {
+      background: map.get(vars.$colors, primary-50);
+      color: map.get(vars.$colors, primary-700);
+      border-color: map.get(vars.$colors, primary-200);
+      font-weight: fonts.$font-weight-semibold;
+
+      .nav-icon {
+        color: map.get(vars.$colors, primary-600);
+      }
+    }
+  }
+
+  // Child link styling (indented, no icons)
+  &.child-link {
+    margin-left: 24px; // ml-6 - keep original indentation for child links
+    background: transparent;
+    border: none;
+    font-weight: fonts.$font-weight-normal;
+    color: map.get(vars.$colors, gray-600);
+
+    &:hover {
+      background: map.get(vars.$colors, gray-100);
+      color: map.get(vars.$colors, gray-800);
+    }
+
+    &.active {
+      background: map.get(vars.$colors, purple-100);
+      color: map.get(vars.$colors, purple-800);
+      font-weight: fonts.$font-weight-medium;
+    }
+
+    .nav-text {
+      margin-left: 0;
+    }
+  }
+
+  .collapsed & {
+    justify-content: center;
+    padding: 8px;
+    margin-left: 0;
   }
 }
 
 .nav-icon {
-  width: 20px;
-  height: 20px;
-  margin-right: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
+  width: 16px;
+  height: 16px;
+  margin-right: 8px; // mr-2
+  flex-shrink: 0;
+  stroke: currentColor;
+  color: map.get(vars.$colors, gray-500);
+
+  .collapsed & {
+    margin-right: 0;
+  }
 }
 
 .nav-text {
   flex: 1;
-  font-size: fonts.$font-size-sm;
-  font-weight: fonts.$font-weight-normal;
+  text-align: left;
   white-space: nowrap;
-}
+  overflow: hidden;
+  text-overflow: ellipsis;
 
-.nav-badge {
-  background: #ff4757;
-  color: white;
-  font-size: fonts.$font-size-xs;
-  padding: 2px 6px;
-  border-radius: 10px;
-  margin-left: 8px;
-}
-
-.nav-arrow {
-  margin-left: 8px;
-  transition: transform 0.2s ease;
-  
-  &.expanded {
-    transform: rotate(90deg);
-  }
-  
-  &::before {
-    content: '›';
-    font-size: 14px;
+  &.child-text {
+    margin-left: 0;
   }
 }
 
@@ -198,110 +229,160 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  background: rgba(0, 0, 0, 0.1);
+  margin-top: 4px; // space-y-1
+  margin-left: 5px; // Align with parent link indentation
+  border-left: 2px solid map.get(vars.$colors, gray-200);
+  padding-left: 8px;
 }
 
 .nav-subitem {
-  margin: 0;
+  margin-bottom: 4px; // space-y-1
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .nav-sublink {
   display: flex;
   align-items: center;
-  padding: 10px 20px 10px 52px;
-  color: rgba(255, 255, 255, 0.8);
-  text-decoration: none;
+  width: 100%;
+  font-size: fonts.$font-size-sm; // text-sm
+  color: map.get(vars.$colors, gray-600);
+  padding: 4px 8px; // px-2 py-1
+  margin-left: 16px; // Reduced from 24px since we already have border indentation
+  border: none;
+  background: none;
+  border-radius: 4px; // rounded
+  cursor: pointer;
   transition: all 0.2s ease;
+  font-weight: fonts.$font-weight-normal;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
+    background: map.get(vars.$colors, gray-100);
+    color: map.get(vars.$colors, gray-800);
   }
-}
 
-.nav-subicon {
-  width: 16px;
-  height: 16px;
-  margin-right: 10px;
-  font-size: 14px;
+  &.active {
+    background: map.get(vars.$colors, purple-100);
+    color: map.get(vars.$colors, purple-800);
+    font-weight: fonts.$font-weight-medium;
+  }
 }
 
 .nav-subtext {
-  font-size: fonts.$font-size-xs;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar-footer {
-  padding: 20px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  display: flex;
-  gap: 8px;
-}
-
-.collapse-btn,
-.logout-btn {
-  flex: 1;
-  padding: 10px;
-  background: rgba(255, 255, 255, 0.1);
-  border: none;
-  border-radius: 8px;
-  color: white;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  margin-top: auto; // mt-auto
+  padding: 16px;
+  font-size: fonts.$font-size-xs; // text-xs
+  color: map.get(vars.$colors, gray-500);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  font-size: fonts.$font-size-sm;
+  border-top: 1px solid map.get(vars.$colors, gray-200);
+}
+
+.powered-by {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.powered-text {
+  color: map.get(vars.$colors, gray-500);
+}
+
+.onified-link {
+  margin-left: 4px; // ml-1
+  color: map.get(vars.$colors, purple-600);
+  font-weight: fonts.$font-weight-medium;
+  cursor: pointer;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.2);
+    text-decoration: underline;
   }
 }
 
-.icon-chevron {
-  transition: transform 0.2s ease;
-  
-  &.rotated {
-    transform: rotate(180deg);
-  }
-  
-  &::before {
-    content: '‹';
-    font-size: 16px;
-    font-weight: bold;
-  }
+// Sidebar Overlay for Mobile
+.sidebar-overlay {
+  position: fixed;
+  top: 70px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 899;
 }
-
-// Icon styles (you can replace these with actual icon fonts)
-.icon-dashboard::before { content: '⊞'; }
-.icon-chart::before { content: '📊'; }
-.icon-users::before { content: '👥'; }
-.icon-file-text::before { content: '📄'; }
-.icon-settings::before { content: '⚙️'; }
-.icon-bar-chart::before { content: '📈'; }
-.icon-help-circle::before { content: '❓'; }
-.icon-list::before { content: '📋'; }
-.icon-shield::before { content: '🛡️'; }
-.icon-activity::before { content: '📊'; }
-.icon-page::before { content: '📃'; }
-.icon-image::before { content: '🖼️'; }
-.icon-search::before { content: '🔍'; }
-.icon-gear::before { content: '⚙️'; }
-.icon-lock::before { content: '🔒'; }
-.icon-plug::before { content: '🔌'; }
-.icon-logout::before { content: '🚪'; }
 
 // Responsive design
 @media (max-width: 1024px) {
   .sidebar {
     transform: translateX(-100%);
-    
-    &.collapsed {
-      transform: translateX(-100%);
+
+    &:not(.collapsed) {
+      transform: translateX(0);
     }
-    
+  }
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    width: 240px;
+    height: calc(100vh - 70px); // Maintain proper height on mobile
+    transform: translateX(-100%);
+    z-index: 1100; // Higher z-index for mobile
+
     &.mobile-open {
       transform: translateX(0);
     }
+
+    &.collapsed {
+      transform: translateX(-100%);
+    }
+  }
+
+  .sidebar-toggle {
+    display: none;
+  }
+}
+
+// Special styling for specific menu items
+.nav-item {
+  &[data-id="dashboard"] .nav-icon {
+    color: map.get(vars.$colors, primary-600);
+  }
+
+  &[data-id="analytics"] .nav-icon {
+    color: map.get(vars.$colors, purple-600);
+  }
+
+  &[data-id="users"] .nav-icon {
+    color: map.get(vars.$colors, blue-600);
+  }
+
+  &[data-id="products"] .nav-icon {
+    color: map.get(vars.$colors, green-600);
+  }
+
+  &[data-id="orders"] .nav-icon {
+    color: map.get(vars.$colors, orange-600);
+  }
+
+  &[data-id="finance"] .nav-icon {
+    color: map.get(vars.$colors, emerald-600);
+  }
+
+  &[data-id="support"] .nav-icon {
+    color: map.get(vars.$colors, pink-600);
+  }
+
+  &[data-id="settings"] .nav-icon {
+    color: map.get(vars.$colors, gray-600);
   }
 }

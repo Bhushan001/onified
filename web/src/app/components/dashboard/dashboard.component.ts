@@ -1,12 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { User } from '../../models/auth.models';
 import { ModernHeaderComponent } from './modern-header/modern-header.component';
-import { MetricsCardsComponent } from './metrics-cards/metrics-cards.component';
-import { ChartsComponent } from './charts/charts.component';
-import { DataTableComponent } from './data-table/data-table.component';
+import { SidebarComponent } from './sidebar/sidebar.component';
 
 /**
  * Main Dashboard Component for Onified.ai Admin Panel
@@ -31,51 +29,30 @@ import { DataTableComponent } from './data-table/data-table.component';
   standalone: true,
   imports: [
     CommonModule, 
+    RouterOutlet,
     ModernHeaderComponent,
-    MetricsCardsComponent,
-    ChartsComponent,
-    DataTableComponent
+    SidebarComponent
   ],
   template: `
     <div class="modern-dashboard">
       <!-- Modern Header -->
       <app-modern-header 
         [currentUser]="currentUser"
-        (tabChange)="onTabChange($event)">
+        (logout)="onLogout()"
+        (toggleSidebar)="onToggleSidebar()">
       </app-modern-header>
 
+      <!-- Sidebar -->
+      <app-sidebar 
+        [currentUser]="currentUser"
+        [isCollapsed]="sidebarCollapsed"
+        [isMobileOpen]="mobileSidebarOpen"
+        (toggleSidebar)="onToggleSidebar()">
+      </app-sidebar>
+
       <!-- Main Content -->
-      <main class="dashboard-main">
-        <div class="dashboard-container">
-          <!-- Page Title Section -->
-          <div class="page-header">
-            <div class="page-title-section">
-              <h1 class="page-title">Core Strategy</h1>
-              <p class="page-subtitle">Monitor your business performance and key metrics</p>
-            </div>
-            <div class="page-actions">
-              <button class="action-btn secondary">
-                <i class="icon-download">📥</i>
-                Export
-              </button>
-              <button class="action-btn primary">
-                <i class="icon-plus">+</i>
-                Add New
-              </button>
-            </div>
-          </div>
-
-          <!-- Metrics Cards Section -->
-          <app-metrics-cards></app-metrics-cards>
-
-          <!-- Charts Section -->
-          <app-charts></app-charts>
-
-          <!-- Data Table Section -->
-          <div class="data-section">
-            <app-data-table></app-data-table>
-          </div>
-        </div>
+      <main class="dashboard-main" [class.sidebar-collapsed]="sidebarCollapsed">
+        <router-outlet></router-outlet>
       </main>
     </div>
   `,
@@ -83,7 +60,8 @@ import { DataTableComponent } from './data-table/data-table.component';
 })
 export class DashboardComponent implements OnInit {
   currentUser: User | null = null;
-  activeTab: string = 'core-strategy';
+  sidebarCollapsed: boolean = false;
+  mobileSidebarOpen: boolean = false;
 
   constructor(
     private authService: AuthService,
@@ -104,11 +82,26 @@ export class DashboardComponent implements OnInit {
     this.authService.currentUser$.subscribe(user => {
       this.currentUser = user;
     });
+
+    // Check if mobile and collapse sidebar by default
+    if (window.innerWidth <= 1024) {
+      this.sidebarCollapsed = true;
+    }
   }
 
-  onTabChange(tabId: any): void {
-    this.activeTab = tabId;
-    // Handle tab change logic here
-    console.log('Active tab changed to:', tabId);
+  onToggleSidebar(): void {
+    if (window.innerWidth <= 768) {
+      // Mobile: toggle mobile sidebar
+      this.mobileSidebarOpen = !this.mobileSidebarOpen;
+    } else {
+      // Desktop: toggle collapsed state
+      this.sidebarCollapsed = !this.sidebarCollapsed;
+    }
+  }
+
+  onLogout(): void {
+    this.authService.logout().subscribe(() => {
+      this.router.navigate(['/login']);
+    });
   }
 }

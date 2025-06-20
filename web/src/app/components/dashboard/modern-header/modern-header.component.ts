@@ -16,8 +16,17 @@ interface DropdownOption {
   template: `
     <header class="modern-header">
       <div class="header-container">
-        <!-- Left side - Logo -->
+        <!-- Left side - Sidebar Toggle and Logo -->
         <div class="header-left">
+          <!-- Sidebar Toggle Button (All devices) -->
+          <button class="sidebar-toggle-btn" (click)="onSidebarToggle()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="3" x2="21" y1="6" y2="6"></line>
+              <line x1="3" x2="21" y1="12" y2="12"></line>
+              <line x1="3" x2="21" y1="18" y2="18"></line>
+            </svg>
+          </button>
+
           <div class="logo">
             <div class="logo-icon">O</div>
             <span class="logo-text">Onified</span>
@@ -156,6 +165,7 @@ interface DropdownOption {
 export class ModernHeaderComponent {
   @Input() currentUser: User | null = null;
   @Output() logout = new EventEmitter<void>();
+  @Output() toggleSidebar = new EventEmitter<void>();
 
   activeDropdown: string | null = null;
   notificationCount: number = 3;
@@ -196,6 +206,10 @@ export class ModernHeaderComponent {
   toggleNotifications(): void {
     // Handle notification click
     console.log('Notifications clicked');
+  }
+
+  onSidebarToggle(): void {
+    this.toggleSidebar.emit();
   }
 
   selectOption(dropdownType: string, option: DropdownOption): void {

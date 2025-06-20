@@ -24,6 +24,37 @@
 .header-left {
   display: flex;
   align-items: center;
+  gap: 16px;
+}
+
+.sidebar-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 1px solid map.get(vars.$colors, border);
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  color: map.get(vars.$colors, gray-600);
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: map.get(vars.$colors, gray-50);
+    border-color: map.get(vars.$colors, gray-300);
+    color: map.get(vars.$colors, gray-900);
+  }
+
+  &:active {
+    background: map.get(vars.$colors, gray-100);
+    transform: scale(0.95);
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
 }
 
 .logo {
@@ -373,7 +404,7 @@
   .search-input {
     width: 200px;
   }
-
+  
   .dropdown-trigger {
     min-width: 100px;
     padding: 6px 10px;

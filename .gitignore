@@ -1,2 +1,4 @@
 web/.angular/*
 web/node_modules/*
+mapper/.angular/*
+mapper/node_modules/*

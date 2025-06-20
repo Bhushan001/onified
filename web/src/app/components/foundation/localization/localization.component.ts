@@ -1,0 +1,84 @@
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-localization',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <div class="page-container">
+      <div class="page-header">
+        <h1 class="page-title">Localization</h1>
+        <p class="page-description">Configure multi-language support and regional settings</p>
+      </div>
+      
+      <div class="content-section">
+        <div class="card">
+          <h2 class="card-title">Language Settings</h2>
+          <p class="card-description">Manage supported languages and translations</p>
+          
+          <div class="form-group">
+            <label class="form-label">Default Language</label>
+            <select class="form-select">
+              <option>English (US)</option>
+              <option>Spanish (ES)</option>
+              <option>French (FR)</option>
+              <option>German (DE)</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Supported Languages</label>
+            <div class="checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" class="checkbox" checked>
+                <span>English (US)</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" class="checkbox" checked>
+                <span>Spanish (ES)</span>
+              </label>
+              <label class="checkbox-label">
+                <input type="checkbox" class="checkbox">
+                <span>French (FR)</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h2 class="card-title">Regional Settings</h2>
+          <p class="card-description">Configure date, time, and currency formats</p>
+          
+          <div class="form-group">
+            <label class="form-label">Date Format</label>
+            <select class="form-select">
+              <option>MM/DD/YYYY</option>
+              <option>DD/MM/YYYY</option>
+              <option>YYYY-MM-DD</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Time Format</label>
+            <select class="form-select">
+              <option>12-hour (AM/PM)</option>
+              <option>24-hour</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Currency</label>
+            <select class="form-select">
+              <option>USD ($)</option>
+              <option>EUR (€)</option>
+              <option>GBP (£)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
+  styleUrls: ['../../../shared/page-styles.scss']
+})
+export class LocalizationComponent {}
