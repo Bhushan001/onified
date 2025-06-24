@@ -12,5 +12,14 @@ export const environment = {
     tokenKey: 'onified-token',
     userKey: 'onified-user',
     refreshTokenKey: 'onified-refresh-token'
+  },
+  keycloak: {
+    issuer: 'http://localhost:9090/realms/onified',
+    clientId: 'onified-web-app',
+    redirectUri: 'http://localhost:4200',
+    postLogoutRedirectUri: 'http://localhost:4200',
+    scope: 'openid profile email',
+    responseType: 'code',
+    showDebugInformation: true
   }
 };

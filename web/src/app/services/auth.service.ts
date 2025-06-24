@@ -36,7 +36,7 @@ import {
  * - Profile management
  * - Automatic token expiration handling
  * 
- * Updated to handle your backend's specific response format with statusCode, status, and body structure.
+ * Updated to work with Keycloak OAuth2/OIDC authentication system.
  * 
  * Features:
  * - Reactive state management with BehaviorSubjects
@@ -45,7 +45,7 @@ import {
  * - Persistent authentication state
  * - Comprehensive error handling
  * - Smart request formatting based on identifier type
- * - JWT token extraction from roles for user creation
+ * - OAuth2 token extraction for user creation
  * 
  * @service AuthService
  * @injectable root
@@ -136,7 +136,7 @@ export class AuthService {
         map(response => {
           // Check if response is successful based on your backend format
           if (response.statusCode === 200 && response.status === 'SUCCESS' && response.body) {
-            // Extract user data from JWT token and response
+            // Extract user data from OAuth2 token and response
             const user = this.createUserFromResponse(response.body);
             
             // Handle successful authentication
@@ -156,27 +156,27 @@ export class AuthService {
 
   /**
    * Creates a User object from the login response
-   * Extracts user information from JWT token and response data
+   * Extracts user information from OAuth2 token and response data
    * 
    * @param responseBody - The response body from login
    * @returns User object
    * @private
    */
   private createUserFromResponse(responseBody: any): User {
-    // Extract user data from JWT token
+    // Extract user data from OAuth2 token
     const tokenData = this.extractDataFromToken(responseBody.jwtToken);
     
     // Create user object combining response data and token data
     const user: User = {
       id: tokenData.sub || '', // Subject from JWT
-      username: responseBody.username || tokenData.username || '',
-      name: responseBody.username || tokenData.username || '', // Use username as display name for now
-      roles: tokenData.roles || [],
+      username: responseBody.username || tokenData.preferred_username || '',
+      name: responseBody.username || tokenData.preferred_username || '', // Use username as display name for now
+      roles: tokenData.realm_access?.roles || [],
       lastLogin: new Date().toISOString(),
       // Add any additional fields from response if available
-      email: responseBody.email,
-      firstName: responseBody.firstName,
-      lastName: responseBody.lastName,
+      email: responseBody.email || tokenData.email,
+      firstName: responseBody.firstName || tokenData.given_name,
+      lastName: responseBody.lastName || tokenData.family_name,
       phone: responseBody.phone,
       tenant: responseBody.tenant,
       avatar: responseBody.avatar,
@@ -188,9 +188,9 @@ export class AuthService {
   }
 
   /**
-   * Extracts data from JWT token payload
+   * Extracts data from OAuth2 token payload
    * 
-   * @param token - JWT token
+   * @param token - OAuth2 token
    * @returns Decoded token payload
    * @private
    */
@@ -199,7 +199,7 @@ export class AuthService {
       const payload = JSON.parse(atob(token.split('.')[1]));
       return payload;
     } catch (error) {
-      console.warn('Could not decode JWT token:', error);
+      console.error('Error extracting data from token:', error);
       return {};
     }
   }
@@ -207,42 +207,21 @@ export class AuthService {
   /**
    * Creates the appropriate login payload based on identifier type
    * 
-   * @param identifier - The user identifier
-   * @param password - The password (optional for phone)
-   * @param identifierType - The type of identifier
-   * @returns Formatted login request payload
+   * @param identifier - User identifier (username, phone, or domain)
+   * @param password - User password
+   * @param identifierType - Type of identifier
+   * @returns LoginRequest object
    * @private
    */
   private createLoginPayload(identifier: string, password: string | undefined, identifierType: 'username' | 'phone' | 'domain'): LoginRequest {
     switch (identifierType) {
-      case 'username':
-        const usernamePayload: UsernameLoginRequest = {
-          username: identifier,
-          password: password || ''
-        };
-        return usernamePayload;
-        
       case 'phone':
-        const phonePayload: PhoneLoginRequest = {
-          phone: identifier,
-          password: password // Phone might use OTP instead
-        };
-        return phonePayload;
-        
+        return { phone: identifier, password };
       case 'domain':
-        const domainPayload: DomainLoginRequest = {
-          domain: identifier,
-          password: password || ''
-        };
-        return domainPayload;
-        
+        return { domain: identifier, password };
+      case 'username':
       default:
-        // Fallback to username format
-        const fallbackPayload: UsernameLoginRequest = {
-          username: identifier,
-          password: password || ''
-        };
-        return fallbackPayload;
+        return { username: identifier, password };
     }
   }
 
@@ -250,21 +229,19 @@ export class AuthService {
    * Registers a new user account
    * 
    * @param registrationData - User registration information
-   * @returns Observable with registration result
+   * @returns Observable with success status and optional error message
    */
   public register(registrationData: RegisterRequest): Observable<{ success: boolean; message?: string }> {
     return this.http.post<RegisterResponse>(`${this.API_URL}/auth/register`, registrationData)
       .pipe(
         map(response => {
-          if (response.statusCode === 200 && response.status === 'SUCCESS' && response.body) {
-            // If registration includes immediate login token, handle authentication
-            if (response.body.jwtToken) {
-              const user = this.createUserFromResponse(response.body);
-              this.handleAuthSuccess(response.body.jwtToken, user);
-            }
-            return { success: true, message: response.message || 'Registration successful' };
+          if (response.statusCode === 201 && response.status === 'SUCCESS') {
+            return { success: true };
           } else {
-            return { success: false, message: response.message || response.error || 'Registration failed' };
+            return { 
+              success: false, 
+              message: response.message || response.error || 'Registration failed' 
+            };
           }
         }),
         catchError(this.handleError.bind(this))
@@ -274,16 +251,13 @@ export class AuthService {
   /**
    * Authenticates user using QR code
    * 
-   * @param qrData - Optional QR login data, generates device ID if not provided
+   * @param qrData - QR code authentication data
    * @returns Observable with success status and optional error message
    */
   public loginWithQR(qrData?: QRLoginRequest): Observable<{ success: boolean; message?: string }> {
-    const qrPayload = {
-      qrCode: qrData?.qrCode || '',
-      deviceId: qrData?.deviceId || this.generateDeviceId()
-    };
+    const payload = qrData || { deviceId: this.generateDeviceId() };
 
-    return this.http.post<QRLoginResponse>(`${this.API_URL}/auth/qr-login`, qrPayload)
+    return this.http.post<QRLoginResponse>(`${this.API_URL}/auth/qr-login`, payload)
       .pipe(
         map(response => {
           if (response.statusCode === 200 && response.status === 'SUCCESS' && response.body) {
@@ -291,7 +265,10 @@ export class AuthService {
             this.handleAuthSuccess(response.body.jwtToken, user, response.body.refreshToken);
             return { success: true };
           } else {
-            return { success: false, message: response.message || response.error || 'QR login failed' };
+            return { 
+              success: false, 
+              message: response.message || response.error || 'QR login failed' 
+            };
           }
         }),
         catchError(this.handleError.bind(this))
@@ -299,21 +276,25 @@ export class AuthService {
   }
 
   /**
-   * Initiates password reset for a user
+   * Initiates password reset process
    * 
    * @param identifier - Username or email for password reset
-   * @returns Observable with password reset result
+   * @returns Observable with success status and optional error message
    */
   public resetPassword(identifier: string): Observable<{ success: boolean; message?: string }> {
-    const resetPayload: PasswordResetRequest = { identifier };
+    const payload: PasswordResetRequest = { identifier };
 
-    return this.http.post<PasswordResetResponse>(`${this.API_URL}/auth/reset-password`, resetPayload)
+    return this.http.post<PasswordResetResponse>(`${this.API_URL}/auth/reset-password`, payload)
       .pipe(
         map(response => {
-          return { 
-            success: response.statusCode === 200 && response.status === 'SUCCESS', 
-            message: response.message || (response.status === 'SUCCESS' ? 'Password reset email sent' : 'Password reset failed')
-          };
+          if (response.statusCode === 200 && response.status === 'SUCCESS') {
+            return { success: true, message: response.message };
+          } else {
+            return { 
+              success: false, 
+              message: response.message || response.error || 'Password reset failed' 
+            };
+          }
         }),
         catchError(this.handleError.bind(this))
       );
@@ -322,25 +303,23 @@ export class AuthService {
   /**
    * Updates user profile information
    * 
-   * @param profileData - Updated profile information
-   * @returns Observable with update result
+   * @param profileData - Profile update data
+   * @returns Observable with success status, optional error message, and updated user
    */
   public updateProfile(profileData: UpdateProfileRequest): Observable<{ success: boolean; message?: string; user?: User }> {
     return this.http.put<UpdateProfileResponse>(`${this.API_URL}/auth/profile`, profileData)
       .pipe(
         map(response => {
           if (response.statusCode === 200 && response.status === 'SUCCESS' && response.body) {
-            // Update local user data
-            this.currentUserSubject.next(response.body.user);
-            localStorage.setItem(this.USER_KEY, JSON.stringify(response.body.user));
-            
-            return { 
-              success: true, 
-              message: response.message || 'Profile updated successfully',
-              user: response.body.user
-            };
+            const updatedUser = response.body.user;
+            this.currentUserSubject.next(updatedUser);
+            localStorage.setItem(this.USER_KEY, JSON.stringify(updatedUser));
+            return { success: true, user: updatedUser };
           } else {
-            return { success: false, message: response.message || response.error || 'Profile update failed' };
+            return { 
+              success: false, 
+              message: response.message || response.error || 'Profile update failed' 
+            };
           }
         }),
         catchError(this.handleError.bind(this))
@@ -348,9 +327,9 @@ export class AuthService {
   }
 
   /**
-   * Refreshes the authentication token using the stored refresh token
+   * Refreshes the current access token using refresh token
    * 
-   * @returns Observable<boolean> - true if refresh successful, error otherwise
+   * @returns Observable with success status
    */
   public refreshToken(): Observable<boolean> {
     const refreshToken = localStorage.getItem(this.REFRESH_TOKEN_KEY);
@@ -359,70 +338,66 @@ export class AuthService {
       return throwError(() => new Error('No refresh token available'));
     }
 
-    const refreshPayload: RefreshTokenRequest = { refreshToken };
-
-    return this.http.post<RefreshTokenResponse>(`${this.API_URL}/auth/refresh`, refreshPayload)
+    return this.http.post<RefreshTokenResponse>(`${this.API_URL}/auth/refresh?refreshToken=${refreshToken}`, {})
       .pipe(
         map(response => {
           if (response.statusCode === 200 && response.status === 'SUCCESS' && response.body) {
             // Update stored tokens
             localStorage.setItem(this.TOKEN_KEY, response.body.jwtToken);
-            
             if (response.body.refreshToken) {
               localStorage.setItem(this.REFRESH_TOKEN_KEY, response.body.refreshToken);
             }
             
-            // Set up new expiration timer
-            this.setTokenExpirationTimer(response.body.jwtToken);
+            // Set new expiration timer
+            if (response.body.expiresIn) {
+              this.setTokenExpirationTimer(response.body.jwtToken);
+            }
+            
             return true;
           } else {
-            throw new Error(response.error || 'Token refresh failed');
+            throw new Error(response.message || 'Token refresh failed');
           }
         }),
-        catchError((error) => {
-          return throwError(() => ({ success: false, message: error.message || 'Token refresh failed' }));
+        catchError(error => {
+          this.logout();
+          return throwError(() => error);
         })
       );
   }
 
   /**
    * Logs out the current user
-   * Clears local storage and notifies the backend
    * 
-   * @returns Observable<void> - Completes when logout is finished
+   * @returns Observable that completes when logout is done
    */
   public logout(): Observable<void> {
-    const token = localStorage.getItem(this.TOKEN_KEY);
-    
-    // Clear local storage and state immediately for better UX
-    this.clearAuthData();
-    
-    // Notify backend (optional, don't wait for response)
-    if (token) {
-      this.http.post<LogoutResponse>(`${this.API_URL}/auth/logout`, {})
-        .subscribe({
-          next: () => console.log('Logout successful'),
-          error: (error) => console.warn('Logout request failed:', error)
-        });
-    }
-
-    return new Observable(observer => {
-      observer.next();
-      observer.complete();
-    });
+    return this.http.post<LogoutResponse>(`${this.API_URL}/auth/logout`, {})
+      .pipe(
+        tap(() => {
+          this.clearAuthData();
+        }),
+        map(() => void 0),
+        catchError(() => {
+          // Even if logout API fails, clear local data
+          this.clearAuthData();
+          return throwError(() => new Error('Logout failed'));
+        })
+      );
   }
 
   /**
    * Gets the current authenticated user
-   * @returns User object or null if not authenticated
+   * 
+   * @returns Current user or null if not authenticated
    */
   public getCurrentUser(): User | null {
     return this.currentUserSubject.value;
   }
 
   /**
-   * Gets the current user's username
-   * @returns Username string or null if not authenticated
+   * Gets the current authenticated user's username
+   * 
+   * @returns Username or null if not authenticated
    */
   public getCurrentUsername(): string | null {
     const user = this.getCurrentUser();
@@ -431,15 +406,17 @@ export class AuthService {
 
   /**
    * Checks if user is currently authenticated
-   * @returns boolean indicating authentication status
+   * 
+   * @returns True if authenticated, false otherwise
    */
   public isAuthenticated(): boolean {
     return this.isAuthenticatedSubject.value;
   }
 
   /**
-   * Gets the current authentication token
-   * @returns JWT token string or null if not available
+   * Gets the current access token
+   * 
+   * @returns Access token or null if not available
    */
   public getToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
@@ -448,100 +425,93 @@ export class AuthService {
   /**
    * Determines the type of identifier (username, phone, or domain)
    * 
-   * @param identifier - The user input identifier
-   * @returns 'username' | 'phone' | 'domain' based on the format
+   * @param identifier - User identifier
+   * @returns Identifier type
    */
   public getIdentifierType(identifier: string): 'username' | 'phone' | 'domain' {
-    // Check if it's a phone number (contains only digits, spaces, hyphens, parentheses, plus)
-    if (/^\+?[\d\s\-\(\)]+$/.test(identifier)) {
+    // Phone number pattern (basic)
+    const phonePattern = /^\+?[\d\s\-\(\)]+$/;
+    
+    // Domain pattern (basic)
+    const domainPattern = /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9]\.[a-zA-Z]{2,}$/;
+    
+    if (phonePattern.test(identifier) && identifier.replace(/\D/g, '').length >= 10) {
       return 'phone';
-    }
-    
-    // Check if it's a domain (contains dots but no @ symbol)
-    if (identifier.includes('.') && !identifier.includes('@') && !identifier.includes(' ')) {
+    } else if (domainPattern.test(identifier)) {
       return 'domain';
+    } else {
+      return 'username';
     }
-    
-    // Default to username for everything else
-    return 'username';
   }
 
   /**
    * Validates username format
+   * 
    * @param username - Username to validate
-   * @returns boolean indicating if username is valid
+   * @returns True if valid, false otherwise
    */
   public isValidUsername(username: string): boolean {
     // Username should be 3-30 characters, alphanumeric with underscores and hyphens
-    const usernameRegex = /^[a-zA-Z0-9_-]{3,30}$/;
-    return usernameRegex.test(username);
+    const usernamePattern = /^[a-zA-Z0-9_-]{3,30}$/;
+    return usernamePattern.test(username);
   }
 
   /**
-   * Checks if a username is available
+   * Checks if username is available for registration
+   * 
    * @param username - Username to check
-   * @returns Observable<boolean> - true if available, false if taken
+   * @returns Observable with availability status
    */
   public checkUsernameAvailability(username: string): Observable<boolean> {
-    return this.http.get<{ available: boolean }>(`${this.API_URL}/auth/check-username/${username}`)
+    return this.http.get<{ available: boolean }>(`${this.API_URL}/auth/check-username?username=${username}`)
       .pipe(
         map(response => response.available),
-        catchError(() => {
-          // If check fails, assume username might be taken
-          return new Observable<boolean>(observer => {
-            observer.next(false);
-            observer.complete();
-          });
-        })
+        catchError(() => throwError(() => new Error('Failed to check username availability')))
       );
   }
 
   /**
-   * Handles successful authentication by storing tokens and user data
+   * Handles successful authentication
    * 
-   * @param token - JWT access token
+   * @param token - Access token
    * @param user - User information
-   * @param refreshToken - Optional refresh token
+   * @param refreshToken - Refresh token (optional)
    * @private
    */
   private handleAuthSuccess(token: string, user: User, refreshToken?: string): void {
-    // Store authentication data
+    // Store tokens
     localStorage.setItem(this.TOKEN_KEY, token);
-    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
-    
     if (refreshToken) {
       localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
     }
+    
+    // Store user data
+    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     
     // Update reactive state
     this.currentUserSubject.next(user);
     this.isAuthenticatedSubject.next(true);
     
-    // Set up automatic token refresh
+    // Set token expiration timer
     this.setTokenExpirationTimer(token);
-
-    // Log successful authentication in development
-    if (environment.enableLogging) {
-      console.log('Authentication successful for user:', user.username);
-      console.log('User roles:', user.roles);
-    }
   }
 
   /**
-   * Clears all authentication data from storage and state
+   * Clears all authentication data
+   * 
    * @private
    */
   private clearAuthData(): void {
-    // Clear local storage
+    // Clear stored data
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
     
-    // Reset reactive state
+    // Clear reactive state
     this.currentUserSubject.next(null);
     this.isAuthenticatedSubject.next(false);
     
-    // Clear expiration timer
+    // Clear timer
     if (this.tokenExpirationTimer) {
       clearTimeout(this.tokenExpirationTimer);
       this.tokenExpirationTimer = null;
@@ -549,108 +519,109 @@ export class AuthService {
   }
 
   /**
-   * Checks if a JWT token is expired
+   * Checks if token is expired
    * 
-   * @param token - JWT token to check
-   * @returns true if token is expired, false otherwise
+   * @param token - Token to check
+   * @returns True if expired, false otherwise
    * @private
    */
   private isTokenExpired(token: string): boolean {
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const currentTime = Math.floor(Date.now() / 1000);
-      return payload.exp < currentTime;
+      const payload = this.extractDataFromToken(token);
+      const exp = payload.exp;
+      
+      if (!exp) {
+        return true; // No expiration means expired
+      }
+      
+      // Check if token expires in the next 5 minutes
+      const now = Math.floor(Date.now() / 1000);
+      return exp < (now + 300);
     } catch (error) {
-      // If we can't parse the token, consider it expired
-      return true;
+      return true; // If we can't parse the token, consider it expired
     }
   }
 
   /**
-   * Sets up automatic token refresh timer
-   * Refreshes token 5 minutes before expiration
+   * Sets a timer to refresh the token before it expires
    * 
-   * @param token - JWT token to set timer for
+   * @param token - Token to set timer for
    * @private
    */
   private setTokenExpirationTimer(token: string): void {
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      const expirationTime = payload.exp * 1000;
-      const currentTime = Date.now();
-      const timeUntilExpiration = expirationTime - currentTime;
+      const payload = this.extractDataFromToken(token);
+      const exp = payload.exp;
       
-      // Refresh token 5 minutes before expiration
-      const refreshTime = Math.max(timeUntilExpiration - (5 * 60 * 1000), 0);
-      
-      // Clear existing timer
-      if (this.tokenExpirationTimer) {
-        clearTimeout(this.tokenExpirationTimer);
+      if (!exp) {
+        return; // No expiration, no timer needed
       }
       
-      // Set new timer
-      this.tokenExpirationTimer = setTimeout(() => {
-        this.refreshToken().subscribe({
-          error: () => this.logout() // Logout if refresh fails
-        });
-      }, refreshTime);
+      const now = Math.floor(Date.now() / 1000);
+      const timeUntilExpiry = (exp - now - 300) * 1000; // Refresh 5 minutes before expiry
+      
+      if (timeUntilExpiry > 0) {
+        // Clear existing timer
+        if (this.tokenExpirationTimer) {
+          clearTimeout(this.tokenExpirationTimer);
+        }
+        
+        // Set new timer
+        this.tokenExpirationTimer = setTimeout(() => {
+          this.refreshToken().subscribe({
+            error: () => {
+              // If refresh fails, logout
+              this.logout();
+            }
+          });
+        }, timeUntilExpiry);
+      }
     } catch (error) {
-      console.warn('Could not parse token for expiration timer:', error);
+      console.error('Error setting token expiration timer:', error);
     }
   }
 
   /**
-   * Generates a unique device ID for QR login
-   * @returns Unique device identifier string
+   * Generates a unique device identifier
+   * 
+   * @returns Device identifier
    * @private
    */
   private generateDeviceId(): string {
-    return 'device-' + Math.random().toString(36).substr(2, 9) + '-' + Date.now();
+    // Simple device ID generation
+    return 'device_' + Math.random().toString(36).substr(2, 9);
   }
 
   /**
-   * Handles HTTP errors and converts them to user-friendly messages
+   * Handles HTTP errors
    * 
    * @param error - HTTP error response
-   * @returns Observable with formatted error message
+   * @returns Observable with error information
    * @private
    */
   private handleError(error: HttpErrorResponse): Observable<{ success: boolean; message: string }> {
-    let errorMessage = 'An unexpected error occurred';
+    let errorMessage = 'An error occurred';
     
     if (error.error instanceof ErrorEvent) {
-      // Client-side error (network, etc.)
+      // Client-side error
       errorMessage = error.error.message;
     } else {
-      // Server-side error - check your backend's error format
-      if (error.error?.message) {
-        errorMessage = error.error.message;
-      } else if (error.error?.error) {
-        errorMessage = error.error.error;
-      } else if (error.status === 401) {
+      // Server-side error
+      if (error.status === 401) {
         errorMessage = 'Invalid credentials';
-        this.logout(); // Clear invalid session
       } else if (error.status === 403) {
         errorMessage = 'Access denied';
       } else if (error.status === 404) {
         errorMessage = 'Service not found';
-      } else if (error.status === 409) {
-        errorMessage = 'Username already exists';
-      } else if (error.status === 422) {
-        errorMessage = 'Invalid input data';
-      } else if (error.status === 500) {
-        errorMessage = 'Server error. Please try again later.';
+      } else if (error.status >= 500) {
+        errorMessage = 'Server error';
+      } else if (error.error && error.error.message) {
+        errorMessage = error.error.message;
+      } else {
+        errorMessage = `Error ${error.status}: ${error.statusText}`;
       }
     }
-
-    // Log error in development mode
-    if (environment.enableLogging) {
-      console.error('Auth Service Error:', error);
-    }
-
-    return new Observable(observer => {
-      observer.next({ success: false, message: errorMessage });
-      observer.complete();
-    });
+    
+    return throwError(() => ({ success: false, message: errorMessage }));
   }
 }

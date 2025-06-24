@@ -59,6 +59,9 @@ public class AuthService {
         // 3. Generate JWT
         String token = jwtUtil.generateToken(userAuthDetails.getId(), userAuthDetails.getUsername(), userAuthDetails.getRoles());
 
-        return new LoginResponse(token, userAuthDetails.getUsername());
+        return LoginResponse.builder()
+            .accessToken(token)
+            .username(userAuthDetails.getUsername())
+            .build();
     }
 }

@@ -1,0 +1,582 @@
+# Local Deployment Guide
+
+## Prerequisites
+- Docker and Docker Compose
+- Java 21
+- Maven
+- Node.js 18+ (for Angular frontend)
+- Angular CLI (`npm install -g @angular/cli`)
+
+## Quick Start
+
+### 1. Clone and Setup
+```bash
+git clone <repository-url>
+cd repository
+```
+
+### 2. Environment Configuration
+```bash
+# Copy the example environment file
+cp env.example .env
+
+# Edit .env with your actual credentials
+# Replace the placeholder values with your real database credentials
+nano .env  # or use your preferred editor
+```
+
+**Required .env file contents:**
+```bash
+# Database Configuration
+POSTGRES_USER=your_postgres_username
+POSTGRES_PASSWORD=your_postgres_password
+POSTGRES_DB=onified
+
+# Keycloak Database Configuration
+KEYCLOAK_DB_NAME=keycloak
+KEYCLOAK_DB_USER=keycloak
+KEYCLOAK_DB_PASSWORD=keycloak
+
+# Keycloak Configuration
+KEYCLOAK_ADMIN=admin
+KEYCLOAK_ADMIN_PASSWORD=admin123
+KEYCLOAK_REALM=onified
+KEYCLOAK_CLIENT_ID=onified-auth-service
+KEYCLOAK_CLIENT_SECRET=your-client-secret
+
+# Service Ports (optional - these are the defaults)
+AUTH_SERVICE_PORT=9081
+USER_MANAGEMENT_SERVICE_PORT=9083
+APPLICATION_CONFIG_SERVICE_PORT=9082
+PERMISSION_REGISTRY_SERVICE_PORT=9084
+GATEWAY_PORT=9080
+KEYCLOAK_PORT=9090
+FRONTEND_PORT=4200
+
+# Log Directory Configuration (optional - these are the defaults)
+GATEWAY_LOG_DIR=./logs/gateway
+APP_CONFIG_LOG_DIR=./logs/app-config
+AUTH_LOG_DIR=./logs/auth-service
+PERMISSION_LOG_DIR=./logs/permission-service
+USER_MGMT_LOG_DIR=./logs/user-management
+FRONTEND_LOG_DIR=./logs/frontend
+```
+
+### 3. Setup Log Directories
+```bash
+# Create log directories for all services
+chmod +x setup-logs.sh
+./setup-logs.sh
+
+# Or manually create directories
+mkdir -p logs/{gateway,app-config,auth-service,permission-service,user-management,frontend}
+```
+
+### 4. Start Keycloak (Identity Provider)
+```bash
+# Start Keycloak and its database
+docker-compose up -d keycloak keycloak-db
+
+# Wait for Keycloak to be ready (check logs)
+docker-compose logs -f keycloak
+```
+
+### 5. Configure Keycloak
+1. Access Keycloak Admin Console: http://localhost:9090
+2. Login with credentials from your .env file (default: `admin` / `admin123`)
+3. Create realm: `onified`
+4. Create client: `onified-auth-service` (confidential)
+5. Copy client secret and update your `.env` file
+6. Create users and roles as per `KEYCLOAK_SETUP.md`
+
+### 6. Start All Services
+```bash
+# Start all microservices
+docker-compose up -d
+
+# Check service status
+docker-compose ps
+```
+
+### 7. Start Angular Frontend (Development)
+```bash
+cd web
+npm install
+ng serve
+```
+
+## Service Architecture
+
+### Port Mappings
+- **API Gateway**: http://localhost:9080 (configurable via `GATEWAY_PORT`)
+- **Authentication Service**: http://localhost:9081 (configurable via `AUTH_SERVICE_PORT`)
+- **Application Config Service**: http://localhost:9082 (configurable via `APPLICATION_CONFIG_SERVICE_PORT`)
+- **User Management Service**: http://localhost:9083 (configurable via `USER_MANAGEMENT_SERVICE_PORT`)
+- **Permission Registry Service**: http://localhost:9084 (configurable via `PERMISSION_REGISTRY_SERVICE_PORT`)
+- **Eureka Server**: http://localhost:8761 (configurable via `EUREKA_SERVER_PORT`)
+- **Keycloak**: http://localhost:9090 (configurable via `KEYCLOAK_PORT`)
+- **Angular Frontend**: http://localhost:4200 (configurable via `FRONTEND_PORT`)
+- **PostgreSQL**: localhost:5432
+- **Keycloak DB**: localhost:5433
+
+### Service Dependencies
+```
+Frontend (4200) → API Gateway (9080) → Microservices
+Keycloak (9090) ← Authentication Service (9081)
+Eureka (8761) ← All Microservices
+PostgreSQL (5432) ← All Microservices
+```
+
+## Configuration
+
+### Environment Variables
+All services now use environment variables for configuration. Key variables in your `.env` file:
+
+```bash
+# Database Configuration (used by all Spring Boot services)
+POSTGRES_USER=your_postgres_username
+POSTGRES_PASSWORD=your_postgres_password
+POSTGRES_DB=onified
+
+# Keycloak Configuration
+KEYCLOAK_REALM=onified
+KEYCLOAK_CLIENT_ID=onified-auth-service
+KEYCLOAK_CLIENT_SECRET=your-client-secret
+
+# Service Ports (all configurable)
+AUTH_SERVICE_PORT=9081
+USER_MANAGEMENT_SERVICE_PORT=9083
+APPLICATION_CONFIG_SERVICE_PORT=9082
+PERMISSION_REGISTRY_SERVICE_PORT=9084
+GATEWAY_PORT=9080
+KEYCLOAK_PORT=9090
+FRONTEND_PORT=4200
+```
+
+**Security Note:** The `.env` file is automatically ignored by git and should never be committed to the repository.
+
+### Keycloak Setup
+Follow the detailed guide in `KEYCLOAK_SETUP.md` for:
+- Realm creation
+- Client configuration
+- User management
+- Role assignment
+
+## Log Management
+
+### Log Directory Structure
+Each service has its own configurable log directory:
+
+```
+logs/
+├── gateway/           # API Gateway logs
+├── app-config/        # Application Config Service logs
+├── auth-service/      # Authentication Service logs
+├── permission-service/ # Permission Registry Service logs
+├── user-management/   # User Management Service logs
+└── frontend/          # Angular Frontend logs
+```
+
+### Log Configuration
+- **Log Rotation**: 10MB max file size, 30 days retention
+- **Total Size Cap**: 1GB per service
+- **Log Format**: Timestamp with message
+- **Log Levels**: Configurable per service
+
+### Viewing Logs
+
+#### Docker Compose Logs
+```bash
+# View all service logs
+docker-compose logs -f
+
+# View specific service logs
+docker-compose logs -f authentication-service
+docker-compose logs -f user-management-service
+```
+
+#### File System Logs
+```bash
+# View log files directly
+tail -f logs/auth-service/authentication-service.log
+tail -f logs/user-management/user-management-service.log
+
+# Search logs
+grep "ERROR" logs/auth-service/authentication-service.log
+grep "WARN" logs/*/*.log
+```
+
+#### Log Cleanup
+```bash
+# Clean old log files
+find logs/ -name "*.log.*" -mtime +30 -delete
+
+# Check log disk usage
+du -sh logs/
+```
+
+## Development Workflow
+
+### Single Service Updates
+
+#### 1. Backend Service Updates (Java/Maven)
+
+**Rebuild and Restart Single Service:**
+```bash
+# Stop the specific service
+docker-compose stop authentication-service
+
+# Rebuild the service with latest code
+docker-compose build authentication-service
+
+# Start the service
+docker-compose up -d authentication-service
+
+# Check logs
+docker-compose logs -f authentication-service
+```
+
+**Quick Restart (No Code Changes):**
+```bash
+# Restart service without rebuilding
+docker-compose restart authentication-service
+
+# Check logs
+docker-compose logs -f authentication-service
+```
+
+**Force Rebuild (Clean Build):**
+```bash
+# Remove old image and rebuild
+docker-compose stop authentication-service
+docker rmi repository_authentication-service
+docker-compose build --no-cache authentication-service
+docker-compose up -d authentication-service
+```
+
+#### 2. Frontend Updates (Angular)
+
+**Development Mode (Recommended for Development):**
+```bash
+# Stop the containerized frontend
+docker-compose stop onified-frontend
+
+# Start Angular dev server
+cd web
+ng serve
+
+# Access at http://localhost:4200 (with hot reload)
+```
+
+**Production Build and Deploy:**
+```bash
+# Build the Angular app
+cd web
+ng build --configuration production
+
+# Rebuild and restart the container
+docker-compose stop onified-frontend
+docker-compose build onified-frontend
+docker-compose up -d onified-frontend
+```
+
+**Quick Frontend Rebuild:**
+```bash
+# Rebuild frontend container
+docker-compose build onified-frontend
+docker-compose up -d onified-frontend
+```
+
+#### 3. Database Changes
+
+**Reset Database:**
+```bash
+# Stop all services
+docker-compose down
+
+# Remove volumes (WARNING: This deletes all data)
+docker-compose down -v
+
+# Start fresh
+docker-compose up -d postgres keycloak-db
+docker-compose up -d
+```
+
+**Database Migrations:**
+```bash
+# Restart services to apply schema changes
+docker-compose restart authentication-service
+docker-compose restart application-config-service
+docker-compose restart user-management-service
+docker-compose restart permission-registry-service
+```
+
+### Service-Specific Commands
+
+#### Authentication Service
+```bash
+# Update authentication service
+docker-compose build authentication-service
+docker-compose up -d authentication-service
+
+# Check authentication logs
+docker-compose logs -f authentication-service
+
+# Test authentication endpoint
+curl http://localhost:9081/api/auth/health
+```
+
+#### Application Config Service
+```bash
+# Update application config service
+docker-compose build application-config-service
+docker-compose up -d application-config-service
+
+# Check config service logs
+docker-compose logs -f application-config-service
+```
+
+#### User Management Service
+```bash
+# Update user management service
+docker-compose build user-management-service
+docker-compose up -d user-management-service
+
+# Check user management logs
+docker-compose logs -f user-management-service
+```
+
+#### Permission Registry Service
+```bash
+# Update permission registry service
+docker-compose build permission-registry-service
+docker-compose up -d permission-registry-service
+
+# Check permission registry logs
+docker-compose logs -f permission-registry-service
+```
+
+#### API Gateway
+```bash
+# Update gateway
+docker-compose build onified-gateway
+docker-compose up -d onified-gateway
+
+# Check gateway logs
+docker-compose logs -f onified-gateway
+
+# Test gateway health
+curl http://localhost:9080/actuator/health
+```
+
+#### Frontend (Angular)
+```bash
+# Development mode (with hot reload)
+cd web
+ng serve
+
+# Production build and deploy
+cd web
+ng build --configuration production
+docker-compose build onified-frontend
+docker-compose up -d onified-frontend
+```
+
+### Complete System Updates
+
+#### Full System Rebuild
+```bash
+# Stop all services
+docker-compose down
+
+# Rebuild all services
+docker-compose build --no-cache
+
+# Start all services
+docker-compose up -d
+
+# Check all services
+docker-compose ps
+```
+
+#### Selective Rebuild
+```bash
+# Rebuild specific services
+docker-compose build authentication-service onified-gateway onified-frontend
+
+# Restart rebuilt services
+docker-compose up -d authentication-service onified-gateway onified-frontend
+```
+
+## Testing
+
+### 1. Health Checks
+```bash
+# API Gateway
+curl http://localhost:9080/actuator/health
+
+# Authentication Service
+curl http://localhost:9081/api/auth/health
+
+# Eureka Server
+curl http://localhost:8761/actuator/health
+
+# Frontend
+curl http://localhost:4200/health
+```
+
+### 2. Authentication Test
+```bash
+# Login with Keycloak user
+curl -X POST http://localhost:9081/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "admin",
+    "password": "admin123"
+  }'
+```
+
+### 3. Service Discovery
+- Eureka Dashboard: http://localhost:8761
+- Check registered services
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Port Conflicts**
+   - Check if ports are already in use
+   - Modify ports in `docker-compose.yml` if needed
+
+2. **Keycloak Connection Issues**
+   - Ensure Keycloak is fully started
+   - Check client secret configuration
+   - Verify realm name matches
+
+3. **Database Connection Issues**
+   - Check PostgreSQL is running
+   - Verify database credentials
+   - Check network connectivity
+
+4. **Service Discovery Issues**
+   - Ensure Eureka server is running
+   - Check service registration
+   - Verify network configuration
+
+5. **Build Failures**
+   - Clear Docker cache: `docker system prune -a`
+   - Check Maven dependencies
+   - Verify Node.js version for frontend
+
+### Debug Commands
+```bash
+# Check container status
+docker-compose ps
+
+# Check container logs
+docker-compose logs [service-name]
+
+# Check network connectivity
+docker-compose exec [service-name] ping [target-service]
+
+# Access container shell
+docker-compose exec [service-name] /bin/bash
+
+# Check Docker images
+docker images | grep repository
+
+# Check Docker volumes
+docker volume ls
+
+# Check Docker networks
+docker network ls
+```
+
+### Service-Specific Debugging
+
+#### Java Services
+```bash
+# Check JVM memory usage
+docker-compose exec authentication-service jstat -gc
+
+# Check application logs
+docker-compose logs -f authentication-service
+
+# Access service shell
+docker-compose exec authentication-service /bin/bash
+```
+
+#### Frontend
+```bash
+# Check nginx logs
+docker-compose logs -f onified-frontend
+
+# Access nginx container
+docker-compose exec onified-frontend /bin/sh
+
+# Check nginx configuration
+docker-compose exec onified-frontend nginx -t
+```
+
+#### Database
+```bash
+# Connect to PostgreSQL
+docker-compose exec postgres psql -U onified -d onified
+
+# Check database logs
+docker-compose logs -f postgres
+
+# Backup database
+docker-compose exec postgres pg_dump -U onified onified > backup.sql
+```
+
+## Performance Optimization
+
+### 1. Resource Limits
+Add resource limits to `docker-compose.yml`:
+```yaml
+services:
+  authentication-service:
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+```
+
+### 2. JVM Tuning
+Add JVM options to services:
+```yaml
+environment:
+  JAVA_OPTS: "-Xms256m -Xmx512m -XX:+UseG1GC"
+```
+
+### 3. Frontend Optimization
+```bash
+# Build with production optimizations
+cd web
+ng build --configuration production --optimization
+
+# Enable gzip compression in nginx
+# (Already configured in nginx.conf)
+```
+
+## Security Considerations
+
+### 1. Local Development
+- Use strong passwords for Keycloak admin
+- Change default database passwords
+- Enable HTTPS for production
+
+### 2. Network Security
+- Use Docker networks for service communication
+- Restrict external access to admin interfaces
+- Implement proper firewall rules
+
+## Next Steps
+
+1. Set up monitoring and logging
+2. Configure CI/CD pipelines
+3. Implement automated testing
+4. Set up production deployment
+5. Configure backup strategies 
