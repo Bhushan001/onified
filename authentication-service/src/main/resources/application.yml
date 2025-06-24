@@ -23,7 +23,7 @@ spring:
       enabled: false
 
 server:
-  port: 9083
+  port: 9081
 
 jwt:
   secret: yourVerySecretKeyForJWTTokenGenerationThatShouldBeLongAndComplex12345!@#$%^&*() # !! IMPORTANT: Change this in production !!

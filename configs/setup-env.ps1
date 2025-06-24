@@ -7,8 +7,8 @@ param(
     [string]$env = "local"
 )
 
-$ConfigFile = "configs/config.$env.json"
-$EnvFile = ".env"
+$ConfigFile = "config.$env.json"
+$EnvFile = "..\.env"
 
 if (!(Test-Path $ConfigFile)) {
     Write-Host "Error: $ConfigFile not found!" -ForegroundColor Red

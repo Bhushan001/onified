@@ -41,7 +41,7 @@ services:
       KC_HOSTNAME_STRICT_HTTPS: false
       KC_HTTP_ENABLED: true
     ports:
-      - "9086:8080"
+      - "9090:8080"
     depends_on:
       - keycloak-db
     command: start-dev
@@ -103,9 +103,9 @@ services:
       KEYCLOAK_AUTH_SERVER_URL: http://keycloak:8080
       KEYCLOAK_REALM: ${KEYCLOAK_REALM:-onified}
       KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-onified-auth-service}
-      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:your-client-secret}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-your-client-secret}
     ports:
-      - "9083:9083"
+      - "9081:9081"
     volumes:
       - ${AUTH_LOG_DIR:-./logs/auth-service}:/app/logs
     depends_on:
@@ -142,7 +142,7 @@ services:
       # EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       # EUREKA_INSTANCE_HOSTNAME: user-management-service
     ports:
-      - "9085:9085"
+      - "9083:9083"
     volumes:
       - ${USER_MGMT_LOG_DIR:-./logs/user-management}:/app/logs
     depends_on:
