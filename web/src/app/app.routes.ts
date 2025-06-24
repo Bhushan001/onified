@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { SignupComponent } from './components/login/signup.component';
 
 // Foundation Components
 import { DashboardAnalyticsComponent } from './components/foundation/dashboard-analytics/dashboard-analytics.component';
@@ -30,6 +31,7 @@ import { FeedbackSettingsComponent } from './components/users/feedback-settings/
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
+  { path: 'signup', component: SignupComponent },
   { 
     path: 'dashboard', 
     component: DashboardComponent,

@@ -207,6 +207,6 @@ export class LoginComponent implements OnInit {
   }
 
   onSignUp(): void {
-    this.router.navigate(['/register']);
+    this.router.navigate(['/signup']);
   }
 }

@@ -1,0 +1,165 @@
+<div class="login-page">
+  <main class="login-main">
+    <div class="container">
+      <div class="login-content">
+        <!-- Left side - Brand and Testimonial (reuse from login) -->
+        <div class="brand-testimonial-section">
+          <h1 class="brand-title">
+            ONIFIED<span class="brand-accent">.AI</span>
+          </h1>
+          <div class="brand-section">
+            <p class="brand-subtitle">
+              Power Up Your Business with Onified.ai's Product Suite
+            </p>
+            <p class="brand-description">
+              All in one solution for your business needs. Embrace the future of business with ONIFIED.AI and unlock your full potential.
+            </p>
+          </div>
+          <div class="testimonial-container">
+            <app-testimonial [testimonial]="testimonial"></app-testimonial>
+          </div>
+        </div>
+        <!-- Right side - Signup Form -->
+        <div class="login-form-section">
+          <div class="login-form-container">
+            <div class="login-form-card">
+              <div class="form-header">
+                <h2>Platform Admin Signup</h2>
+                <p class="form-subtitle">Create your platform admin account</p>
+              </div>
+              <form class="login-form" [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+                <div class="form-group">
+                  <label for="firstName" class="form-label">First Name</label>
+                  <input id="firstName" formControlName="firstName" type="text" class="form-control" />
+                  <div *ngIf="submitted && signupForm.controls['firstName'].errors">
+                    <small *ngIf="signupForm.controls['firstName'].errors['required']">First name is required.</small>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="lastName" class="form-label">Last Name</label>
+                  <input id="lastName" formControlName="lastName" type="text" class="form-control" />
+                  <div *ngIf="submitted && signupForm.controls['lastName'].errors">
+                    <small *ngIf="signupForm.controls['lastName'].errors['required']">Last name is required.</small>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="dateOfBirth" class="form-label">Date of Birth</label>
+                  <input id="dateOfBirth" formControlName="dateOfBirth" type="date" class="form-control" />
+                  <div *ngIf="submitted && signupForm.controls['dateOfBirth'].errors">
+                    <small *ngIf="signupForm.controls['dateOfBirth'].errors['required']">Date of birth is required.</small>
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="country" class="form-label">Country</label>
+                  <input id="country" formControlName="country" type="text" class="form-control" />
+                  <div *ngIf="submitted && signupForm.controls['country'].errors">
+                    <small *ngIf="signupForm.controls['country'].errors['required']">Country is required.</small>
+                  </div>
+                </div>
+                <div class="form-group full-width">
+                  <label for="username" class="form-label">Username</label>
+                  <input id="username" formControlName="username" type="text" class="form-control" />
+                  <div *ngIf="submitted && signupForm.controls['username'].errors">
+                    <small *ngIf="signupForm.controls['username'].errors['required']">Username is required.</small>
+                  </div>
+                </div>
+                <div class="form-group full-width">
+                  <label for="email" class="form-label">Email</label>
+                  <input id="email" formControlName="email" type="email" class="form-control" />
+                  <div *ngIf="submitted && signupForm.controls['email'].errors">
+                    <small *ngIf="signupForm.controls['email'].errors['required']">Email is required.</small>
+                    <small *ngIf="signupForm.controls['email'].errors['email']">Invalid email format.</small>
+                  </div>
+                </div>
+                <div class="password-row form-group full-width">
+                  <div>
+                    <label for="password" class="form-label">Password</label>
+                    <div class="input-wrapper">
+                      <input id="password" formControlName="password" [type]="showPassword ? 'text' : 'password'" class="form-control" />
+                      <button type="button" class="toggle-password" (click)="togglePasswordVisibility()" tabindex="-1" aria-label="Toggle password visibility">
+                        <svg *ngIf="!showPassword" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
+                        <svg *ngIf="showPassword" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" d="M3 3l18 18M1 12s4-7 11-7c-2.5 0-4.6.7-6.3 1.7M23 12s-4 7-11 7c-2.5 0-4.6-.7-6.3-1.7"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
+                      </button>
+                    </div>
+                    <div *ngIf="submitted && signupForm.controls['password'].errors">
+                      <small *ngIf="signupForm.controls['password'].errors['required']">Password is required.</small>
+                      <small *ngIf="signupForm.controls['password'].errors['minlength']">Password must be at least 10 characters.</small>
+                    </div>
+                  </div>
+                  <div>
+                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+                    <div class="input-wrapper">
+                      <input id="confirmPassword" formControlName="confirmPassword" [type]="showConfirmPassword ? 'text' : 'password'" class="form-control" />
+                      <button type="button" class="toggle-password" (click)="toggleConfirmPasswordVisibility()" tabindex="-1" aria-label="Toggle confirm password visibility">
+                        <svg *ngIf="!showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
+                        <svg *ngIf="showConfirmPassword" xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-width="2" d="M3 3l18 18M1 12s4-7 11-7c-2.5 0-4.6.7-6.3 1.7M23 12s-4 7-11 7c-2.5 0-4.6-.7-6.3-1.7"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/></svg>
+                      </button>
+                    </div>
+                    <div *ngIf="(submitted && signupForm.controls['confirmPassword'].errors) || (submitted && signupForm.controls['confirmPassword'].touched && signupForm.controls['confirmPassword'].errors?.['mismatch'])" class="error-message">
+                      <small *ngIf="signupForm.controls['confirmPassword'].errors?.['mismatch']">Passwords do not match.</small>
+                      <small *ngIf="signupForm.controls['confirmPassword'].errors?.['required']">Confirm password is required.</small>
+                    </div>
+                  </div>
+                </div>
+                <div class="form-group full-width">
+                  <div class="consent-container">
+                    <input type="checkbox" formControlName="consent" id="consent" />
+                    <label for="consent" class="consent-label">
+                      I agree to the <a href="#" (click)="openTerms($event, 'terms')">Terms of Service</a> and <a href="#" (click)="openTerms($event, 'privacy')">Privacy Policy</a>. I understand that my information will be used to create a platform admin account and that I am responsible for managing tenant and user data securely.
+                    </label>
+                  </div>
+                  <div *ngIf="submitted && signupForm.controls['consent'].errors">
+                    <small *ngIf="signupForm.controls['consent'].errors['required'] || signupForm.controls['consent'].errors['requiredTrue']">You must agree before signing up.</small>
+                  </div>
+                </div>
+                <div *ngIf="showTermsModal" class="terms-modal-backdrop">
+                  <div class="terms-modal">
+                    <div class="terms-modal-header">
+                      {{ termsModalType === 'terms' ? 'Terms of Service' : 'Privacy Policy' }}
+                    </div>
+                    <div class="terms-modal-content" #modalContent (scroll)="onModalScroll($event)">
+                      <ng-container *ngIf="termsModalType === 'terms'">
+                        <h3>Welcome to Onified Terms of Service</h3>
+                        <p>By creating a platform admin account, you agree to the following terms:</p>
+                        <ul>
+                          <li>You are responsible for all activity conducted under your account and for managing tenant and user data securely.</li>
+                          <li>You will not use Onified for any unlawful, harmful, or abusive purposes.</li>
+                          <li>Onified reserves the right to suspend or terminate accounts found in violation of these terms.</li>
+                          <li>All data is subject to our Privacy Policy and applicable laws.</li>
+                          <li>We may update these terms from time to time. Continued use of the platform constitutes acceptance of the revised terms.</li>
+                        </ul>
+                        <p>For the full legal version, please contact support or visit our website.</p>
+                        <h4>Additional Details</h4>
+                        <p>1. Account Security: You must keep your password secure and not share your account credentials with others. If you suspect unauthorized use, notify us immediately.</p>
+                        <p>2. Data Ownership: You retain ownership of your data but grant Onified a license to use, store, and process it as necessary to provide the service.</p>
+                        <p>3. Service Availability: We strive for 99.9% uptime but do not guarantee uninterrupted service. Scheduled maintenance and unforeseen outages may occur.</p>
+                        <p>4. Support: Platform admins are entitled to standard support as described in our documentation. Premium support may be available for an additional fee.</p>
+                        <p>5. Limitation of Liability: Onified is not liable for indirect, incidental, or consequential damages arising from your use of the platform.</p>
+                        <p>6. Termination: We may suspend or terminate your account for violations of these terms or for activities that harm the platform or other users.</p>
+                        <p>7. Governing Law: These terms are governed by the laws of your jurisdiction unless otherwise specified in a separate agreement.</p>
+                        <p>8. Feedback: Any feedback you provide may be used by Onified to improve the service without obligation to you.</p>
+                        <p>9. Changes to Terms: We may update these terms at any time. We will notify you of significant changes, but it is your responsibility to review the terms periodically.</p>
+                        <p>10. Contact: For questions about these terms, please contact our support team.</p>
+                        <p style="margin-bottom: 0;">End of Terms of Service.</p>
+                      </ng-container>
+                      <ng-container *ngIf="termsModalType === 'privacy'">
+                        <p>Privacy Policy: We value your privacy. Your data will be handled securely and never shared with third parties except as required by law. (Repeat for demo...)</p>
+                        <p style="margin-bottom: 0;">End of Privacy Policy.</p>
+                      </ng-container>
+                    </div>
+                    <div class="terms-modal-footer">
+                      <button class="btn btn-primary" [disabled]="!modalScrolledToEnd" (click)="closeTermsModal()">Close</button>
+                    </div>
+                  </div>
+                </div>
+                <div *ngIf="error" class="error-message">{{ error }}</div>
+                <button type="submit" class="btn btn-primary btn-lg w-100 continue-btn" [disabled]="signupForm.invalid">Sign Up</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <app-footer></app-footer>
+</div> 
