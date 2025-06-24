@@ -1,6 +1,6 @@
 package com.onified.ai.ums.exception;
 
-import com.onified.ai.ums.ErrorConstants;
+import com.onified.ai.ums.constants.ErrorConstants;
 import com.onified.ai.ums.model.CustomErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

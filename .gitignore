@@ -1,0 +1,30 @@
+web/.angular/*
+web/node_modules/*
+mapper/.angular/*
+mapper/node_modules/*
+
+# Environment files with sensitive data
+.env
+.env.local
+.env.production
+.env.development
+*.env
+
+# Application properties with credentials
+**/src/main/resources/application-prod.yml
+**/src/main/resources/application-dev.yml
+**/src/main/resources/application-local.yml
+
+# Log files and directories
+logs/
+*.log
+**/logs/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+
+# OS generated files
+.DS_Store
+Thumbs.db

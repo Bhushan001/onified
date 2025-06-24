@@ -1,4 +1,0 @@
-package com.onified.platform.metadata.exception;
-
-public class MetadataException {
-}

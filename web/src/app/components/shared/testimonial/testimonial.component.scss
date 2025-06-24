@@ -1,0 +1,140 @@
+@use '../../../../styles/mixins';
+@use '../../../../styles/responsive';
+
+.testimonial {
+  background-color: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  max-width: 100%;
+  margin: 0 auto;
+  width: 100%;
+  
+  // iPad Mini specific centering
+  @media screen and (min-width: 768px) and (max-width: 1024px) {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+  
+  // Surface Pro 7 specific centering
+  @media screen and (min-width: 1200px) and (max-width: 1400px) and (min-height: 800px) {
+    max-width: 450px;
+    margin: 0 auto;
+  }
+  
+  .testimonial-content {
+    .testimonial-header {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      align-items: flex-start;
+      
+      .avatar {
+        flex-shrink: 0;
+        
+        .avatar-mock {
+          width: 45px;
+          height: 45px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 2px solid var(--color-primary-100);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          
+          .avatar-initials {
+            color: white;
+            font-weight: 600;
+            font-size: 1rem;
+            font-family: 'Roboto', sans-serif;
+            letter-spacing: 0.5px;
+          }
+        }
+      }
+      
+      .quote {
+        @include mixins.body-base;
+        color: var(--color-text-primary);
+        font-style: italic;
+        margin: 0;
+        line-height: 1.5;
+        flex: 1;
+        font-weight: 400;
+      }
+    }
+    
+    .testimonial-footer {
+      .rating-author {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        justify-content: flex-start;
+        
+        .rating {
+          display: flex;
+          gap: 0.2rem;
+          
+          .star {
+            color: #fbbf24;
+            font-size: 1rem;
+            line-height: 1;
+          }
+        }
+        
+        .author-info {
+          .author-name {
+            @include mixins.body-small;
+            color: var(--color-text-primary);
+            font-weight: 500;
+            font-style: normal;
+            margin: 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive adjustments for testimonial
+@include responsive.media-down(md) {
+  .testimonial {
+    padding: 1.25rem;
+    max-width: 100%;
+    
+    .testimonial-content {
+      .testimonial-header {
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        
+        .avatar {
+          .avatar-mock {
+            width: 40px;
+            height: 40px;
+            
+            .avatar-initials {
+              font-size: 0.875rem;
+            }
+          }
+        }
+        
+        .quote {
+          font-size: 0.8rem;
+          line-height: 1.4;
+        }
+      }
+      
+      .testimonial-footer {
+        .rating-author {
+          gap: 0.75rem;
+          
+          .rating {
+            .star {
+              font-size: 0.875rem;
+            }
+          }
+        }
+      }
+    }
+  }
+}

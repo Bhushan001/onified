@@ -1,6 +1,6 @@
 package com.onified.ai.ums.service;
 
-import com.onified.ai.ums.ErrorConstants;
+import com.onified.ai.ums.constants.ErrorConstants;
 import com.onified.ai.ums.client.PermissionRegistryFeignClient;
 import com.onified.ai.ums.dto.*;
 import com.onified.ai.ums.entity.User;
@@ -16,6 +16,7 @@ import feign.FeignException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -28,11 +29,12 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserAttributeRepository userAttributeRepository;
     private final PermissionRegistryFeignClient permissionRegistryFeignClient;
+    private final PasswordEncoder passwordEncoder; // Inject PasswordEncoder
 
 
-    private boolean doesRoleExist(String roleId) {
+    private boolean doesRoleExist(String roleName) {
         try {
-            ApiResponse<Object> response = permissionRegistryFeignClient.getRoleById(roleId);
+            ApiResponse<Object> response = permissionRegistryFeignClient.getRoleById(roleName);
             return response != null && response.getStatusCode() == HttpStatus.OK.value();
         } catch (FeignException.NotFound ex) {
             return false;
@@ -52,12 +54,12 @@ public class UserService {
         }
 
         User user = UserMapper.toUserEntity(request);
-        user.setPasswordHash(request.getPassword()); // Temporarily plain text
+        user.setPasswordHash(passwordEncoder.encode(request.getPassword())); // IMPORTANT: HASH PASSWORD HERE
 
         if (request.getRoles() != null && !request.getRoles().isEmpty()) {
-            for (String roleId : request.getRoles()) {
-                if (!doesRoleExist(roleId)) {
-                    throw new UserNotFoundException(String.format(ErrorConstants.ROLE_NOT_FOUND_FOR_USER, roleId, "N/A (during creation)"));
+            for (String roleName : request.getRoles()) {
+                if (!doesRoleExist(roleName)) {
+                    throw new UserNotFoundException(String.format(ErrorConstants.ROLE_NOT_FOUND_FOR_USER, roleName, "N/A (during creation)"));
                 }
             }
             user.setRoles(request.getRoles());
@@ -84,10 +86,8 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new UserNotFoundException(String.format(ErrorConstants.USER_NOT_FOUND, id)));
 
-        // Apply updates using the mapper
         UserMapper.updateUserEntityFromDto(request, user);
 
-        // Handle specific updates like password, username, email where uniqueness checks apply
         if (request.getUsername() != null && !request.getUsername().isEmpty()) {
             if (!request.getUsername().equals(user.getUsername()) && userRepository.existsByUsername(request.getUsername())) {
                 throw new DuplicateUsernameException(String.format(ErrorConstants.DUPLICATE_USERNAME, request.getUsername()));
@@ -101,7 +101,7 @@ public class UserService {
             user.setEmail(request.getEmail());
         }
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
-            user.setPasswordHash(request.getPassword()); // Temporarily plain text
+            user.setPasswordHash(passwordEncoder.encode(request.getPassword())); // IMPORTANT: HASH PASSWORD HERE
         }
 
         User updatedUser = userRepository.save(user);
@@ -131,15 +131,15 @@ public class UserService {
     }
 
     @Transactional
-    public UserResponse removeRoleFromUser(UUID userId, String roleId) {
+    public UserResponse removeRoleFromUser(UUID userId, String roleName) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(String.format(ErrorConstants.USER_NOT_FOUND, userId)));
 
-        if (!user.getRoles().contains(roleId)) {
-            throw new UserNotFoundException(String.format(ErrorConstants.ROLE_NOT_FOUND_FOR_USER, roleId, userId));
+        if (!user.getRoles().contains(roleName)) {
+            throw new UserNotFoundException(String.format(ErrorConstants.ROLE_NOT_FOUND_FOR_USER, roleName, userId));
         }
 
-        user.removeRole(roleId);
+        user.removeRole(roleName);
         User updatedUser = userRepository.save(user);
         return UserMapper.toUserResponse(updatedUser);
     }
@@ -181,5 +181,18 @@ public class UserService {
         user.getAttributes().remove(attributeToRemove);
         User updatedUser = userRepository.save(user);
         return UserMapper.toUserResponse(updatedUser);
+    }
+
+    // New method for Authentication Service to retrieve user details including password hash
+    public UserAuthDetailsResponse getUserAuthDetailsByUsername(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException(String.format(ErrorConstants.USER_NOT_FOUND_USERNAME, username)));
+
+        return new UserAuthDetailsResponse(
+                user.getId(),
+                user.getUsername(),
+                user.getPasswordHash(), // This will now return the HASHED password
+                user.getRoles().stream().toList()
+        );
     }
 }

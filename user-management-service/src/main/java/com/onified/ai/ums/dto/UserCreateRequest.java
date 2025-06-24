@@ -1,6 +1,6 @@
 package com.onified.ai.ums.dto;
 
-import com.onified.ai.ums.ErrorConstants;
+import com.onified.ai.ums.constants.ErrorConstants;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
