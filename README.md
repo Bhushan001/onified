@@ -58,6 +58,46 @@ cd configs
 
 > **Note:** No manual changes are needed in Dockerfiles or `application.yml` as long as `.env` is generated at the project root. The `configs/` directory is gitignored and should not be committed to version control.
 
+### 🧹 Cleaning Up Existing Docker Images
+
+Before building new Docker images, you may want to remove old or unused images to free up disk space and avoid conflicts.
+
+**To remove all Docker images:**
+
+```bash
+docker rmi -f $(docker images -q)
+```
+
+**Windows PowerShell:**
+```powershell
+docker images -q | % { docker rmi -f $_ }
+```
+
+> **Warning:** This will remove all Docker images from your system, not just those related to this project. Only use if you want a full cleanup.
+
+### 🧼 If You Want to Start With a Completely Clean Setup
+
+In addition to removing Docker images, you may want to remove Docker volumes to fully reset your environment. **Warning: This will delete all persistent data, such as databases and logs.**
+
+#### Remove all unused (dangling) volumes (safe):
+```bash
+docker volume prune
+```
+This removes only volumes not used by any container.
+
+#### Remove all volumes (dangerous, wipes all data!):
+```bash
+docker volume rm $(docker volume ls -q)
+```
+> **Warning:** This will remove all Docker volumes from your system, including databases and persistent files. Only use if you want a completely fresh start.
+
+**When should you do this?**
+- If you want to reclaim disk space from old, unused volumes.
+- If you want to reset all persistent data (e.g., databases, logs) for a totally clean development or test environment.
+- If you are troubleshooting persistent data issues and want to start from scratch.
+
+If you want to keep your data (e.g., database contents), you do **not** need to remove volumes.
+
 ### 2. Start All Services
 ```bash
 # Build and start all services
@@ -259,3 +299,23 @@ repository/
 ## 📄 License
 
 This project is proprietary to Onified.
+
+## 🛠️ Automated Stack Build by Environment
+
+To simplify building and running your stack for any environment, use the provided automation scripts:
+
+### Linux/macOS
+```bash
+./build-stack.sh dev    # or local, prod, etc.
+```
+
+### Windows (PowerShell)
+```powershell
+./build-stack.ps1 dev   # or local, prod, etc.
+```
+
+These scripts will:
+1. Generate the correct `.env` file for your chosen environment using the configs in `configs/`.
+2. Build and start the stack with `docker-compose up --build`.
+
+> **Note:** You can still use the setup scripts in `configs/` directly if you want to only generate the `.env` file without starting the stack.
