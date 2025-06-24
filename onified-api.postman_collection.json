@@ -1,0 +1,302 @@
+{
+  "info": {
+    "_postman_id": "onified-api-collection",
+    "name": "Onified API Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "auth_base_url", "value": "http://localhost:9081" },
+    { "key": "user_mgmt_base_url", "value": "http://localhost:9083" },
+    { "key": "app_config_base_url", "value": "http://localhost:9082" },
+    { "key": "permission_registry_base_url", "value": "http://localhost:9084" },
+    { "key": "access_token", "value": "" },
+    { "key": "user_id", "value": "" },
+    { "key": "username", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Authentication Service",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}"
+            },
+            "url": {
+              "raw": "{{auth_base_url}}/api/auth/login",
+              "host": ["{{auth_base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{auth_base_url}}/api/auth/refresh?refreshToken=YOUR_REFRESH_TOKEN",
+              "host": ["{{auth_base_url}}"],
+              "path": ["api", "auth", "refresh"],
+              "query": [
+                { "key": "refreshToken", "value": "YOUR_REFRESH_TOKEN" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{auth_base_url}}/api/auth/health",
+              "host": ["{{auth_base_url}}"],
+              "path": ["api", "auth", "health"]
+            }
+          }
+        },
+        {
+          "name": "Test Ping",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{auth_base_url}}/test/ping",
+              "host": ["{{auth_base_url}}"],
+              "path": ["test", "ping"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "User Management Service",
+      "item": [
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"newuser\",\n  \"password\": \"password\",\n  \"email\": \"newuser@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{user_mgmt_base_url}}/users",
+              "host": ["{{user_mgmt_base_url}}"],
+              "path": ["users"]
+            }
+          }
+        },
+        {
+          "name": "Get User By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{user_mgmt_base_url}}/users/{{user_id}}",
+              "host": ["{{user_mgmt_base_url}}"],
+              "path": ["users", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Get User By Username",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{user_mgmt_base_url}}/users/username/{{username}}",
+              "host": ["{{user_mgmt_base_url}}"],
+              "path": ["users", "username", "{{username}}"]
+            }
+          }
+        },
+        {
+          "name": "Get User Auth Details By Username",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{user_mgmt_base_url}}/users/auth-details/{{username}}",
+              "host": ["{{user_mgmt_base_url}}"],
+              "path": ["users", "auth-details", "{{username}}"]
+            }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"updated@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{user_mgmt_base_url}}/users/{{user_id}}",
+              "host": ["{{user_mgmt_base_url}}"],
+              "path": ["users", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{user_mgmt_base_url}}/users/{{user_id}}",
+              "host": ["{{user_mgmt_base_url}}"],
+              "path": ["users", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Assign Role To User",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"roleName\": \"ROLE_USER\"\n}"
+            },
+            "url": {
+              "raw": "{{user_mgmt_base_url}}/users/{{user_id}}/roles",
+              "host": ["{{user_mgmt_base_url}}"],
+              "path": ["users", "{{user_id}}", "roles"]
+            }
+          }
+        },
+        {
+          "name": "Remove Role From User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{user_mgmt_base_url}}/users/{{user_id}}/roles/{{roleName}}",
+              "host": ["{{user_mgmt_base_url}}"],
+              "path": ["users", "{{user_id}}", "roles", "{{roleName}}"]
+            }
+          }
+        },
+        {
+          "name": "Add or Update User Attribute",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"attributeName\": \"department\",\n  \"attributeValue\": \"Engineering\"\n}"
+            },
+            "url": {
+              "raw": "{{user_mgmt_base_url}}/users/{{user_id}}/attributes",
+              "host": ["{{user_mgmt_base_url}}"],
+              "path": ["users", "{{user_id}}", "attributes"]
+            }
+          }
+        },
+        {
+          "name": "Remove User Attribute",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{user_mgmt_base_url}}/users/{{user_id}}/attributes/{{attributeName}}",
+              "host": ["{{user_mgmt_base_url}}"],
+              "path": ["users", "{{user_id}}", "attributes", "{{attributeName}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Application Config Service",
+      "item": [
+        {
+          "name": "Create Application",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"appCode\": \"app1\",\n  \"displayName\": \"App 1\",\n  \"isActive\": true\n}"
+            },
+            "url": {
+              "raw": "{{app_config_base_url}}/api/applications",
+              "host": ["{{app_config_base_url}}"],
+              "path": ["api", "applications"]
+            }
+          }
+        },
+        {
+          "name": "Get All Applications",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{app_config_base_url}}/api/applications",
+              "host": ["{{app_config_base_url}}"],
+              "path": ["api", "applications"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Permission Registry Service",
+      "item": [
+        {
+          "name": "Get All Actions",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{access_token}}" }
+            ],
+            "url": {
+              "raw": "{{permission_registry_base_url}}/api/actions",
+              "host": ["{{permission_registry_base_url}}"],
+              "path": ["api", "actions"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+} 
