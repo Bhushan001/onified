@@ -41,7 +41,7 @@ services:
       KC_HOSTNAME_STRICT_HTTPS: false
       KC_HTTP_ENABLED: true
     ports:
-      - "${KEYCLOAK_PORT:-9090}:8080"
+      - "9086:8080"
     depends_on:
       - keycloak-db
     command: start-dev
@@ -60,7 +60,7 @@ services:
     build: ./onified-gateway
     container_name: onified-gateway
     ports:
-      - "${GATEWAY_PORT:-9080}:9080"
+      - "9080:9080"
     environment:
       LOG_DIR: ${GATEWAY_LOG_DIR:-/app/logs}
     volumes:
@@ -82,7 +82,7 @@ services:
       # EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       # EUREKA_INSTANCE_HOSTNAME: application-config-service
     ports:
-      - "${APPLICATION_CONFIG_SERVICE_PORT:-9082}:8080"
+      - "9082:9082"
     volumes:
       - ${APP_CONFIG_LOG_DIR:-./logs/app-config}:/app/logs
     depends_on:
@@ -103,9 +103,9 @@ services:
       KEYCLOAK_AUTH_SERVER_URL: http://keycloak:8080
       KEYCLOAK_REALM: ${KEYCLOAK_REALM:-onified}
       KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-onified-auth-service}
-      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-your-client-secret}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:your-client-secret}
     ports:
-      - "${AUTH_SERVICE_PORT:-9081}:9083"
+      - "9083:9083"
     volumes:
       - ${AUTH_LOG_DIR:-./logs/auth-service}:/app/logs
     depends_on:
@@ -124,7 +124,7 @@ services:
       # EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       # EUREKA_INSTANCE_HOSTNAME: permission-registry-service
     ports:
-      - "${PERMISSION_REGISTRY_SERVICE_PORT:-9084}:8080"
+      - "9084:9084"
     volumes:
       - ${PERMISSION_LOG_DIR:-./logs/permission-service}:/app/logs
     depends_on:
@@ -142,7 +142,7 @@ services:
       # EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
       # EUREKA_INSTANCE_HOSTNAME: user-management-service
     ports:
-      - "${USER_MANAGEMENT_SERVICE_PORT:-9083}:8080"
+      - "9085:9085"
     volumes:
       - ${USER_MGMT_LOG_DIR:-./logs/user-management}:/app/logs
     depends_on:
@@ -154,7 +154,7 @@ services:
     build: ./web
     container_name: onified-frontend
     ports:
-      - "${FRONTEND_PORT:-4200}:80"
+      - "4200:80"
     environment:
       NODE_ENV: production
       LOG_DIR: ${FRONTEND_LOG_DIR:-/app/logs}

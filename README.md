@@ -1,5 +1,7 @@
 # Onified Microservices Platform
 
+yes update documentation also verify if we are missing anything in documentation. i fyes, fix it. then proceed move forward to configure swagger for all springboot microservices and update the documentation for it as well
+
 A comprehensive microservices platform built with Spring Boot, Angular, and Keycloak for identity management.
 
 ## 🏗️ Architecture Overview
@@ -110,12 +112,24 @@ docker-compose up -d --build
 ### 3. Access Services
 - **Angular Web App**: http://localhost:4200
 - **API Gateway**: http://localhost:9080
-- **Eureka Server**: http://localhost:8761
-- **Keycloak Admin**: http://localhost:8080 (admin/admin)
+- **Eureka Server**: http://localhost:9081
+- **Keycloak Admin**: http://localhost:9086 (admin/admin)
 - **Authentication Service**: http://localhost:9083
 - **Application Config Service**: http://localhost:9082
 - **Permission Registry Service**: http://localhost:9084
 - **User Management Service**: http://localhost:9085
+
+## Service Port Mappings
+- **API Gateway**: 9080
+- **Eureka Server**: 9081
+- **Application Config Service**: 9082
+- **Authentication Service**: 9083
+- **Permission Registry Service**: 9084
+- **User Management Service**: 9085
+- **Keycloak**: 9086
+- **Angular Frontend**: 4200
+- **PostgreSQL**: 5432
+- **Keycloak DB**: 5433
 
 ## 📋 Service Build Order
 

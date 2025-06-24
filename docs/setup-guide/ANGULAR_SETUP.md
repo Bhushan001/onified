@@ -503,4 +503,24 @@ bash setup-env.sh prod    # for production
 
 Edit the appropriate `configs/config.<env>.json` file to set your environment variables. The script will create a `.env` file at the project root, which is used by Docker Compose and all backend services.
 
-> **Note:** The `configs/` directory is gitignored and should not be committed to version control. 
+> **Note:** The `configs/` directory is gitignored and should not be committed to version control.
+
+## Automated Stack Build
+
+For a fully automated environment setup and stack build, use the provided scripts:
+
+### Linux/macOS
+```bash
+./build-stack.sh local    # or dev, prod, etc.
+```
+
+### Windows (PowerShell)
+```powershell
+./build-stack.ps1 local   # or dev, prod, etc.
+```
+
+These scripts will:
+- Generate the correct .env file for your chosen environment using the configs in configs/.
+- Build and start the stack with docker-compose up --build.
+
+> You can still use the setup scripts in configs/ directly if you want to only generate the .env file without starting the stack. 

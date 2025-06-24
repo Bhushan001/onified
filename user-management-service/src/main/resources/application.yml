@@ -19,7 +19,7 @@ spring:
     open-in-view: false # Recommended to be false in Spring Boot applications to avoid N+1 issues in templates
 
 server:
-  port: 9083 # Port for the User Management Service
+  port: 9085 # Port for the User Management Service
 
 feign:
   client:

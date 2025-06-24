@@ -16,7 +16,9 @@ RUN echo 'package com.example.eureka;' > EurekaServerApplication.java && \
     echo '}' >> EurekaServerApplication.java
 
 # For now, let's use a simple approach - just expose the port
-EXPOSE 8761
+EXPOSE 9081
 
 # Use a simple HTTP server to respond to health checks
-CMD ["sh", "-c", "echo 'Eureka Server placeholder - use your own Eureka server' && sleep infinity"] 
+CMD ["sh", "-c", "echo 'Eureka Server placeholder - use your own Eureka server' && sleep infinity"]
+
+ENTRYPOINT ["java", "-jar", "app.jar"] 
