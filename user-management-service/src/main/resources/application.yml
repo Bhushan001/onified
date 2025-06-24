@@ -1,10 +1,12 @@
 spring:
+  config:
+    import: optional:.env[.properties]
   application:
     name: user-management-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/ums_db # Replace with your PostgreSQL connection string
-    username: postgres                        # Replace with your DB username
-    password: root                    # Replace with your DB password
+    url: ${USER_MGMT_DB_URL}
+    username: ${USER_MGMT_DB_USERNAME}
+    password: ${USER_MGMT_DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

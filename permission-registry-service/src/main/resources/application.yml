@@ -2,17 +2,19 @@ server:
   port: 9082
 
 spring:
+  config:
+    import: optional:.env[.properties]
   application:
     name: permission-registry-service
+  datasource:
+    url: ${PERMISSION_DB_URL}
+    username: ${PERMISSION_DB_USERNAME}
+    password: ${PERMISSION_DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
-  datasource:
-    url: jdbc:postgresql://localhost:5432/onified_rbac_registry
-    username: postgres
-    password: root
-    driver-class-name: org.postgresql.Driver
 
 logging:
   level:

@@ -1,10 +1,12 @@
 spring:
+  config:
+    import: optional:.env[.properties]
   application:
     name: authentication-service
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/onified}
-    username: ${SPRING_DATASOURCE_USERNAME:postgres}
-    password: ${SPRING_DATASOURCE_PASSWORD:root}
+    url: ${AUTH_DB_URL}
+    username: ${AUTH_DB_USERNAME}
+    password: ${AUTH_DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

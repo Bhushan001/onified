@@ -16,14 +16,21 @@ cd repository
 ```
 
 ### 2. Environment Configuration
-```bash
-# Copy the example environment file
-cp env.example .env
 
-# Edit .env with your actual credentials
-# Replace the placeholder values with your real database credentials
-nano .env  # or use your preferred editor
+All environment variables are managed via per-environment JSON config files in the `configs/` directory. Use the provided scripts to generate a `.env` file at the project root.
+
+To generate a `.env` file for your local environment, use the setup script:
+
+```bash
+bash configs/setup-env.sh local
 ```
+
+**How it works:**
+- The generated `.env` file is automatically used by Docker Compose for all services.
+- All Spring Boot services are configured (in their `application.yml`) to import environment variables from `.env` at startup.
+- Dockerfiles do not need to reference `.env` directly; configuration is injected at runtime by Docker Compose.
+
+> **Note:** No manual changes are needed in Dockerfiles or `application.yml` as long as `.env` is generated at the project root. The `configs/` directory is gitignored and should not be committed to version control.
 
 **Required .env file contents:**
 ```bash
@@ -465,118 +472,3 @@ curl -X POST http://localhost:9081/api/auth/login \
 
 5. **Build Failures**
    - Clear Docker cache: `docker system prune -a`
-   - Check Maven dependencies
-   - Verify Node.js version for frontend
-
-### Debug Commands
-```bash
-# Check container status
-docker-compose ps
-
-# Check container logs
-docker-compose logs [service-name]
-
-# Check network connectivity
-docker-compose exec [service-name] ping [target-service]
-
-# Access container shell
-docker-compose exec [service-name] /bin/bash
-
-# Check Docker images
-docker images | grep repository
-
-# Check Docker volumes
-docker volume ls
-
-# Check Docker networks
-docker network ls
-```
-
-### Service-Specific Debugging
-
-#### Java Services
-```bash
-# Check JVM memory usage
-docker-compose exec authentication-service jstat -gc
-
-# Check application logs
-docker-compose logs -f authentication-service
-
-# Access service shell
-docker-compose exec authentication-service /bin/bash
-```
-
-#### Frontend
-```bash
-# Check nginx logs
-docker-compose logs -f onified-frontend
-
-# Access nginx container
-docker-compose exec onified-frontend /bin/sh
-
-# Check nginx configuration
-docker-compose exec onified-frontend nginx -t
-```
-
-#### Database
-```bash
-# Connect to PostgreSQL
-docker-compose exec postgres psql -U onified -d onified
-
-# Check database logs
-docker-compose logs -f postgres
-
-# Backup database
-docker-compose exec postgres pg_dump -U onified onified > backup.sql
-```
-
-## Performance Optimization
-
-### 1. Resource Limits
-Add resource limits to `docker-compose.yml`:
-```yaml
-services:
-  authentication-service:
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-          cpus: '0.5'
-```
-
-### 2. JVM Tuning
-Add JVM options to services:
-```yaml
-environment:
-  JAVA_OPTS: "-Xms256m -Xmx512m -XX:+UseG1GC"
-```
-
-### 3. Frontend Optimization
-```bash
-# Build with production optimizations
-cd web
-ng build --configuration production --optimization
-
-# Enable gzip compression in nginx
-# (Already configured in nginx.conf)
-```
-
-## Security Considerations
-
-### 1. Local Development
-- Use strong passwords for Keycloak admin
-- Change default database passwords
-- Enable HTTPS for production
-
-### 2. Network Security
-- Use Docker networks for service communication
-- Restrict external access to admin interfaces
-- Implement proper firewall rules
-
-## Next Steps
-
-1. Set up monitoring and logging
-2. Configure CI/CD pipelines
-3. Implement automated testing
-4. Set up production deployment
-5. Configure backup strategies 

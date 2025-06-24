@@ -5,6 +5,8 @@ spring:
   application:
     name: onified-gateway
   cloud:
+    compatibility-verifier:
+      enabled: false
     gateway:
       discovery:
         locator:

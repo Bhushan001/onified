@@ -32,13 +32,31 @@ A comprehensive microservices platform built with Spring Boot, Angular, and Keyc
 - Node.js 18+ (for Angular development)
 
 ### 1. Environment Setup
-```bash
-# Copy environment template
-cp env.example .env
 
-# Edit environment variables
-# Update database passwords, Keycloak admin password, etc.
+All environment variables are managed via per-environment JSON config files in the `configs/` directory. Use the provided scripts to generate a `.env` file at the project root.
+
+- `configs/config.local.json` (local development)
+- `configs/config.dev.json` (development)
+- `configs/config.prod.json` (production)
+
+To generate a `.env` file for your desired environment, use one of the setup scripts from the `configs/` directory:
+
+**On Linux/macOS:**
+```bash
+bash configs/setup-env.sh local
 ```
+**On Windows (PowerShell):**
+```powershell
+cd configs
+./setup-env.ps1 local
+```
+
+**How it works:**
+- The generated `.env` file is automatically used by Docker Compose for all services.
+- All Spring Boot services are configured (in their `application.yml`) to import environment variables from `.env` at startup.
+- Dockerfiles do not need to reference `.env` directly; configuration is injected at runtime by Docker Compose.
+
+> **Note:** No manual changes are needed in Dockerfiles or `application.yml` as long as `.env` is generated at the project root. The `configs/` directory is gitignored and should not be committed to version control.
 
 ### 2. Start All Services
 ```bash
