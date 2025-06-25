@@ -8,9 +8,9 @@ logging:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/platform_mgmt_db
-    username: postgres
-    password: root
+    url: ${PLATFORM_MGMT_DB_URL:jdbc:postgresql://localhost:5432/platform_mgmt_db}
+    username: ${PLATFORM_MGMT_DB_USERNAME:postgres}
+    password: ${PLATFORM_MGMT_DB_PASSWORD:root}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:

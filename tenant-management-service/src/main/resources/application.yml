@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/tenant_management_db
-    username: postgres
-    password: root
+    url: ${TENANT_MGMT_DB_URL:jdbc:postgresql://localhost:5432/tenant_management_db}
+    username: ${TENANT_MGMT_DB_USERNAME:postgres}
+    password: ${TENANT_MGMT_DB_PASSWORD:root}
     driver-class-name: org.postgresql.Driver
   application:
     name: tenant-management-service

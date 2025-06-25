@@ -24,15 +24,6 @@ spring:
                 name: platform-management-circuit-breaker
                 fallbackUri: forward:/fallback/platform-management
       
-      # Global CORS configuration
-      globalcors:
-        cors-configurations:
-          '[/**]':
-            allowedOrigins: "*"
-            allowedMethods: "*"
-            allowedHeaders: "*"
-            allowCredentials: true
-
 # Eureka Client Configuration (Disabled for now)
 eureka:
   client:

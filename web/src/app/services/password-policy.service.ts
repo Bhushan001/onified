@@ -41,7 +41,7 @@ export class PasswordPolicyService {
    * Load password policy from backend
    */
   loadPasswordPolicy(): Observable<PasswordPolicy> {
-    const url = `${environment.apiUrl}/platform-management/password-policy`;
+    const url = `${environment.apiUrl}/platform-management/password-policies`;
     return this.http.get<PasswordPolicy>(url);
   }
 

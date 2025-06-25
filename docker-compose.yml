@@ -1,23 +1,22 @@
 version: '3.8'
 
 services:
-  # Single Postgres instance for all services
-  # postgres:
-  #   image: postgres:15
-  #   container_name: postgres
-  #   environment:
-  #     POSTGRES_USER: ${POSTGRES_USER:-onified}
-  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-onified}
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #     - ./configs/init.sql:/docker-entrypoint-initdb.d/init.sql
-  #   healthcheck:
-  #     test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-onified}"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./configs/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # Eureka Server
   eureka-server:
@@ -39,8 +38,8 @@ services:
     environment:
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://host.docker.internal:5432/${KEYCLOAK_DB:-keycloak_db}
-      KC_DB_USERNAME: ${POSTGRES_USER:-onified}
-      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-onified}
+      KC_DB_USERNAME: ${POSTGRES_USER:-postgres}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-root}
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin123}
       KC_HOSTNAME_STRICT: false
@@ -85,9 +84,9 @@ services:
     ports:
       - "${PLATFORM_MGMT_PORT:-9081}:9081"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/${PLATFORM_MGMT_DB}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      PLATFORM_MGMT_DB_URL: ${PLATFORM_MGMT_DB_URL}
+      PLATFORM_MGMT_DB_USERNAME: ${PLATFORM_MGMT_DB_USERNAME}
+      PLATFORM_MGMT_DB_PASSWORD: ${PLATFORM_MGMT_DB_PASSWORD}
       LOG_DIR: ${PLATFORM_MGMT_LOG_DIR:-/app/logs}
     volumes:
       - ${PLATFORM_MGMT_LOG_DIR:-./logs/platform-management}:/app/logs

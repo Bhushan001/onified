@@ -4,9 +4,9 @@ spring:
   application:
     name: user-management-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/user_management_db
-    username: postgres
-    password: root
+    url: ${USER_MGMT_DB_URL:jdbc:postgresql://localhost:5432/user_management_db}
+    username: ${USER_MGMT_DB_USERNAME:postgres}
+    password: ${USER_MGMT_DB_PASSWORD:root}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -14,6 +14,7 @@ spring:
     show-sql: true     # Log SQL statements
     properties:
       hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     open-in-view: false # Recommended to be false in Spring Boot applications to avoid N+1 issues in templates
 
