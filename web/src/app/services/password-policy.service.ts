@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { map } from 'rxjs/operators';
 
 export interface PasswordPolicy {
   minLength: number;
@@ -41,8 +42,20 @@ export class PasswordPolicyService {
    * Load password policy from backend
    */
   loadPasswordPolicy(): Observable<PasswordPolicy> {
-    const url = `${environment.apiUrl}/platform-management/password-policies`;
-    return this.http.get<PasswordPolicy>(url);
+    const url = `${environment.apiUrl}/platform-management/password-policy/platform`;
+    return this.http.get<any>(url).pipe(
+      map((response) => {
+        if (response && response.statusCode === 200 && response.body) {
+          // Map backend fields to frontend PasswordPolicy interface if needed
+          const policy = response.body;
+          // Optionally, map backend field names to frontend if they differ
+          this.policySubject.next(policy);
+          return policy;
+        } else {
+          throw new Error(response?.body?.message || 'Failed to load password policy');
+        }
+      })
+    );
   }
 
   /**

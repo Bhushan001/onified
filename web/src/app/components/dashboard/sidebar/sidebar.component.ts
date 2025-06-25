@@ -35,7 +35,8 @@ interface MenuItem {
         </div>
       </div>
 
-      
+      <!-- Sidebar Header Icon -->
+      <i *ngIf="!isCollapsed" class="fa fa-th-large hub-icon"></i>
 
       <!-- Navigation Menu -->
       <nav class="sidebar-nav">
@@ -59,106 +60,16 @@ interface MenuItem {
                     [class.child-link]="item.isChild"
                     [title]="isCollapsed ? item.label : ''">
               
-              <!-- Settings Icon -->
-              <svg *ngIf="item.id === 'core-settings' && !item.isChild" 
-                   xmlns="http://www.w3.org/2000/svg" 
-                   width="16" height="16" viewBox="0 0 24 24" 
-                   fill="none" stroke="currentColor" stroke-width="2" 
-                   stroke-linecap="round" stroke-linejoin="round" 
-                   class="nav-icon">
-                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-              </svg>
-
-              <!-- Shield Icon -->
-              <svg *ngIf="item.id === 'identity-access' && !item.isChild" 
-                   xmlns="http://www.w3.org/2000/svg" 
-                   width="16" height="16" viewBox="0 0 24 24" 
-                   fill="none" stroke="currentColor" stroke-width="2" 
-                   stroke-linecap="round" stroke-linejoin="round" 
-                   class="nav-icon">
-                <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path>
-                <path d="m9 12 2 2 4-4"></path>
-              </svg>
-
-              <!-- Database Icon -->
-              <svg *ngIf="item.id === 'org-structure' && !item.isChild" 
-                   xmlns="http://www.w3.org/2000/svg" 
-                   width="16" height="16" viewBox="0 0 24 24" 
-                   fill="none" stroke="currentColor" stroke-width="2" 
-                   stroke-linecap="round" stroke-linejoin="round" 
-                   class="nav-icon">
-                <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
-                <path d="M3 5V19A9 3 0 0 0 21 19V5"></path>
-                <path d="M3 12A9 3 0 0 0 21 12"></path>
-              </svg>
-
-              <!-- Check Square Icon -->
-              <svg *ngIf="item.id === 'roles-permissions' && !item.isChild" 
-                   xmlns="http://www.w3.org/2000/svg" 
-                   width="16" height="16" viewBox="0 0 24 24" 
-                   fill="none" stroke="currentColor" stroke-width="2" 
-                   stroke-linecap="round" stroke-linejoin="round" 
-                   class="nav-icon">
-                <path d="m9 11 3 3L22 4"></path>
-                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
-              </svg>
-
-              <!-- Credit Card Icon -->
-              <svg *ngIf="item.id === 'licensing-billing' && !item.isChild" 
-                   xmlns="http://www.w3.org/2000/svg" 
-                   width="16" height="16" viewBox="0 0 24 24" 
-                   fill="none" stroke="currentColor" stroke-width="2" 
-                   stroke-linecap="round" stroke-linejoin="round" 
-                   class="nav-icon">
-                <rect width="20" height="14" x="2" y="5" rx="2"></rect>
-                <line x1="2" x2="22" y1="10" y2="10"></line>
-              </svg>
-
-              <!-- User Check Icon -->
-              <svg *ngIf="item.id === 'user-management' && !item.isChild" 
-                   xmlns="http://www.w3.org/2000/svg" 
-                   width="16" height="16" viewBox="0 0 24 24" 
-                   fill="none" stroke="currentColor" stroke-width="2" 
-                   stroke-linecap="round" stroke-linejoin="round" 
-                   class="nav-icon">
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
-                <circle cx="9" cy="7" r="4"></circle>
-                <polyline points="16 11 18 13 22 9"></polyline>
-              </svg>
-
-              <!-- Bell Icon -->
-              <svg *ngIf="item.id === 'notifications-alerts' && !item.isChild" 
-                   xmlns="http://www.w3.org/2000/svg" 
-                   width="16" height="16" viewBox="0 0 24 24" 
-                   fill="none" stroke="currentColor" stroke-width="2" 
-                   stroke-linecap="round" stroke-linejoin="round" 
-                   class="nav-icon">
-                <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"></path>
-                <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"></path>
-              </svg>
-
-              <!-- Help Circle Icon -->
-              <svg *ngIf="item.id === 'help-support' && !item.isChild" 
-                   xmlns="http://www.w3.org/2000/svg" 
-                   width="16" height="16" viewBox="0 0 24 24" 
-                   fill="none" stroke="currentColor" stroke-width="2" 
-                   stroke-linecap="round" stroke-linejoin="round" 
-                   class="nav-icon">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-                <path d="M12 17h.01"></path>
-              </svg>
-
-              <!-- Star Icon -->
-              <svg *ngIf="item.id === 'feedback-settings' && !item.isChild" 
-                   xmlns="http://www.w3.org/2000/svg" 
-                   width="16" height="16" viewBox="0 0 24 24" 
-                   fill="none" stroke="currentColor" stroke-width="2" 
-                   stroke-linecap="round" stroke-linejoin="round" 
-                   class="nav-icon">
-                <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-              </svg>
+              <!-- Menu Icons -->
+              <i *ngIf="item.id === 'core-settings' && !item.isChild" class="nav-icon"></i>
+              <i *ngIf="item.id === 'identity-access' && !item.isChild" class="nav-icon"></i>
+              <i *ngIf="item.id === 'org-structure' && !item.isChild" class="nav-icon"></i>
+              <i *ngIf="item.id === 'roles-permissions' && !item.isChild" class="nav-icon"></i>
+              <i *ngIf="item.id === 'licensing-billing' && !item.isChild" class="nav-icon"></i>
+              <i *ngIf="item.id === 'user-management' && !item.isChild" class="nav-icon"></i>
+              <i *ngIf="item.id === 'notifications-alerts' && !item.isChild" class="nav-icon"></i>
+              <i *ngIf="item.id === 'help-support' && !item.isChild" class="nav-icon"></i>
+              <i *ngIf="item.id === 'feedback-settings' && !item.isChild" class="nav-icon"></i>
 
               <span class="nav-text" *ngIf="!isCollapsed" [class.child-text]="item.isChild">{{ item.label }}</span>
             </button>

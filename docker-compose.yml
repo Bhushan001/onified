@@ -63,6 +63,8 @@ services:
       - "${GATEWAY_PORT:-9080}:9080"
     environment:
       LOG_DIR: ${GATEWAY_LOG_DIR:-/app/logs}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_APPLICATION_NAME: onified-gateway
     volumes:
       - ${GATEWAY_LOG_DIR:-./logs/gateway}:/app/logs
     depends_on:
@@ -88,6 +90,8 @@ services:
       PLATFORM_MGMT_DB_USERNAME: ${PLATFORM_MGMT_DB_USERNAME}
       PLATFORM_MGMT_DB_PASSWORD: ${PLATFORM_MGMT_DB_PASSWORD}
       LOG_DIR: ${PLATFORM_MGMT_LOG_DIR:-/app/logs}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_APPLICATION_NAME: platform-management-service
     volumes:
       - ${PLATFORM_MGMT_LOG_DIR:-./logs/platform-management}:/app/logs
     depends_on:

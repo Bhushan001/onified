@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } 
 import { Router } from '@angular/router';
 import { FooterComponent } from '../shared/footer/footer.component';
 import { TestimonialComponent } from '../shared/testimonial/testimonial.component';
-import { PasswordPolicyService, PasswordValidationResult } from '../../services/password-policy.service';
+import { PasswordPolicyService, PasswordValidationResult, PasswordPolicy } from '../../services/password-policy.service';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -28,6 +28,7 @@ export class SignupComponent implements OnInit, OnDestroy {
   passwordValidation: PasswordValidationResult | null = null;
   isPasswordPolicyLoaded = false;
   private policySubscription: Subscription | null = null;
+  public passwordPolicy: PasswordPolicy | null = null;
 
   testimonial = {
     quote: "Onified has transformed how we manage our enterprise applications. The seamless integration and powerful features have made our workflow incredibly efficient.",
@@ -58,6 +59,7 @@ export class SignupComponent implements OnInit, OnDestroy {
     // Subscribe to password policy changes
     this.policySubscription = this.passwordPolicyService.policy$.subscribe(policy => {
       this.isPasswordPolicyLoaded = !!policy;
+      this.passwordPolicy = policy;
       if (policy) {
         // Update password validation when policy is loaded
         this.validatePassword();

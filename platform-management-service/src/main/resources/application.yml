@@ -7,6 +7,8 @@ logging:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
 
 spring:
+  application:
+    name: platform-management-service
   datasource:
     url: ${PLATFORM_MGMT_DB_URL:jdbc:postgresql://localhost:5432/platform_mgmt_db}
     username: ${PLATFORM_MGMT_DB_USERNAME:postgres}
@@ -33,4 +35,11 @@ management:
         include: health,info
   endpoint:
     health:
-      show-details: always 
+      show-details: always
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/ 

@@ -123,18 +123,29 @@ public class PasswordPolicyService {
     }
     
     public PasswordPolicy getOrCreateDefaultPolicy() {
+        // Try to find an active default policy first
         Optional<PasswordPolicy> defaultPolicy = getDefaultPasswordPolicy();
         if (defaultPolicy.isPresent()) {
             return defaultPolicy.get();
         }
-        
-        // Create a default policy if none exists
+
+        // If not found, check if a policy with the default name exists (even if not active/default)
+        Optional<PasswordPolicy> byName = passwordPolicyRepository.findByPolicyName("Default Password Policy");
+        if (byName.isPresent()) {
+            PasswordPolicy policy = byName.get();
+            // Optionally update it to be default and active
+            policy.setDefault(true);
+            policy.setActive(true);
+            return passwordPolicyRepository.save(policy);
+        }
+
+        // If not found at all, create a new one
         PasswordPolicy newDefaultPolicy = new PasswordPolicy();
         newDefaultPolicy.setPolicyName("Default Password Policy");
         newDefaultPolicy.setDescription("Default password policy for the platform");
         newDefaultPolicy.setDefault(true);
         newDefaultPolicy.setActive(true);
-        
+
         return passwordPolicyRepository.save(newDefaultPolicy);
     }
 } 
