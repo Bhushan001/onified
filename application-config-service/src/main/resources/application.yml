@@ -7,9 +7,9 @@ spring:
   application:
     name: application-config-service
   datasource:
-    url: ${APP_CONFIG_DB_URL}
-    username: ${APP_CONFIG_DB_USERNAME}
-    password: ${APP_CONFIG_DB_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/application_config_db
+    username: postgres
+    password: root
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -27,3 +27,12 @@ logging:
     com.onified.appconfig: DEBUG
   pattern:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

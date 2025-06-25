@@ -24,7 +24,6 @@ public class TenantConfigService {
         TenantConfig config = new TenantConfig();
         config.setTenantId(tenantId);
         config.setBranding("{}");
-        config.setPasswordPolicy(new com.onified.ai.tenant_management.entity.PasswordPolicy());
         config.setAppSubscriptions(java.util.Collections.emptyList());
         return tenantConfigRepository.save(config);
     }

@@ -22,14 +22,14 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<CustomErrorResponse> handleAllExceptions(Exception ex, WebRequest request) {
-        CustomErrorResponse error = new CustomErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                MessageConstants.STATUS_ERROR,
-                ErrorConstants.INTERNAL_SERVER_ERROR,
-                request.getDescription(false)
-        );
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+    // @ExceptionHandler(Exception.class)
+    // public ResponseEntity<CustomErrorResponse> handleAllExceptions(Exception ex, WebRequest request) {
+    //     CustomErrorResponse error = new CustomErrorResponse(
+    //             HttpStatus.INTERNAL_SERVER_ERROR.value(),
+    //             MessageConstants.STATUS_ERROR,
+    //             ErrorConstants.INTERNAL_SERVER_ERROR,
+    //             request.getDescription(false)
+    //     );
+    //     return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    // }
 } 

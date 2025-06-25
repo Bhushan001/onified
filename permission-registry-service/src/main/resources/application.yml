@@ -7,9 +7,9 @@ spring:
   application:
     name: permission-registry-service
   datasource:
-    url: ${PERMISSION_DB_URL}
-    username: ${PERMISSION_DB_USERNAME}
-    password: ${PERMISSION_DB_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/permission_registry_db
+    username: postgres
+    password: root
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -27,3 +27,12 @@ logging:
     com.onified.permission: DEBUG
   pattern:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

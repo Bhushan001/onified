@@ -10,56 +10,19 @@ spring:
     gateway:
       discovery:
         locator:
-          enabled: true
-          lower-case-service-id: true
+          enabled: false
       routes:
-        # Application Config Service
-        - id: app-config-service
-          uri: lb://application-config-service
+        # Platform Management Service
+        - id: platform-management-service
+          uri: http://platform-management-service:9081
           predicates:
-            - Path=/appConfig/**
+            - Path=/platform-management/**
           filters:
             - StripPrefix=1
             - name: CircuitBreaker
               args:
-                name: app-config-circuit-breaker
-                fallbackUri: forward:/fallback/app-config
-        
-        # Authentication Service
-        - id: auth-service
-          uri: lb://authentication-service
-          predicates:
-            - Path=/auth/**
-          filters:
-            - StripPrefix=1
-            - name: CircuitBreaker
-              args:
-                name: auth-circuit-breaker
-                fallbackUri: forward:/fallback/auth
-        
-        # User Management Service
-        - id: ums-service
-          uri: lb://user-management-service
-          predicates:
-            - Path=/ums/**
-          filters:
-            - StripPrefix=1
-            - name: CircuitBreaker
-              args:
-                name: ums-circuit-breaker
-                fallbackUri: forward:/fallback/ums
-        
-        # Permission Registry Service
-        - id: permission-service
-          uri: lb://permission-registry-service
-          predicates:
-            - Path=/permissions/**
-          filters:
-            - StripPrefix=1
-            - name: CircuitBreaker
-              args:
-                name: permission-circuit-breaker
-                fallbackUri: forward:/fallback/permissions
+                name: platform-management-circuit-breaker
+                fallbackUri: forward:/fallback/platform-management
       
       # Global CORS configuration
       globalcors:
@@ -70,13 +33,13 @@ spring:
             allowedHeaders: "*"
             allowCredentials: true
 
-# Eureka Client Configuration
+# Eureka Client Configuration (Disabled for now)
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
-    register-with-eureka: true
-    fetch-registry: true
+    register-with-eureka: false
+    fetch-registry: false
   instance:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${server.port}
@@ -86,7 +49,7 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,gateway
+        include: health,info
   endpoint:
     health:
       show-details: always
@@ -95,19 +58,7 @@ management:
 resilience4j:
   circuitbreaker:
     instances:
-      app-config-circuit-breaker:
-        sliding-window-size: 10
-        failure-rate-threshold: 50
-        wait-duration-in-open-state: 10000
-      auth-circuit-breaker:
-        sliding-window-size: 10
-        failure-rate-threshold: 50
-        wait-duration-in-open-state: 10000
-      ums-circuit-breaker:
-        sliding-window-size: 10
-        failure-rate-threshold: 50
-        wait-duration-in-open-state: 10000
-      permission-circuit-breaker:
+      platform-management-circuit-breaker:
         sliding-window-size: 10
         failure-rate-threshold: 50
         wait-duration-in-open-state: 10000

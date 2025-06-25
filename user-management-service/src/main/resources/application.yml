@@ -4,14 +4,13 @@ spring:
   application:
     name: user-management-service
   datasource:
-    url: ${USER_MGMT_DB_URL}
-    username: ${USER_MGMT_DB_USERNAME}
-    password: ${USER_MGMT_DB_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/user_management_db
+    username: postgres
+    password: root
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: update # Options: none, update, create, create-drop. 'update' is good for development.
-      # Use 'none' for production and manage schema migrations via Flyway/Liquibase
+      ddl-auto: update
     show-sql: true     # Log SQL statements
     properties:
       hibernate:
@@ -36,3 +35,12 @@ logging:
     com.onified.ai.ums: DEBUG # Set your application's logging level
     com.onified.ai.ums.client.PermissionRegistryFeignClient: DEBUG # To see Feign client request/response
     org.springframework.cloud.openfeign: DEBUG # For more detailed Feign logging
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

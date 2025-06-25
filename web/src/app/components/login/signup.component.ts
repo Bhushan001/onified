@@ -1,9 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { FooterComponent } from '../shared/footer/footer.component';
 import { TestimonialComponent } from '../shared/testimonial/testimonial.component';
+import { PasswordPolicyService, PasswordValidationResult } from '../../services/password-policy.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-signup',
@@ -12,7 +14,7 @@ import { TestimonialComponent } from '../shared/testimonial/testimonial.componen
   templateUrl: './signup.component.html',
   styleUrls: ['./signup.component.scss']
 })
-export class SignupComponent {
+export class SignupComponent implements OnInit, OnDestroy {
   signupForm: FormGroup;
   submitted = false;
   error: string | null = null;
@@ -21,6 +23,11 @@ export class SignupComponent {
   modalScrolledToEnd = false;
   showPassword = false;
   showConfirmPassword = false;
+  
+  // Password validation properties
+  passwordValidation: PasswordValidationResult | null = null;
+  isPasswordPolicyLoaded = false;
+  private policySubscription: Subscription | null = null;
 
   testimonial = {
     quote: "Onified has transformed how we manage our enterprise applications. The seamless integration and powerful features have made our workflow incredibly efficient.",
@@ -29,7 +36,11 @@ export class SignupComponent {
     avatar: "assets/images/testimonials/sarah.jpg"
   };
 
-  constructor(private fb: FormBuilder, private router: Router) {
+  constructor(
+    private fb: FormBuilder, 
+    private router: Router,
+    private passwordPolicyService: PasswordPolicyService
+  ) {
     this.signupForm = this.fb.group({
       firstName: ['', [Validators.required]],
       lastName: ['', [Validators.required]],
@@ -37,13 +48,61 @@ export class SignupComponent {
       country: ['', [Validators.required]],
       username: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(10)]],
+      password: ['', [Validators.required]],
       confirmPassword: ['', [Validators.required]],
       consent: [false, [Validators.requiredTrue]]
     }, { validator: this.passwordMatchValidator });
   }
 
+  ngOnInit(): void {
+    // Subscribe to password policy changes
+    this.policySubscription = this.passwordPolicyService.policy$.subscribe(policy => {
+      this.isPasswordPolicyLoaded = !!policy;
+      if (policy) {
+        // Update password validation when policy is loaded
+        this.validatePassword();
+      }
+    });
+
+    // Load password policy from backend
+    this.passwordPolicyService.loadPasswordPolicy().subscribe({
+      next: (policy) => {
+        console.log('Password policy loaded:', policy);
+      },
+      error: (error) => {
+        console.error('Failed to load password policy:', error);
+        this.error = 'Failed to load password requirements. Please try again.';
+      }
+    });
+
+    // Add password change listener
+    this.signupForm.get('password')?.valueChanges.subscribe(() => {
+      this.validatePassword();
+    });
+
+    this.signupForm.get('username')?.valueChanges.subscribe(() => {
+      this.validatePassword();
+    });
+  }
+
+  ngOnDestroy(): void {
+    if (this.policySubscription) {
+      this.policySubscription.unsubscribe();
+    }
+  }
+
   get f() { return this.signupForm.controls; }
+
+  validatePassword(): void {
+    const password = this.signupForm.get('password')?.value;
+    const username = this.signupForm.get('username')?.value;
+    
+    if (password) {
+      this.passwordValidation = this.passwordPolicyService.validatePassword(password, username);
+    } else {
+      this.passwordValidation = null;
+    }
+  }
 
   passwordMatchValidator(form: FormGroup) {
     const password = form.get('password')!.value;
@@ -69,9 +128,17 @@ export class SignupComponent {
   onSubmit() {
     this.submitted = true;
     this.error = null;
+    
+    // Validate password against policy
+    if (this.passwordValidation && !this.passwordValidation.isValid) {
+      this.error = 'Please fix password requirements before submitting.';
+      return;
+    }
+    
     if (this.signupForm.invalid) {
       return;
     }
+    
     // TODO: Call backend API to register platform_admin
     // On success:
     this.router.navigate(['/login']);
@@ -110,5 +177,23 @@ export class SignupComponent {
 
   toggleConfirmPasswordVisibility() {
     this.showConfirmPassword = !this.showConfirmPassword;
+  }
+
+  getPasswordStrengthColor(): string {
+    return this.passwordValidation 
+      ? this.passwordPolicyService.getStrengthColor(this.passwordValidation.strength)
+      : '#6b7280';
+  }
+
+  getPasswordStrengthText(): string {
+    return this.passwordValidation 
+      ? this.passwordPolicyService.getStrengthText(this.passwordValidation.strength)
+      : 'Unknown';
+  }
+
+  getPasswordStrengthWidth(): string {
+    return this.passwordValidation 
+      ? `${this.passwordValidation.score}%`
+      : '0%';
   }
 } 

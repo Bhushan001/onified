@@ -1,6 +1,14 @@
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    com.onified.ai.platform_management: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/platform_db
+    url: jdbc:postgresql://localhost:5432/platform_mgmt_db
     username: postgres
     password: root
     driver-class-name: org.postgresql.Driver
@@ -13,5 +21,16 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     open-in-view: false
+
+
 server:
-  port: 9092 
+  port: 9081
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always 

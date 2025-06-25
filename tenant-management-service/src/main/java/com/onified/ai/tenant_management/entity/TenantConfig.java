@@ -14,9 +14,6 @@ public class TenantConfig {
     @Column(columnDefinition = "text")
     private String branding; // JSON or simple string for now
 
-    @Embedded
-    private PasswordPolicy passwordPolicy;
-
     @ElementCollection
     @CollectionTable(name = "tenant_app_subscriptions", joinColumns = @JoinColumn(name = "tenant_id"))
     @Column(name = "app_id")

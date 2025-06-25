@@ -1,12 +1,11 @@
-package com.onified.ai.tenant_management.entity;
+package com.onified.ai.tenant_management.dto;
 
-import jakarta.persistence.Embeddable;
 import lombok.Data;
-import java.util.List;
 
 @Data
-@Embeddable
-public class PasswordPolicy {
+public class CreatePasswordPolicyRequest {
+    private String policyName;
+    private String description;
     private int minLength = 10;
     private int maxPasswordAge = 90;
     private int minPasswordAge = 0;
@@ -17,4 +16,5 @@ public class PasswordPolicy {
     private boolean requireSpecial = true;
     private String initialPasswordFormat = "[FirstInitial][LastInitial][Random]";
     private String bannedPatterns = "password,123456,qwerty,admin";
+    private boolean isDefault = false;
 } 

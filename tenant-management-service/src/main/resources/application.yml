@@ -1,9 +1,11 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/tenant_db
+    url: jdbc:postgresql://localhost:5432/tenant_management_db
     username: postgres
     password: root
     driver-class-name: org.postgresql.Driver
+  application:
+    name: tenant-management-service
   jpa:
     hibernate:
       ddl-auto: update
@@ -13,5 +15,24 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
     open-in-view: false
+
 server:
-  port: 9091 
+  port: 9091
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://${EUREKA_HOST}:${EUREKA_PORT}/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always 

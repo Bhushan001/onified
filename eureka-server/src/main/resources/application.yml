@@ -1,2 +1,44 @@
 server:
-  port: 9081 
+  port: 8761
+
+spring:
+  application:
+    name: eureka-server
+
+# Eureka Server Configuration
+eureka:
+  instance:
+    hostname: localhost
+    prefer-ip-address: true
+  client:
+    # Disable client behavior for server
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  server:
+    # Enable self-preservation mode
+    enable-self-preservation: true
+    # Eviction interval (in milliseconds)
+    eviction-interval-timer-in-ms: 1000
+    # Response cache update interval
+    response-cache-update-interval-ms: 3000
+
+# Actuator Configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,eureka
+  endpoint:
+    health:
+      show-details: always
+
+# Logging Configuration
+logging:
+  level:
+    com.netflix.eureka: DEBUG
+    com.netflix.discovery: DEBUG
+    org.springframework.cloud.netflix.eureka: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n" 
