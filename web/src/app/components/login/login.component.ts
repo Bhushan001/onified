@@ -6,6 +6,7 @@ import { AuthService } from '../../services/auth.service';
 import { InternalLoginRequest } from '../../models/auth.models';
 import { TestimonialComponent } from '../shared/testimonial/testimonial.component';
 import { FooterComponent } from '../shared/footer/footer.component';
+import { ThemeService } from '../../services/theme.service';
 
 /**
  * Login Component for Onified.ai Application
@@ -27,6 +28,7 @@ import { FooterComponent } from '../shared/footer/footer.component';
  * - Responsive design with testimonial section
  * - Keyboard navigation support
  * - Username validation and availability checking
+ * - Theme toggle functionality
  * 
  * @component LoginComponent
  */
@@ -47,6 +49,7 @@ export class LoginComponent implements OnInit {
   identifier = '';
   password = '';
   identifierType: 'username' | 'phone' | 'domain' = 'username';
+  currentTheme = 'light';
   
   testimonial = {
     quote: "Onified has transformed how we manage our enterprise applications. The seamless integration and powerful features have made our workflow incredibly efficient.",
@@ -58,7 +61,8 @@ export class LoginComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     public authService: AuthService, // Changed to public for template access
-    private router: Router
+    private router: Router,
+    private themeService: ThemeService
   ) {
     this.loginForm = this.fb.group({
       identifier: ['', [Validators.required]],
@@ -73,6 +77,15 @@ export class LoginComponent implements OnInit {
     if (this.authService.isAuthenticated()) {
       this.router.navigate(['/dashboard']);
     }
+
+    // Subscribe to theme changes
+    this.themeService.theme$.subscribe(theme => {
+      this.currentTheme = theme;
+    });
+  }
+
+  toggleTheme(): void {
+    this.themeService.toggleTheme();
   }
 
   onContinue(): void {
@@ -207,6 +220,6 @@ export class LoginComponent implements OnInit {
   }
 
   onSignUp(): void {
-    this.router.navigate(['/register']);
+    this.router.navigate(['/signup']);
   }
 }

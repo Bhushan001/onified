@@ -5,26 +5,31 @@ services:
     image: postgres:15
     container_name: postgres
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-onified}
-      POSTGRES_USER: ${POSTGRES_USER:-onified}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-onified}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-root}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
+      - ./configs/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
-  # Keycloak Database
-  keycloak-db:
-    image: postgres:15
-    container_name: keycloak-db
-    environment:
-      POSTGRES_DB: ${KEYCLOAK_DB_NAME:-keycloak}
-      POSTGRES_USER: ${KEYCLOAK_DB_USER:-keycloak}
-      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-keycloak}
+  # Eureka Server
+  eureka-server:
+    build: ./eureka-server
+    container_name: eureka-server
     ports:
-      - "5433:5432"
-    volumes:
-      - keycloak_data:/var/lib/postgresql/data
+      - "8761:8761"
+    healthcheck:
+      test: ["CMD-SHELL", "apk add --no-cache curl >/dev/null 2>&1 || true; curl -sf http://localhost:8761/actuator/health | grep '\"status\":\"UP\"' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
   # Keycloak Identity Provider
   keycloak:
@@ -32,9 +37,9 @@ services:
     container_name: keycloak
     environment:
       KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/${KEYCLOAK_DB_NAME:-keycloak}
-      KC_DB_USERNAME: ${KEYCLOAK_DB_USER:-keycloak}
-      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-keycloak}
+      KC_DB_URL: jdbc:postgresql://host.docker.internal:5432/${KEYCLOAK_DB:-keycloak_db}
+      KC_DB_USERNAME: ${POSTGRES_USER:-postgres}
+      KC_DB_PASSWORD: ${POSTGRES_PASSWORD:-root}
       KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
       KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin123}
       KC_HOSTNAME_STRICT: false
@@ -42,20 +47,15 @@ services:
       KC_HTTP_ENABLED: true
     ports:
       - "${KEYCLOAK_PORT:-9090}:8080"
-    depends_on:
-      - keycloak-db
     command: start-dev
+    healthcheck:
+      test: ["CMD-SHELL", "echo > /dev/tcp/localhost/8080 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
-  # Eureka Server (temporarily disabled)
-  # eureka-server:
-  #   build: ./eureka-server
-  #   container_name: eureka-server
-  #   ports:
-  #     - "8761:8761"
-  #   environment:
-  #     - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-  #     - EUREKA_INSTANCE_HOSTNAME=eureka-server
-
+  # API Gateway
   onified-gateway:
     build: ./onified-gateway
     container_name: onified-gateway
@@ -63,91 +63,48 @@ services:
       - "${GATEWAY_PORT:-9080}:9080"
     environment:
       LOG_DIR: ${GATEWAY_LOG_DIR:-/app/logs}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_APPLICATION_NAME: onified-gateway
     volumes:
       - ${GATEWAY_LOG_DIR:-./logs/gateway}:/app/logs
-    # environment:
-    #   - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
-    #   - EUREKA_INSTANCE_HOSTNAME=onified-gateway
-    # depends_on:
-    #   - eureka-server
-
-  application-config-service:
-    build: ./application-config-service
-    container_name: application-config-service
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-onified}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-onified}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-onified}
-      LOG_DIR: ${APP_CONFIG_LOG_DIR:-/app/logs}
-      # EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-      # EUREKA_INSTANCE_HOSTNAME: application-config-service
-    ports:
-      - "${APPLICATION_CONFIG_SERVICE_PORT:-9082}:8080"
-    volumes:
-      - ${APP_CONFIG_LOG_DIR:-./logs/app-config}:/app/logs
     depends_on:
-      - postgres
-      # - eureka-server
+      eureka-server:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "apk add --no-cache curl >/dev/null 2>&1 || true; curl -sf http://localhost:9080/actuator/health | grep '\"status\":\"UP\"' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
-  authentication-service:
-    build: ./authentication-service
-    container_name: authentication-service
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-onified}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-onified}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-onified}
-      LOG_DIR: ${AUTH_LOG_DIR:-/app/logs}
-      # EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-      # EUREKA_INSTANCE_HOSTNAME: authentication-service
-      # Keycloak Configuration
-      KEYCLOAK_AUTH_SERVER_URL: http://keycloak:8080
-      KEYCLOAK_REALM: ${KEYCLOAK_REALM:-onified}
-      KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID:-onified-auth-service}
-      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET:-your-client-secret}
+  # Platform Management Service
+  platform-management-service:
+    build: ./platform-management-service
+    container_name: platform-management-service
     ports:
-      - "${AUTH_SERVICE_PORT:-9081}:9083"
-    volumes:
-      - ${AUTH_LOG_DIR:-./logs/auth-service}:/app/logs
-    depends_on:
-      - postgres
-      - keycloak
-      # - eureka-server
-
-  permission-registry-service:
-    build: ./permission-registry-service
-    container_name: permission-registry-service
+      - "${PLATFORM_MGMT_PORT:-9081}:9081"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-onified}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-onified}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-onified}
-      LOG_DIR: ${PERMISSION_LOG_DIR:-/app/logs}
-      # EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-      # EUREKA_INSTANCE_HOSTNAME: permission-registry-service
-    ports:
-      - "${PERMISSION_REGISTRY_SERVICE_PORT:-9084}:8080"
+      PLATFORM_MGMT_DB_URL: ${PLATFORM_MGMT_DB_URL}
+      PLATFORM_MGMT_DB_USERNAME: ${PLATFORM_MGMT_DB_USERNAME}
+      PLATFORM_MGMT_DB_PASSWORD: ${PLATFORM_MGMT_DB_PASSWORD}
+      LOG_DIR: ${PLATFORM_MGMT_LOG_DIR:-/app/logs}
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      SPRING_APPLICATION_NAME: platform-management-service
     volumes:
-      - ${PERMISSION_LOG_DIR:-./logs/permission-service}:/app/logs
+      - ${PLATFORM_MGMT_LOG_DIR:-./logs/platform-management}:/app/logs
     depends_on:
-      - postgres
-      # - eureka-server
-
-  user-management-service:
-    build: ./user-management-service
-    container_name: user-management-service
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-onified}
-      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER:-onified}
-      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD:-onified}
-      LOG_DIR: ${USER_MGMT_LOG_DIR:-/app/logs}
-      # EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
-      # EUREKA_INSTANCE_HOSTNAME: user-management-service
-    ports:
-      - "${USER_MANAGEMENT_SERVICE_PORT:-9083}:8080"
-    volumes:
-      - ${USER_MGMT_LOG_DIR:-./logs/user-management}:/app/logs
-    depends_on:
-      - postgres
-      # - eureka-server
+      eureka-server:
+        condition: service_healthy
+      onified-gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "apk add --no-cache curl >/dev/null 2>&1 || true; curl -sf http://localhost:9081/actuator/health | grep '\"status\":\"UP\"' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
 
   # Angular Frontend
   onified-frontend:
@@ -161,10 +118,17 @@ services:
     volumes:
       - ${FRONTEND_LOG_DIR:-./logs/frontend}:/app/logs
     depends_on:
-      - onified-gateway
-      - keycloak
+      onified-gateway:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "echo > /dev/tcp/localhost/80 || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
 
 volumes:
-  pgdata:
-  keycloak_data: 
+  postgres_data:

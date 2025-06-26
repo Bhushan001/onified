@@ -15,15 +15,42 @@ git clone <repository-url>
 cd repository
 ```
 
-### 2. Environment Configuration
-```bash
-# Copy the example environment file
-cp env.example .env
+### 2. Build and Start the Stack (Recommended)
 
-# Edit .env with your actual credentials
-# Replace the placeholder values with your real database credentials
-nano .env  # or use your preferred editor
+Use the provided automation scripts to generate the .env file and start the stack for your environment:
+
+#### Linux/macOS
+```bash
+./build-stack.sh local    # or dev, prod, etc.
 ```
+
+#### Windows (PowerShell)
+```powershell
+./build-stack.ps1 local   # or dev, prod, etc.
+```
+
+This will:
+- Generate the correct .env file for your chosen environment using the configs in configs/.
+- Build and start the stack with docker-compose up --build.
+
+> You can still use the setup scripts in configs/ directly if you want to only generate the .env file without starting the stack.
+
+### 3. Access Services
+
+All environment variables are managed via per-environment JSON config files in the `configs/` directory. Use the provided scripts to generate a `.env` file at the project root.
+
+To generate a `.env` file for your local environment, use the setup script:
+
+```bash
+bash configs/setup-env.sh local
+```
+
+**How it works:**
+- The generated `.env` file is automatically used by Docker Compose for all services.
+- All Spring Boot services are configured (in their `application.yml`) to import environment variables from `.env` at startup.
+- Dockerfiles do not need to reference `.env` directly; configuration is injected at runtime by Docker Compose.
+
+> **Note:** No manual changes are needed in Dockerfiles or `application.yml` as long as `.env` is generated at the project root. The `configs/` directory is gitignored and should not be committed to version control.
 
 **Required .env file contents:**
 ```bash
@@ -45,7 +72,7 @@ KEYCLOAK_CLIENT_ID=onified-auth-service
 KEYCLOAK_CLIENT_SECRET=your-client-secret
 
 # Service Ports (optional - these are the defaults)
-AUTH_SERVICE_PORT=9081
+AUTH_SERVICE_PORT=9083
 USER_MANAGEMENT_SERVICE_PORT=9083
 APPLICATION_CONFIG_SERVICE_PORT=9082
 PERMISSION_REGISTRY_SERVICE_PORT=9084
@@ -62,7 +89,7 @@ USER_MGMT_LOG_DIR=./logs/user-management
 FRONTEND_LOG_DIR=./logs/frontend
 ```
 
-### 3. Setup Log Directories
+### 4. Setup Log Directories
 ```bash
 # Create log directories for all services
 chmod +x setup-logs.sh
@@ -72,7 +99,7 @@ chmod +x setup-logs.sh
 mkdir -p logs/{gateway,app-config,auth-service,permission-service,user-management,frontend}
 ```
 
-### 4. Start Keycloak (Identity Provider)
+### 5. Start Keycloak (Identity Provider)
 ```bash
 # Start Keycloak and its database
 docker-compose up -d keycloak keycloak-db
@@ -80,14 +107,6 @@ docker-compose up -d keycloak keycloak-db
 # Wait for Keycloak to be ready (check logs)
 docker-compose logs -f keycloak
 ```
-
-### 5. Configure Keycloak
-1. Access Keycloak Admin Console: http://localhost:9090
-2. Login with credentials from your .env file (default: `admin` / `admin123`)
-3. Create realm: `onified`
-4. Create client: `onified-auth-service` (confidential)
-5. Copy client secret and update your `.env` file
-6. Create users and roles as per `KEYCLOAK_SETUP.md`
 
 ### 6. Start All Services
 ```bash
@@ -109,12 +128,12 @@ ng serve
 
 ### Port Mappings
 - **API Gateway**: http://localhost:9080 (configurable via `GATEWAY_PORT`)
-- **Authentication Service**: http://localhost:9081 (configurable via `AUTH_SERVICE_PORT`)
+- **Eureka Server**: http://localhost:9081 (configurable via `EUREKA_SERVER_PORT`)
 - **Application Config Service**: http://localhost:9082 (configurable via `APPLICATION_CONFIG_SERVICE_PORT`)
-- **User Management Service**: http://localhost:9083 (configurable via `USER_MANAGEMENT_SERVICE_PORT`)
+- **Authentication Service**: http://localhost:9083 (configurable via `AUTH_SERVICE_PORT`)
 - **Permission Registry Service**: http://localhost:9084 (configurable via `PERMISSION_REGISTRY_SERVICE_PORT`)
-- **Eureka Server**: http://localhost:8761 (configurable via `EUREKA_SERVER_PORT`)
-- **Keycloak**: http://localhost:9090 (configurable via `KEYCLOAK_PORT`)
+- **User Management Service**: http://localhost:9085 (configurable via `USER_MANAGEMENT_SERVICE_PORT`)
+- **Keycloak**: http://localhost:9086 (configurable via `KEYCLOAK_PORT`)
 - **Angular Frontend**: http://localhost:4200 (configurable via `FRONTEND_PORT`)
 - **PostgreSQL**: localhost:5432
 - **Keycloak DB**: localhost:5433
@@ -122,7 +141,7 @@ ng serve
 ### Service Dependencies
 ```
 Frontend (4200) → API Gateway (9080) → Microservices
-Keycloak (9090) ← Authentication Service (9081)
+Keycloak (9090) ← Authentication Service (9083)
 Eureka (8761) ← All Microservices
 PostgreSQL (5432) ← All Microservices
 ```
@@ -144,7 +163,7 @@ KEYCLOAK_CLIENT_ID=onified-auth-service
 KEYCLOAK_CLIENT_SECRET=your-client-secret
 
 # Service Ports (all configurable)
-AUTH_SERVICE_PORT=9081
+AUTH_SERVICE_PORT=9083
 USER_MANAGEMENT_SERVICE_PORT=9083
 APPLICATION_CONFIG_SERVICE_PORT=9082
 PERMISSION_REGISTRY_SERVICE_PORT=9084
@@ -323,7 +342,7 @@ docker-compose up -d authentication-service
 docker-compose logs -f authentication-service
 
 # Test authentication endpoint
-curl http://localhost:9081/api/auth/health
+curl http://localhost:9083/api/auth/health
 ```
 
 #### Application Config Service
@@ -416,7 +435,7 @@ docker-compose up -d authentication-service onified-gateway onified-frontend
 curl http://localhost:9080/actuator/health
 
 # Authentication Service
-curl http://localhost:9081/api/auth/health
+curl http://localhost:9083/api/auth/health
 
 # Eureka Server
 curl http://localhost:8761/actuator/health
@@ -428,7 +447,7 @@ curl http://localhost:4200/health
 ### 2. Authentication Test
 ```bash
 # Login with Keycloak user
-curl -X POST http://localhost:9081/api/auth/login \
+curl -X POST http://localhost:9083/api/auth/login \
   -H "Content-Type: application/json" \
   -d '{
     "username": "admin",
@@ -465,118 +484,3 @@ curl -X POST http://localhost:9081/api/auth/login \
 
 5. **Build Failures**
    - Clear Docker cache: `docker system prune -a`
-   - Check Maven dependencies
-   - Verify Node.js version for frontend
-
-### Debug Commands
-```bash
-# Check container status
-docker-compose ps
-
-# Check container logs
-docker-compose logs [service-name]
-
-# Check network connectivity
-docker-compose exec [service-name] ping [target-service]
-
-# Access container shell
-docker-compose exec [service-name] /bin/bash
-
-# Check Docker images
-docker images | grep repository
-
-# Check Docker volumes
-docker volume ls
-
-# Check Docker networks
-docker network ls
-```
-
-### Service-Specific Debugging
-
-#### Java Services
-```bash
-# Check JVM memory usage
-docker-compose exec authentication-service jstat -gc
-
-# Check application logs
-docker-compose logs -f authentication-service
-
-# Access service shell
-docker-compose exec authentication-service /bin/bash
-```
-
-#### Frontend
-```bash
-# Check nginx logs
-docker-compose logs -f onified-frontend
-
-# Access nginx container
-docker-compose exec onified-frontend /bin/sh
-
-# Check nginx configuration
-docker-compose exec onified-frontend nginx -t
-```
-
-#### Database
-```bash
-# Connect to PostgreSQL
-docker-compose exec postgres psql -U onified -d onified
-
-# Check database logs
-docker-compose logs -f postgres
-
-# Backup database
-docker-compose exec postgres pg_dump -U onified onified > backup.sql
-```
-
-## Performance Optimization
-
-### 1. Resource Limits
-Add resource limits to `docker-compose.yml`:
-```yaml
-services:
-  authentication-service:
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-          cpus: '0.5'
-```
-
-### 2. JVM Tuning
-Add JVM options to services:
-```yaml
-environment:
-  JAVA_OPTS: "-Xms256m -Xmx512m -XX:+UseG1GC"
-```
-
-### 3. Frontend Optimization
-```bash
-# Build with production optimizations
-cd web
-ng build --configuration production --optimization
-
-# Enable gzip compression in nginx
-# (Already configured in nginx.conf)
-```
-
-## Security Considerations
-
-### 1. Local Development
-- Use strong passwords for Keycloak admin
-- Change default database passwords
-- Enable HTTPS for production
-
-### 2. Network Security
-- Use Docker networks for service communication
-- Restrict external access to admin interfaces
-- Implement proper firewall rules
-
-## Next Steps
-
-1. Set up monitoring and logging
-2. Configure CI/CD pipelines
-3. Implement automated testing
-4. Set up production deployment
-5. Configure backup strategies 

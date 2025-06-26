@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: platform-management-service
+  namespace: onified
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: platform-management-service
+  template:
+    metadata:
+      labels:
+        app: platform-management-service
+    spec:
+      containers:
+      - name: platform-management-service
+        image: onified/platform-management:latest
+        ports:
+        - containerPort: 9081
+        env:
+        - name: PLATFORM_MGMT_DB_URL
+          value: "jdbc:postgresql://postgres:5432/platform_mgmt_db"
+        - name: PLATFORM_MGMT_DB_USERNAME
+          value: "postgres"
+        - name: PLATFORM_MGMT_DB_PASSWORD
+          value: "root"
+        - name: SPRING_APPLICATION_NAME
+          value: "platform-management-service"
+        - name: SPRING_PROFILES_ACTIVE
+          value: "kubernetes"
+        - name: EUREKA_CLIENT_ENABLED
+          value: "false"
+        - name: SPRING_CLOUD_DISCOVERY_ENABLED
+          value: "false"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 9081
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 9081
+          initialDelaySeconds: 30
+          periodSeconds: 10 

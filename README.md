@@ -1,5 +1,7 @@
 # Onified Microservices Platform
 
+yes update documentation also verify if we are missing anything in documentation. i fyes, fix it. then proceed move forward to configure swagger for all springboot microservices and update the documentation for it as well
+
 A comprehensive microservices platform built with Spring Boot, Angular, and Keycloak for identity management.
 
 ## 🏗️ Architecture Overview
@@ -32,13 +34,71 @@ A comprehensive microservices platform built with Spring Boot, Angular, and Keyc
 - Node.js 18+ (for Angular development)
 
 ### 1. Environment Setup
-```bash
-# Copy environment template
-cp env.example .env
 
-# Edit environment variables
-# Update database passwords, Keycloak admin password, etc.
+All environment variables are managed via per-environment JSON config files in the `configs/` directory. Use the provided scripts to generate a `.env` file at the project root.
+
+- `configs/config.local.json` (local development)
+- `configs/config.dev.json` (development)
+- `configs/config.prod.json` (production)
+
+To generate a `.env` file for your desired environment, use one of the setup scripts from the `configs/` directory:
+
+**On Linux/macOS:**
+```bash
+bash configs/setup-env.sh local
 ```
+**On Windows (PowerShell):**
+```powershell
+cd configs
+./setup-env.ps1 local
+```
+
+**How it works:**
+- The generated `.env` file is automatically used by Docker Compose for all services.
+- All Spring Boot services are configured (in their `application.yml`) to import environment variables from `.env` at startup.
+- Dockerfiles do not need to reference `.env` directly; configuration is injected at runtime by Docker Compose.
+
+> **Note:** No manual changes are needed in Dockerfiles or `application.yml` as long as `.env` is generated at the project root. The `configs/` directory is gitignored and should not be committed to version control.
+
+### 🧹 Cleaning Up Existing Docker Images
+
+Before building new Docker images, you may want to remove old or unused images to free up disk space and avoid conflicts.
+
+**To remove all Docker images:**
+
+```bash
+docker rmi -f $(docker images -q)
+```
+
+**Windows PowerShell:**
+```powershell
+docker images -q | % { docker rmi -f $_ }
+```
+
+> **Warning:** This will remove all Docker images from your system, not just those related to this project. Only use if you want a full cleanup.
+
+### 🧼 If You Want to Start With a Completely Clean Setup
+
+In addition to removing Docker images, you may want to remove Docker volumes to fully reset your environment. **Warning: This will delete all persistent data, such as databases and logs.**
+
+#### Remove all unused (dangling) volumes (safe):
+```bash
+docker volume prune
+```
+This removes only volumes not used by any container.
+
+#### Remove all volumes (dangerous, wipes all data!):
+```bash
+docker volume rm $(docker volume ls -q)
+```
+> **Warning:** This will remove all Docker volumes from your system, including databases and persistent files. Only use if you want a completely fresh start.
+
+**When should you do this?**
+- If you want to reclaim disk space from old, unused volumes.
+- If you want to reset all persistent data (e.g., databases, logs) for a totally clean development or test environment.
+- If you are troubleshooting persistent data issues and want to start from scratch.
+
+If you want to keep your data (e.g., database contents), you do **not** need to remove volumes.
 
 ### 2. Start All Services
 ```bash
@@ -52,12 +112,24 @@ docker-compose up -d --build
 ### 3. Access Services
 - **Angular Web App**: http://localhost:4200
 - **API Gateway**: http://localhost:9080
-- **Eureka Server**: http://localhost:8761
-- **Keycloak Admin**: http://localhost:8080 (admin/admin)
+- **Eureka Server**: http://localhost:9081
+- **Keycloak Admin**: http://localhost:9086 (admin/admin)
 - **Authentication Service**: http://localhost:9083
 - **Application Config Service**: http://localhost:9082
 - **Permission Registry Service**: http://localhost:9084
 - **User Management Service**: http://localhost:9085
+
+## Service Port Mappings
+- **API Gateway**: 9080
+- **Eureka Server**: 9081
+- **Application Config Service**: 9082
+- **Authentication Service**: 9083
+- **Permission Registry Service**: 9084
+- **User Management Service**: 9085
+- **Keycloak**: 9086
+- **Angular Frontend**: 4200
+- **PostgreSQL**: 5432
+- **Keycloak DB**: 5433
 
 ## 📋 Service Build Order
 
@@ -241,3 +313,23 @@ repository/
 ## 📄 License
 
 This project is proprietary to Onified.
+
+## 🛠️ Automated Stack Build by Environment
+
+To simplify building and running your stack for any environment, use the provided automation scripts:
+
+### Linux/macOS
+```bash
+./build-stack.sh dev    # or local, prod, etc.
+```
+
+### Windows (PowerShell)
+```powershell
+./build-stack.ps1 dev   # or local, prod, etc.
+```
+
+These scripts will:
+1. Generate the correct `.env` file for your chosen environment using the configs in `configs/`.
+2. Build and start the stack with `docker-compose up --build`.
+
+> **Note:** You can still use the setup scripts in `configs/` directly if you want to only generate the `.env` file without starting the stack.

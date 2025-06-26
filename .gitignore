@@ -1,7 +1,10 @@
-web/.angular/*
-web/node_modules/*
-mapper/.angular/*
-mapper/node_modules/*
+# Node.js dependencies
+web/node_modules/
+web/.angular/
+
+# Build outputs
+web/dist/
+**/target/
 
 # Environment files with sensitive data
 .env
@@ -28,3 +31,22 @@ logs/
 # OS generated files
 .DS_Store
 Thumbs.db
+
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
+
+# Spring Boot
+*.jar
+*.war
+*.ear
+
+# Temporary files
+*.tmp
+*.temp
+
+# Ignore environment configs
+configs/*.json
+!configs/*.sh
+!configs/*.ps1

@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: onified-gateway
+  namespace: onified
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: onified-gateway
+  template:
+    metadata:
+      labels:
+        app: onified-gateway
+    spec:
+      containers:
+      - name: onified-gateway
+        image: onified/gateway:latest
+        ports:
+        - containerPort: 9080
+        env:
+        - name: SPRING_APPLICATION_NAME
+          value: "onified-gateway"
+        - name: SPRING_PROFILES_ACTIVE
+          value: "kubernetes"
+        - name: EUREKA_CLIENT_ENABLED
+          value: "false"
+        - name: SPRING_CLOUD_DISCOVERY_ENABLED
+          value: "false"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 9080
+          initialDelaySeconds: 60
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /actuator/health
+            port: 9080
+          initialDelaySeconds: 30
+          periodSeconds: 10 

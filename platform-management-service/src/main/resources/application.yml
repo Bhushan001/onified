@@ -1,0 +1,45 @@
+logging:
+  level:
+    root: INFO
+    org.springframework: INFO
+    com.onified.ai.platform_management: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+
+spring:
+  application:
+    name: platform-management-service
+  datasource:
+    url: ${PLATFORM_MGMT_DB_URL:jdbc:postgresql://localhost:5432/platform_mgmt_db}
+    username: ${PLATFORM_MGMT_DB_USERNAME:postgres}
+    password: ${PLATFORM_MGMT_DB_PASSWORD:root}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    open-in-view: false
+
+
+server:
+  port: 9081
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/ 

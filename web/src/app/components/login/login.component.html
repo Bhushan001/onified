@@ -1,4 +1,15 @@
 <div class="login-page">
+  <!-- Theme Toggle Button -->
+  <button 
+    class="theme-toggle-btn" 
+    (click)="toggleTheme()" 
+    [attr.aria-label]="'Switch to ' + (currentTheme === 'light' ? 'dark' : 'light') + ' theme'"
+    title="Toggle theme"
+  >
+    <i *ngIf="currentTheme === 'light'" class="fa fa-sun theme-icon"></i>
+    <i *ngIf="currentTheme === 'dark'" class="fa fa-moon theme-icon"></i>
+  </button>
+
   <main class="login-main">
     <div class="container">
       <div class="login-content">
@@ -139,7 +150,7 @@
                 <div class="auth-links">
                   <span class="auth-text">Don't have an account?</span>
                   <button type="button" class="signup-link" (click)="onSignUp()">
-                    Sign Up
+                    Signup as platform admin
                   </button>
                 </div>
               </div>

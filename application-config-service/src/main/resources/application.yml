@@ -1,18 +1,25 @@
 server:
-  port: 9081
+  port: 9082
 
 spring:
+  config:
+    import: optional:.env[.properties]
   application:
     name: application-config-service
+  datasource:
+    url: ${APP_CONFIG_DB_URL:jdbc:postgresql://localhost:5432/application_config_db}
+    username: ${APP_CONFIG_DB_USERNAME:postgres}
+    password: ${APP_CONFIG_DB_PASSWORD:root}
+    driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
       ddl-auto: update
     show-sql: true
-  datasource:
-    url: jdbc:postgresql://localhost:5432/onified_rbac
-    username: postgres
-    password: root
-    driver-class-name: org.postgresql.Driver
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    open-in-view: false
 
 logging:
   level:
@@ -25,3 +32,12 @@ logging:
     com.onified.appconfig: DEBUG
   pattern:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always

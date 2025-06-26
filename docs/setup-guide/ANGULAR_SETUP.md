@@ -484,3 +484,43 @@ docker-compose -f docker-compose.prod.yml up -d onified-frontend
 4. **Add Error Boundaries**: Better error handling
 5. **Implement PWA**: Progressive Web App features
 6. **Add Internationalization**: Multi-language support 
+
+## Environment Variable Management
+
+All environment variables for the platform are now managed via per-environment JSON config files in the `configs/` directory at the project root.
+
+- `configs/config.local.json` (local development)
+- `configs/config.dev.json` (development)
+- `configs/config.prod.json` (production)
+
+To generate a `.env` file for your desired environment, use the setup script:
+
+```bash
+bash setup-env.sh local   # for local
+bash setup-env.sh dev     # for development
+bash setup-env.sh prod    # for production
+```
+
+Edit the appropriate `configs/config.<env>.json` file to set your environment variables. The script will create a `.env` file at the project root, which is used by Docker Compose and all backend services.
+
+> **Note:** The `configs/` directory is gitignored and should not be committed to version control.
+
+## Automated Stack Build
+
+For a fully automated environment setup and stack build, use the provided scripts:
+
+### Linux/macOS
+```bash
+./build-stack.sh local    # or dev, prod, etc.
+```
+
+### Windows (PowerShell)
+```powershell
+./build-stack.ps1 local   # or dev, prod, etc.
+```
+
+These scripts will:
+- Generate the correct .env file for your chosen environment using the configs in configs/.
+- Build and start the stack with docker-compose up --build.
+
+> You can still use the setup scripts in configs/ directly if you want to only generate the .env file without starting the stack. 
