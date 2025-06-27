@@ -17,14 +17,15 @@ spring:
     open-in-view: false
 
 server:
-  port: 9091
+  port: ${TENANT_MGMT_PORT:9086}
 
 eureka:
   client:
+    enabled: ${EUREKA_ENABLED:false}
     service-url:
-      defaultZone: http://${EUREKA_HOST}:${EUREKA_PORT}/eureka/
-    register-with-eureka: true
-    fetch-registry: true
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka/}
+    register-with-eureka: ${EUREKA_ENABLED:false}
+    fetch-registry: ${EUREKA_ENABLED:false}
   instance:
     prefer-ip-address: true
 

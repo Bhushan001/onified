@@ -107,8 +107,8 @@ main() {
     check_prerequisites
     
     # Define services to build (using parallel arrays for zsh compatibility)
-    service_names=("onified-gateway" "platform-management-service" "onified-frontend")
-    service_dirs=("./onified-gateway" "./platform-management-service" "./web")
+    service_names=("onified-gateway" "platform-management-service" "authentication-service" "user-management-service" "onified-frontend")
+    service_dirs=("./onified-gateway" "./platform-management-service" "./authentication-service" "./user-management-service" "./web")
     
     # Build Java services first (JAR files)
     print_status "Building Java services (JAR files)..."

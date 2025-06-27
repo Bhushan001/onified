@@ -2,16 +2,20 @@ package com.onified.ai.ums.controller;
 
 import com.onified.ai.ums.dto.*;
 import com.onified.ai.ums.model.ApiResponse;
+import com.onified.ai.ums.model.CustomErrorResponse;
 import com.onified.ai.ums.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import feign.FeignException;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
@@ -32,14 +36,33 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<UserResponse>> createUser(@Valid @RequestBody UserCreateRequest request) {
-        UserResponse userResponse = userService.createUser(request);
-        ApiResponse<UserResponse> response = new ApiResponse<>(
-                HttpStatus.CREATED.value(),
-                MessageConstants.STATUS_SUCCESS,
-                userResponse
-        );
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    public ResponseEntity<?> createUser(@Valid @RequestBody UserCreateRequest request) {
+        try {
+            UserResponse userResponse = userService.createUser(request);
+            ApiResponse<UserResponse> response = new ApiResponse<>(
+                    HttpStatus.CREATED.value(),
+                    MessageConstants.STATUS_SUCCESS,
+                    userResponse
+            );
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (FeignException fe) {
+            String errorBody = fe.contentUTF8();
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                CustomErrorResponse customError = mapper.readValue(errorBody, CustomErrorResponse.class);
+                return ResponseEntity.status(fe.status()).body(customError);
+            } catch (Exception ex) {
+                return ResponseEntity.status(fe.status()).body(
+                    new CustomErrorResponse(String.valueOf(fe.status()), errorBody)
+                );
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new CustomErrorResponse(
+                    String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
+                    "Internal server error"
+                ));
+        }
     }
 
     @GetMapping("/{id}")
@@ -87,25 +110,63 @@ public class UserController {
     }
 
     @PostMapping("/{id}/roles")
-    public ResponseEntity<ApiResponse<UserResponse>> assignRoleToUser(@PathVariable UUID id, @Valid @RequestBody RoleAssignmentRequest request) {
-        UserResponse userResponse = userService.assignRoleToUser(id, request);
-        ApiResponse<UserResponse> response = new ApiResponse<>(
-                HttpStatus.OK.value(),
-                MessageConstants.STATUS_SUCCESS,
-                userResponse
-        );
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<?> assignRoleToUser(@PathVariable UUID id, @Valid @RequestBody RoleAssignmentRequest request) {
+        try {
+            UserResponse userResponse = userService.assignRoleToUser(id, request);
+            ApiResponse<UserResponse> response = new ApiResponse<>(
+                    HttpStatus.OK.value(),
+                    MessageConstants.STATUS_SUCCESS,
+                    userResponse
+            );
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (FeignException fe) {
+            String errorBody = fe.contentUTF8();
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                CustomErrorResponse customError = mapper.readValue(errorBody, CustomErrorResponse.class);
+                return ResponseEntity.status(fe.status()).body(customError);
+            } catch (Exception ex) {
+                return ResponseEntity.status(fe.status()).body(
+                    new CustomErrorResponse(String.valueOf(fe.status()), errorBody)
+                );
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new CustomErrorResponse(
+                    String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
+                    "Internal server error"
+                ));
+        }
     }
 
     @DeleteMapping("/{id}/roles/{roleName}")
-    public ResponseEntity<ApiResponse<UserResponse>> removeRoleFromUser(@PathVariable UUID id, @PathVariable String roleName) {
-        UserResponse userResponse = userService.removeRoleFromUser(id, roleName);
-        ApiResponse<UserResponse> response = new ApiResponse<>(
-                HttpStatus.OK.value(),
-                MessageConstants.STATUS_SUCCESS,
-                userResponse
-        );
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<?> removeRoleFromUser(@PathVariable UUID id, @PathVariable String roleName) {
+        try {
+            UserResponse userResponse = userService.removeRoleFromUser(id, roleName);
+            ApiResponse<UserResponse> response = new ApiResponse<>(
+                    HttpStatus.OK.value(),
+                    MessageConstants.STATUS_SUCCESS,
+                    userResponse
+            );
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (FeignException fe) {
+            String errorBody = fe.contentUTF8();
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                CustomErrorResponse customError = mapper.readValue(errorBody, CustomErrorResponse.class);
+                return ResponseEntity.status(fe.status()).body(customError);
+            } catch (Exception ex) {
+                return ResponseEntity.status(fe.status()).body(
+                    new CustomErrorResponse(String.valueOf(fe.status()), errorBody)
+                );
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new CustomErrorResponse(
+                    String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
+                    "Internal server error"
+                ));
+        }
     }
 
     @PostMapping("/{id}/attributes")
@@ -126,6 +187,17 @@ public class UserController {
                 HttpStatus.OK.value(),
                 MessageConstants.STATUS_SUCCESS,
                 userResponse
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<UserResponse>>> getAllUsers() {
+        List<UserResponse> users = userService.getAllUsers();
+        ApiResponse<List<UserResponse>> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                MessageConstants.STATUS_SUCCESS,
+                users
         );
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

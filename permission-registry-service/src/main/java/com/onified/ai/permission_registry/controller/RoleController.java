@@ -9,6 +9,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.onified.ai.permission_registry.model.CustomErrorResponse;
+import feign.FeignException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,22 +29,40 @@ public class RoleController {
      * @return ResponseEntity with ApiResponse containing the created RoleResponseDTO.
      */
     @PostMapping
-    public ResponseEntity<ApiResponse<RoleResponseDTO>> createRole(@RequestBody RoleRequestDTO requestDTO) {
-        // Inheritance depth is managed by service, not directly taken from DTO on creation
-        Role role = new Role(
-                requestDTO.getRoleId(),
-                requestDTO.getDisplayName(),
-                requestDTO.getAppCode(),
-                requestDTO.getModuleCode(),
-                requestDTO.getRoleFunction(),
-                requestDTO.getIsActive(),
-                0, // Default depth on creation, updated by inheritance service
-                requestDTO.getTenantCustomizable()
-        );
-        Role createdRole = roleService.createRole(role);
-        ApiResponse<RoleResponseDTO> response = new ApiResponse<>(
-                HttpStatus.CREATED.value(), "SUCCESS", convertToResponseDTO(createdRole));
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    public ResponseEntity<?> createRole(@RequestBody RoleRequestDTO requestDTO) {
+        try {
+            Role role = new Role(
+                    requestDTO.getRoleId(),
+                    requestDTO.getDisplayName(),
+                    requestDTO.getAppCode(),
+                    requestDTO.getModuleCode(),
+                    requestDTO.getRoleFunction(),
+                    requestDTO.getIsActive(),
+                    0, // Default depth on creation, updated by inheritance service
+                    requestDTO.getTenantCustomizable()
+            );
+            Role createdRole = roleService.createRole(role);
+            ApiResponse<RoleResponseDTO> response = new ApiResponse<>(
+                    HttpStatus.CREATED.value(), "SUCCESS", convertToResponseDTO(createdRole));
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (FeignException fe) {
+            String errorBody = fe.contentUTF8();
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                CustomErrorResponse customError = mapper.readValue(errorBody, CustomErrorResponse.class);
+                return ResponseEntity.status(fe.status()).body(customError);
+            } catch (Exception ex) {
+                return ResponseEntity.status(fe.status()).body(
+                    new CustomErrorResponse(String.valueOf(fe.status()), errorBody)
+                );
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new CustomErrorResponse(
+                    String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
+                    "Internal server error"
+                ));
+        }
     }
 
     /**
@@ -82,23 +103,40 @@ public class RoleController {
      * @return ResponseEntity with ApiResponse containing the updated RoleResponseDTO.
      */
     @PutMapping("/{roleId}")
-    public ResponseEntity<ApiResponse<RoleResponseDTO>> updateRole(@PathVariable String roleId, @RequestBody RoleRequestDTO requestDTO) {
-        // Note: roleId from DTO is generally ignored here, path variable is canonical
-        // inheritanceDepth is not updated directly via this endpoint.
-        Role role = new Role(
-                requestDTO.getRoleId(), // Used by constructor, but path variable is identifier
-                requestDTO.getDisplayName(),
-                requestDTO.getAppCode(),
-                requestDTO.getModuleCode(),
-                requestDTO.getRoleFunction(),
-                requestDTO.getIsActive(),
-                null, // Will be ignored by service update method for depth
-                requestDTO.getTenantCustomizable()
-        );
-        Role updatedRole = roleService.updateRole(roleId, role);
-        ApiResponse<RoleResponseDTO> response = new ApiResponse<>(
-                HttpStatus.OK.value(), "SUCCESS", convertToResponseDTO(updatedRole));
-        return new ResponseEntity<>(response, HttpStatus.OK);
+    public ResponseEntity<?> updateRole(@PathVariable String roleId, @RequestBody RoleRequestDTO requestDTO) {
+        try {
+            Role role = new Role(
+                    requestDTO.getRoleId(),
+                    requestDTO.getDisplayName(),
+                    requestDTO.getAppCode(),
+                    requestDTO.getModuleCode(),
+                    requestDTO.getRoleFunction(),
+                    requestDTO.getIsActive(),
+                    null, // Will be ignored by service update method for depth
+                    requestDTO.getTenantCustomizable()
+            );
+            Role updatedRole = roleService.updateRole(roleId, role);
+            ApiResponse<RoleResponseDTO> response = new ApiResponse<>(
+                    HttpStatus.OK.value(), "SUCCESS", convertToResponseDTO(updatedRole));
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (FeignException fe) {
+            String errorBody = fe.contentUTF8();
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                CustomErrorResponse customError = mapper.readValue(errorBody, CustomErrorResponse.class);
+                return ResponseEntity.status(fe.status()).body(customError);
+            } catch (Exception ex) {
+                return ResponseEntity.status(fe.status()).body(
+                    new CustomErrorResponse(String.valueOf(fe.status()), errorBody)
+                );
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new CustomErrorResponse(
+                    String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
+                    "Internal server error"
+                ));
+        }
     }
 
     /**

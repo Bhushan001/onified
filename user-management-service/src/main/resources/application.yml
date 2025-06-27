@@ -4,7 +4,7 @@ spring:
   application:
     name: user-management-service
   datasource:
-    url: ${USER_MGMT_DB_URL:jdbc:postgresql://localhost:5432/user_management_db}
+    url: ${USER_MGMT_DB_URL:jdbc:postgresql://localhost:5432/user_mgmt_db}
     username: ${USER_MGMT_DB_USERNAME:postgres}
     password: ${USER_MGMT_DB_PASSWORD:root}
     driver-class-name: org.postgresql.Driver
@@ -18,14 +18,19 @@ spring:
         format_sql: true
     open-in-view: false # Recommended to be false in Spring Boot applications to avoid N+1 issues in templates
 
+# Use USER_MGMT_PORT from environment, default to 9085
 server:
-  port: 9085 # Port for the User Management Service
+  port: ${USER_MGMT_PORT:9085} # Port for the User Management Service
 
+# Feign client config for permission-registry-service:
+# - If PERMISSION_REGISTRY_URL is set, it is used.
+# - Otherwise, http://localhost:9084 is used (local dev by default).
+# - For Docker Compose, set PERMISSION_REGISTRY_URL to http://permission-registry-service:9084 in your .env.
 feign:
   client:
     config:
       permission-registry-service:
-        url: http://localhost:9082 # Replace with the actual URL of your Permission Registry Service
+        url: ${PERMISSION_REGISTRY_URL:http://localhost:9084}
 
 logging:
   level:
@@ -45,3 +50,11 @@ management:
   endpoint:
     health:
       show-details: always
+
+eureka:
+  client:
+    enabled: ${EUREKA_ENABLED:false}
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka/}
+    register-with-eureka: ${EUREKA_ENABLED:false}
+    fetch-registry: ${EUREKA_ENABLED:false}

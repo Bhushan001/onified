@@ -1,5 +1,6 @@
+# Use PERMISSION_REGISTRY_PORT from environment, default to 9084
 server:
-  port: 9084
+  port: ${PERMISSION_REGISTRY_PORT:9084}
 
 spring:
   config:
@@ -7,7 +8,7 @@ spring:
   application:
     name: permission-registry-service
   datasource:
-    url: ${PERMISSION_DB_URL:jdbc:postgresql://localhost:5432/permission_registry_db}
+    url: ${PERMISSION_DB_URL:jdbc:postgresql://localhost:5432/permission_db}
     username: ${PERMISSION_DB_USERNAME:postgres}
     password: ${PERMISSION_DB_PASSWORD:root}
     driver-class-name: org.postgresql.Driver
@@ -41,3 +42,22 @@ management:
   endpoint:
     health:
       show-details: always
+
+# Feign client config for application-config-service:
+# - If APPLICATION_CONFIG_URL is set, it is used.
+# - Otherwise, http://localhost:9082 is used (local dev by default).
+# - For Docker Compose, set APPLICATION_CONFIG_URL to http://application-config-service:9082 in your .env.
+feign:
+  client:
+    config:
+      application-config-service:
+        url: ${APPLICATION_CONFIG_URL:http://localhost:9082}
+
+# Eureka Client Configuration
+eureka:
+  client:
+    enabled: ${EUREKA_ENABLED:false}
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka/}
+    register-with-eureka: ${EUREKA_ENABLED:false}
+    fetch-registry: ${EUREKA_ENABLED:false}

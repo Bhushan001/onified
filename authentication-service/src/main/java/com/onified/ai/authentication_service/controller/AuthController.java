@@ -3,13 +3,19 @@ package com.onified.ai.authentication_service.controller;
 import com.onified.ai.authentication_service.constants.MessageConstants;
 import com.onified.ai.authentication_service.dto.LoginRequest;
 import com.onified.ai.authentication_service.dto.LoginResponse;
+import com.onified.ai.authentication_service.dto.UserCreateRequest;
+import com.onified.ai.authentication_service.dto.UserResponse;
 import com.onified.ai.authentication_service.model.ApiResponse;
 import com.onified.ai.authentication_service.service.KeycloakAuthService;
+import com.onified.ai.authentication_service.service.RegistrationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.onified.ai.authentication_service.model.CustomErrorResponse;
+import feign.FeignException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -17,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final KeycloakAuthService keycloakAuthService;
+    private final RegistrationService registrationService;
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
@@ -71,6 +78,38 @@ public class AuthController {
                     errorResponse
             );
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@Valid @RequestBody UserCreateRequest request) {
+        try {
+            UserResponse userResponse = registrationService.registerUser(request);
+            ApiResponse<UserResponse> response = new ApiResponse<>(
+                    HttpStatus.CREATED.value(),
+                    MessageConstants.STATUS_SUCCESS,
+                    userResponse
+            );
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (FeignException fe) {
+            String errorBody = fe.contentUTF8();
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                CustomErrorResponse customError = mapper.readValue(errorBody, CustomErrorResponse.class);
+                return ResponseEntity.status(fe.status()).body(customError);
+            } catch (Exception ex) {
+                // fallback: return raw error body as message
+                return ResponseEntity.status(fe.status()).body(
+                    new CustomErrorResponse(String.valueOf(fe.status()), errorBody)
+                );
+            }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            CustomErrorResponse error = new CustomErrorResponse(
+                String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
+                "Internal server error"
+            );
+            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

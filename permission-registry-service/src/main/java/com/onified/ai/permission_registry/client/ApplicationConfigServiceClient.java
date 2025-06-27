@@ -14,7 +14,7 @@ import java.util.List;
  * Feign Client for calling the Application Config Service.
  * Point this to the port where your Application Config Service is running (e.g., 9081).
  */
-@FeignClient(name = "application-config-service", url = "http://localhost:9081")
+@FeignClient(name = "application-config-service", url = "${APPLICATION_CONFIG_URL:http://localhost:9082}")
 public interface ApplicationConfigServiceClient {
 
     /**

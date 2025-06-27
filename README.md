@@ -1,10 +1,8 @@
 # Onified Microservices Platform
 
-yes update documentation also verify if we are missing anything in documentation. i fyes, fix it. then proceed move forward to configure swagger for all springboot microservices and update the documentation for it as well
-
 A comprehensive microservices platform built with Spring Boot, Angular, and Keycloak for identity management.
 
-## 🏗️ Architecture Overview
+## 🏗️ System Architecture
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
@@ -26,282 +24,197 @@ A comprehensive microservices platform built with Spring Boot, Angular, and Keyc
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
+## 📋 Service Overview
+
+### Core Services
+
+#### 1. **Eureka Server** (Port: 8761)
+- **Purpose**: Service discovery and registration
+- **Technology**: Spring Cloud Netflix Eureka Server
+- **Configuration**: Service registry for all microservices
+- **Health Check**: http://localhost:8761
+
+#### 2. **API Gateway** (Port: 9080)
+- **Purpose**: Centralized routing, security, and load balancing
+- **Technology**: Spring Cloud Gateway
+- **Configuration**: Route definitions, security filters, circuit breakers
+- **Features**: CORS handling, authentication, rate limiting
+
+#### 3. **Authentication Service** (Port: 9083)
+- **Purpose**: User authentication and authorization
+- **Technology**: Spring Boot + Keycloak OIDC
+- **Configuration**: JWT token validation, OAuth2 integration
+- **Features**: Login/logout, token refresh, user session management
+
+#### 4. **User Management Service** (Port: 9085)
+- **Purpose**: User CRUD operations and profile management
+- **Technology**: Spring Boot + JPA/Hibernate
+- **Configuration**: Database connection, validation rules
+- **Features**: User creation, updates, deletion, profile management
+
+#### 5. **Permission Registry Service** (Port: 9084)
+- **Purpose**: Role-based access control (RBAC) and permissions
+- **Technology**: Spring Boot + JPA/Hibernate
+- **Configuration**: Permission definitions, role mappings
+- **Features**: Permission management, role assignment, access control
+
+#### 6. **Application Config Service** (Port: 9082)
+- **Purpose**: Application configuration management
+- **Technology**: Spring Boot + JPA/Hibernate
+- **Configuration**: App settings, feature flags, configuration storage
+- **Features**: Dynamic configuration, version control, environment-specific settings
+
+#### 7. **Platform Management Service** (Port: 9081)
+- **Purpose**: Platform-wide management and administration
+- **Technology**: Spring Boot + JPA/Hibernate
+- **Configuration**: Platform settings, tenant management
+- **Features**: Platform configuration, tenant isolation, system administration
+
+#### 8. **Tenant Management Service** (Port: 9086)
+- **Purpose**: Multi-tenant architecture management
+- **Technology**: Spring Boot + JPA/Hibernate
+- **Configuration**: Tenant isolation, data partitioning
+- **Features**: Tenant creation, isolation, data management
+
+### Infrastructure Services
+
+#### 9. **PostgreSQL Database** (Port: 5432)
+- **Purpose**: Primary data storage for all services
+- **Technology**: PostgreSQL 15
+- **Configuration**: Database schemas, connection pooling
+- **Features**: ACID compliance, JSONB support, partitioning
+
+#### 10. **Keycloak** (Port: 9090)
+- **Purpose**: Identity and access management
+- **Technology**: Keycloak 24.0.2
+- **Configuration**: Realms, clients, users, roles
+- **Features**: OAuth2/OIDC, SSO, user federation
+
+#### 11. **Angular Web Application** (Port: 4200)
+- **Purpose**: Frontend user interface
+- **Technology**: Angular 17.x
+- **Configuration**: API endpoints, authentication flow
+- **Features**: Responsive design, real-time updates, PWA support
+
+## ⚙️ Basic Configuration Needs
+
+### Environment Variables
+Each service requires specific environment variables for:
+- Database connections
+- Service discovery URLs
+- Authentication settings
+- Logging configuration
+- Port assignments
+
+### Database Configuration
+- PostgreSQL connection strings
+- Database credentials
+- Schema initialization
+- Migration scripts
+
+### Security Configuration
+- Keycloak realm settings
+- OAuth2 client configurations
+- JWT secret keys
+- CORS policies
+
+### Service Discovery
+- Eureka server URLs
+- Service registration settings
+- Health check endpoints
+
+## 💻 System Requirements
+
+### Development Environment
+- **Java**: 21 (OpenJDK or Oracle JDK)
+- **Maven**: 3.8+ (for building Spring Boot services)
+- **Node.js**: 18+ (for Angular development)
+- **Docker**: 20.10+ (for containerized services)
+- **Docker Compose**: 2.0+ (for orchestration)
+
+### Production Environment
+- **Java**: 21 (OpenJDK or Oracle JDK)
+- **Docker**: 20.10+ (for containerized deployment)
+- **Docker Compose**: 2.0+ (for orchestration)
+- **Memory**: Minimum 8GB RAM (16GB recommended)
+- **Storage**: Minimum 50GB available space
+- **Network**: Stable internet connection for Docker image pulls
+
+### Technology Stack Versions
+
+#### Backend Services (Spring Boot Microservices)
+- **Spring Boot**: 3.2.5
+- **Spring Cloud**: 2023.0.1
+- **Java**: 21
+- **Maven**: Latest stable version
+
+#### Frontend
+- **Angular**: 17.x
+- **Node.js**: 18+
+- **TypeScript**: Latest stable version
+
+#### Infrastructure
+- **Docker**: Latest stable version
+- **Docker Compose**: Latest stable version
+- **PostgreSQL**: 15
+- **Keycloak**: 24.0.2
+
+## 📚 Documentation
+
+### Setup Guides
+- [Local Setup Guide](docs/setup-guide/Local-Setup.md) - Non-Docker development setup
+- [Docker Setup Guide](docs/setup-guide/DockerSetup.md) - Docker deployment instructions
+
+### Service Documentation
+- [Eureka Server](docs/services/eureka-server.md) - Service discovery documentation
+- [API Gateway](docs/services/api-gateway.md) - Gateway service documentation
+- [Authentication Service](docs/services/authentication-service.md) - Authentication service documentation
+- [User Management Service](docs/services/user-management-service.md) - User management documentation
+- [Permission Registry Service](docs/services/permission-registry-service.md) - Permission management documentation
+- [Application Config Service](docs/services/application-config-service.md) - Configuration service documentation
+- [Platform Management Service](docs/services/platform-management-service.md) - Platform management documentation
+- [Tenant Management Service](docs/services/tenant-management-service.md) - Tenant management documentation
+- [Angular Web Application](docs/services/angular-web-app.md) - Frontend application documentation
+
+### Deployment Guides
+- [Local Deployment](docs/deployment-guide/DEPLOYMENT-LOCAL.md) - Local development setup
+- [Development Deployment](docs/deployment-guide/DEPLOYMENT-DEV.md) - Development environment
+- [Kubernetes Deployment](docs/deployment-guide/KUBERNETES_DEPLOYMENT.md) - Kubernetes deployment
+
+### Testing Guides
+- [Testing Guide](docs/testing-guide/TESTING_GUIDE.md) - Comprehensive testing instructions
+
 ## 🚀 Quick Start
 
-### Prerequisites
-- Docker and Docker Compose
-- Java 21 (for local development)
-- Node.js 18+ (for Angular development)
-
-### 1. Environment Setup
-
-All environment variables are managed via per-environment JSON config files in the `configs/` directory. Use the provided scripts to generate a `.env` file at the project root.
-
-- `configs/config.local.json` (local development)
-- `configs/config.dev.json` (development)
-- `configs/config.prod.json` (production)
-
-To generate a `.env` file for your desired environment, use one of the setup scripts from the `configs/` directory:
-
-**On Linux/macOS:**
+### Option 1: Docker Setup (Recommended)
 ```bash
-bash configs/setup-env.sh local
-```
-**On Windows (PowerShell):**
-```powershell
-cd configs
-./setup-env.ps1 local
-```
+# Clone the repository
+git clone <repository-url>
+cd onified
 
-**How it works:**
-- The generated `.env` file is automatically used by Docker Compose for all services.
-- All Spring Boot services are configured (in their `application.yml`) to import environment variables from `.env` at startup.
-- Dockerfiles do not need to reference `.env` directly; configuration is injected at runtime by Docker Compose.
-
-> **Note:** No manual changes are needed in Dockerfiles or `application.yml` as long as `.env` is generated at the project root. The `configs/` directory is gitignored and should not be committed to version control.
-
-### 🧹 Cleaning Up Existing Docker Images
-
-Before building new Docker images, you may want to remove old or unused images to free up disk space and avoid conflicts.
-
-**To remove all Docker images:**
-
-```bash
-docker rmi -f $(docker images -q)
-```
-
-**Windows PowerShell:**
-```powershell
-docker images -q | % { docker rmi -f $_ }
-```
-
-> **Warning:** This will remove all Docker images from your system, not just those related to this project. Only use if you want a full cleanup.
-
-### 🧼 If You Want to Start With a Completely Clean Setup
-
-In addition to removing Docker images, you may want to remove Docker volumes to fully reset your environment. **Warning: This will delete all persistent data, such as databases and logs.**
-
-#### Remove all unused (dangling) volumes (safe):
-```bash
-docker volume prune
-```
-This removes only volumes not used by any container.
-
-#### Remove all volumes (dangerous, wipes all data!):
-```bash
-docker volume rm $(docker volume ls -q)
-```
-> **Warning:** This will remove all Docker volumes from your system, including databases and persistent files. Only use if you want a completely fresh start.
-
-**When should you do this?**
-- If you want to reclaim disk space from old, unused volumes.
-- If you want to reset all persistent data (e.g., databases, logs) for a totally clean development or test environment.
-- If you are troubleshooting persistent data issues and want to start from scratch.
-
-If you want to keep your data (e.g., database contents), you do **not** need to remove volumes.
-
-### 2. Start All Services
-```bash
-# Build and start all services
+# Start all services with Docker
 docker-compose up --build
-
-# Or start in background
-docker-compose up -d --build
 ```
 
-### 3. Access Services
+### Option 2: Local Setup
+```bash
+# Follow the Local Setup Guide
+# See: docs/setup-guide/Local-Setup.md
+```
+
+## 🔗 Service URLs
+
+Once running, access the services at:
 - **Angular Web App**: http://localhost:4200
 - **API Gateway**: http://localhost:9080
-- **Eureka Server**: http://localhost:9081
-- **Keycloak Admin**: http://localhost:9086 (admin/admin)
+- **Eureka Server**: http://localhost:8761
+- **Keycloak Admin**: http://localhost:9090
 - **Authentication Service**: http://localhost:9083
 - **Application Config Service**: http://localhost:9082
 - **Permission Registry Service**: http://localhost:9084
 - **User Management Service**: http://localhost:9085
-
-## Service Port Mappings
-- **API Gateway**: 9080
-- **Eureka Server**: 9081
-- **Application Config Service**: 9082
-- **Authentication Service**: 9083
-- **Permission Registry Service**: 9084
-- **User Management Service**: 9085
-- **Keycloak**: 9086
-- **Angular Frontend**: 4200
-- **PostgreSQL**: 5432
-- **Keycloak DB**: 5433
-
-## 📋 Service Build Order
-
-Services should be built in the following order:
-
-1. **Eureka Server** - Service discovery
-2. **Application Config Service** - Configuration management
-3. **Authentication Service** - Identity and authentication
-4. **Permission Registry Service** - Permissions and roles
-5. **User Management Service** - User operations
-6. **API Gateway** - Routing and security
-7. **Angular Web App** - Frontend application
-
-## 🔧 Development
-
-### Local Development
-```bash
-# Start only infrastructure services
-docker-compose up postgres keycloak eureka-server
-
-# Run individual services locally
-cd application-config-service && mvn spring-boot:run
-cd authentication-service && mvn spring-boot:run
-# ... etc
-```
-
-### Service Updates
-```bash
-# Rebuild and restart a specific service
-docker-compose build service-name
-docker-compose up -d service-name
-
-# Rebuild and restart all services
-docker-compose up --build -d
-```
-
-### Logs
-```bash
-# View logs for all services
-docker-compose logs -f
-
-# View logs for specific service
-docker-compose logs -f service-name
-
-# View logs from local log directories
-tail -f logs/service-name/application.log
-```
-
-## 🔐 Authentication & Security
-
-### Keycloak Setup
-1. Access Keycloak Admin Console: http://localhost:8080
-2. Login with admin/admin
-3. Create realm: `onified`
-4. Create clients:
-   - `authentication-service` (confidential)
-   - `web-app` (public)
-5. Configure redirect URIs and CORS
-
-### OAuth2/OIDC Flow
-1. User accesses Angular app
-2. Redirected to Keycloak login
-3. After authentication, redirected back with code
-4. Angular exchanges code for tokens
-5. API calls include Bearer token
-6. Gateway validates tokens with Keycloak
-
-## 📊 Monitoring & Health
-
-### Health Checks
-- **Eureka**: http://localhost:8761
-- **Gateway**: http://localhost:9080/actuator/health
-- **Services**: http://localhost:908X/actuator/health
-
-### Metrics
-- **Gateway**: http://localhost:9080/actuator/metrics
-- **Services**: http://localhost:908X/actuator/metrics
-
-## 🗄️ Database
-
-### PostgreSQL
-- **Host**: localhost:5432
-- **Database**: onified
-- **Username**: onified_user
-- **Password**: Set in .env file
-
-### Schema Management
-Each service manages its own database schema using JPA/Hibernate.
-
-## 📁 Project Structure
-
-```
-repository/
-├── eureka-server/           # Service discovery
-├── application-config-service/  # Configuration management
-├── authentication-service/      # Identity & auth
-├── permission-registry-service/ # Permissions & roles
-├── user-management-service/     # User operations
-├── onified-gateway/            # API Gateway
-├── web/                        # Angular frontend
-├── docker-compose.yml          # Container orchestration
-├── env.example                 # Environment template
-├── docs/                       # All documentation
-│   ├── eureka-server.md        # Service 1 documentation
-│   ├── application-config-service.md # Service 2 documentation
-│   ├── authentication-service.md     # Service 3 documentation
-│   ├── permission-registry-service.md # Service 4 documentation
-│   ├── user-management-service.md    # Service 5 documentation
-│   ├── onified-gateway.md           # Service 6 documentation
-│   ├── angular-web-app.md           # Service 7 documentation
-│   ├── shared-templates.md          # Common templates
-│   ├── setup-guide/                 # Setup instructions
-│   ├── deployment-guide/            # Deployment guides
-│   └── testing-guide/               # Testing guides
-└── logs/                       # Application logs
-```
-
-## 🛠️ Troubleshooting
-
-### Common Issues
-
-1. **Port Conflicts**
-   ```bash
-   # Check what's using a port
-   netstat -ano | findstr :9080
-   ```
-
-2. **Database Connection Issues**
-   ```bash
-   # Check PostgreSQL logs
-   docker-compose logs postgres
-   ```
-
-3. **Keycloak Connection Issues**
-   ```bash
-   # Check Keycloak logs
-   docker-compose logs keycloak
-   ```
-
-4. **Service Discovery Issues**
-   ```bash
-   # Check Eureka dashboard
-   # http://localhost:8761
-   ```
-
-### Log Locations
-- **Docker logs**: `docker-compose logs service-name`
-- **Local logs**: `logs/service-name/application.log`
-
-## 📚 Documentation Structure
-
-### Service Documentation (docs/)
-- [Eureka Server](docs/eureka-server.md) - Service discovery
-- [Application Config Service](docs/application-config-service.md) - Configuration management
-- [Authentication Service](docs/authentication-service.md) - Identity & authentication
-- [Permission Registry Service](docs/permission-registry-service.md) - Permissions & roles
-- [User Management Service](docs/user-management-service.md) - User operations
-- [API Gateway](docs/onified-gateway.md) - Routing & security
-- [Angular Web App](docs/angular-web-app.md) - Frontend application
-- [Shared Templates](docs/shared-templates.md) - Common documentation templates
-
-### Setup Guides (docs/setup-guide/)
-- [Keycloak Setup](docs/setup-guide/KEYCLOAK_SETUP.md) - Identity provider setup
-- [Keycloak Client Configuration](docs/setup-guide/KEYCLOAK_CLIENT_CONFIG.md) - Client setup
-- [Angular Setup](docs/setup-guide/ANGULAR_SETUP.md) - Frontend setup
-
-### Deployment Guides (docs/deployment-guide/)
-- [Local Deployment](docs/deployment-guide/DEPLOYMENT-LOCAL.md) - Local development setup
-- [Development Deployment](docs/deployment-guide/DEPLOYMENT-DEV.md) - Development environment
-
-### Testing Guides (docs/testing-guide/)
-- [Testing Guide](docs/testing-guide/TESTING_GUIDE.md) - Comprehensive testing instructions
+- **Platform Management Service**: http://localhost:9081
+- **Tenant Management Service**: http://localhost:9086
 
 ## 🤝 Contributing
 
@@ -312,24 +225,4 @@ repository/
 
 ## 📄 License
 
-This project is proprietary to Onified.
-
-## 🛠️ Automated Stack Build by Environment
-
-To simplify building and running your stack for any environment, use the provided automation scripts:
-
-### Linux/macOS
-```bash
-./build-stack.sh dev    # or local, prod, etc.
-```
-
-### Windows (PowerShell)
-```powershell
-./build-stack.ps1 dev   # or local, prod, etc.
-```
-
-These scripts will:
-1. Generate the correct `.env` file for your chosen environment using the configs in `configs/`.
-2. Build and start the stack with `docker-compose up --build`.
-
-> **Note:** You can still use the setup scripts in `configs/` directly if you want to only generate the `.env` file without starting the stack.
+This project is proprietary to Onified. 
