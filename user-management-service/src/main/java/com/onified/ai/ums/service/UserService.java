@@ -19,8 +19,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -194,5 +196,12 @@ public class UserService {
                 user.getPasswordHash(), // This will now return the HASHED password
                 user.getRoles().stream().toList()
         );
+    }
+
+    // List all users
+    public List<UserResponse> getAllUsers() {
+        return userRepository.findAll().stream()
+            .map(UserMapper::toUserResponse)
+            .collect(Collectors.toList());
     }
 }

@@ -1,5 +1,6 @@
+# Use APP_CONFIG_PORT from environment, default to 9082
 server:
-  port: 9082
+  port: ${APP_CONFIG_PORT:9082}
 
 spring:
   config:
@@ -7,7 +8,7 @@ spring:
   application:
     name: application-config-service
   datasource:
-    url: ${APP_CONFIG_DB_URL:jdbc:postgresql://localhost:5432/application_config_db}
+    url: ${APP_CONFIG_DB_URL:jdbc:postgresql://localhost:5432/app_config_db}
     username: ${APP_CONFIG_DB_USERNAME:postgres}
     password: ${APP_CONFIG_DB_PASSWORD:root}
     driver-class-name: org.postgresql.Driver
@@ -41,3 +42,12 @@ management:
   endpoint:
     health:
       show-details: always
+
+# Eureka Client Configuration
+eureka:
+  client:
+    enabled: ${EUREKA_ENABLED:false}
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka/}
+    register-with-eureka: ${EUREKA_ENABLED:false}
+    fetch-registry: ${EUREKA_ENABLED:false}

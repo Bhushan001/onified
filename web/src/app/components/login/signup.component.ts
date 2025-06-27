@@ -6,6 +6,8 @@ import { FooterComponent } from '../shared/footer/footer.component';
 import { TestimonialComponent } from '../shared/testimonial/testimonial.component';
 import { PasswordPolicyService, PasswordValidationResult, PasswordPolicy } from '../../services/password-policy.service';
 import { Subscription } from 'rxjs';
+import { AuthService } from '../../services/auth.service';
+import { RegisterRequest } from '../../models/auth.models';
 
 @Component({
   selector: 'app-signup',
@@ -40,7 +42,8 @@ export class SignupComponent implements OnInit, OnDestroy {
   constructor(
     private fb: FormBuilder, 
     private router: Router,
-    private passwordPolicyService: PasswordPolicyService
+    private passwordPolicyService: PasswordPolicyService,
+    private authService: AuthService
   ) {
     this.signupForm = this.fb.group({
       firstName: ['', [Validators.required]],
@@ -84,6 +87,21 @@ export class SignupComponent implements OnInit, OnDestroy {
 
     this.signupForm.get('username')?.valueChanges.subscribe(() => {
       this.validatePassword();
+    });
+
+    // Restore form from localStorage if present
+    const saved = localStorage.getItem('signupForm');
+    if (saved) {
+      try {
+        this.signupForm.patchValue(JSON.parse(saved));
+      } catch (e) {
+        // ignore parse errors
+      }
+    }
+
+    // Save form to localStorage on change
+    this.signupForm.valueChanges.subscribe(val => {
+      localStorage.setItem('signupForm', JSON.stringify(val));
     });
   }
 
@@ -141,11 +159,31 @@ export class SignupComponent implements OnInit, OnDestroy {
       return;
     }
     
-    // TODO: Call backend API to register platform_admin
-    // On success:
-    this.router.navigate(['/login']);
-    // On error:
-    // this.error = 'Signup failed. Please try again.';
+    // Prepare registration data
+    const formValue = this.signupForm.value;
+    const registerData: RegisterRequest = {
+      username: formValue.username,
+      email: formValue.email,
+      password: formValue.password,
+      confirmPassword: formValue.confirmPassword,
+      name: `${formValue.firstName} ${formValue.lastName}`,
+      firstName: formValue.firstName,
+      lastName: formValue.lastName,
+      // Optionally add more fields if backend supports them
+    };
+    this.authService.register(registerData).subscribe({
+      next: (result) => {
+        if (result.success) {
+          this.router.navigate(['/login']);
+          localStorage.removeItem('signupForm');
+        } else {
+          this.error = result.message || 'Signup failed. Please try again.';
+        }
+      },
+      error: (err) => {
+        this.error = err.message || 'Signup failed. Please try again.';
+      }
+    });
   }
 
   openTerms(event: Event, type: 'terms' | 'privacy') {

@@ -64,6 +64,7 @@ services:
     environment:
       LOG_DIR: ${GATEWAY_LOG_DIR:-/app/logs}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      EUREKA_ENABLED: true
       SPRING_APPLICATION_NAME: onified-gateway
     volumes:
       - ${GATEWAY_LOG_DIR:-./logs/gateway}:/app/logs
@@ -91,6 +92,7 @@ services:
       PLATFORM_MGMT_DB_PASSWORD: ${PLATFORM_MGMT_DB_PASSWORD}
       LOG_DIR: ${PLATFORM_MGMT_LOG_DIR:-/app/logs}
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      EUREKA_ENABLED: true
       SPRING_APPLICATION_NAME: platform-management-service
     volumes:
       - ${PLATFORM_MGMT_LOG_DIR:-./logs/platform-management}:/app/logs
@@ -129,6 +131,112 @@ services:
       timeout: 10s
       retries: 5
       start_period: 30s
+
+  authentication-service:
+    build: ./authentication-service
+    container_name: authentication-service
+    ports:
+      - "${AUTH_PORT:-9083}:9083"
+    environment:
+      SPRING_APPLICATION_NAME: authentication-service
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      EUREKA_ENABLED: true
+      LOG_DIR: ${AUTH_LOG_DIR:-./logs/authentication}
+      AUTH_DB_URL: ${AUTH_DB_URL}
+      AUTH_DB_USERNAME: ${AUTH_DB_USERNAME}
+      AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
+      KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
+    volumes:
+      - ${AUTH_LOG_DIR:-./logs/authentication}:/app/logs
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  user-management-service:
+    build: ./user-management-service
+    container_name: user-management-service
+    ports:
+      - "${USER_MGMT_PORT:-9085}:9085"
+    environment:
+      SPRING_APPLICATION_NAME: user-management-service
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      EUREKA_ENABLED: true
+      LOG_DIR: ${USER_MGMT_LOG_DIR:-./logs/user-management}
+      USER_MGMT_DB_URL: ${USER_MGMT_DB_URL}
+      USER_MGMT_DB_USERNAME: ${USER_MGMT_DB_USERNAME}
+      USER_MGMT_DB_PASSWORD: ${USER_MGMT_DB_PASSWORD}
+    volumes:
+      - ${USER_MGMT_LOG_DIR:-./logs/user-management}:/app/logs
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  permission-registry-service:
+    build: ./permission-registry-service
+    container_name: permission-registry-service
+    ports:
+      - "${PERMISSION_REGISTRY_PORT:-9084}:9084"
+    environment:
+      SPRING_APPLICATION_NAME: permission-registry-service
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      EUREKA_ENABLED: true
+      LOG_DIR: ${PERMISSION_REGISTRY_LOG_DIR:-./logs/permission-registry}
+      PERMISSION_DB_URL: ${PERMISSION_DB_URL}
+      PERMISSION_DB_USERNAME: ${PERMISSION_DB_USERNAME}
+      PERMISSION_DB_PASSWORD: ${PERMISSION_DB_PASSWORD}
+    volumes:
+      - ${PERMISSION_REGISTRY_LOG_DIR:-./logs/permission-registry}:/app/logs
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  application-config-service:
+    build: ./application-config-service
+    container_name: application-config-service
+    ports:
+      - "${APP_CONFIG_PORT:-9082}:9082"
+    environment:
+      SPRING_APPLICATION_NAME: application-config-service
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      EUREKA_ENABLED: true
+      LOG_DIR: ${APP_CONFIG_LOG_DIR:-./logs/application-config}
+      APP_CONFIG_DB_URL: ${APP_CONFIG_DB_URL}
+      APP_CONFIG_DB_USERNAME: ${APP_CONFIG_DB_USERNAME}
+      APP_CONFIG_DB_PASSWORD: ${APP_CONFIG_DB_PASSWORD}
+    volumes:
+      - ${APP_CONFIG_LOG_DIR:-./logs/application-config}:/app/logs
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+
+  tenant-management-service:
+    build: ./tenant-management-service
+    container_name: tenant-management-service
+    ports:
+      - "${TENANT_MGMT_PORT:-9086}:9086"
+    environment:
+      SPRING_APPLICATION_NAME: tenant-management-service
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8761/eureka/
+      EUREKA_ENABLED: true
+      LOG_DIR: ${TENANT_MGMT_LOG_DIR:-./logs/tenant-management}
+      TENANT_MGMT_DB_URL: ${TENANT_MGMT_DB_URL}
+      TENANT_MGMT_DB_USERNAME: ${TENANT_MGMT_DB_USERNAME}
+      TENANT_MGMT_DB_PASSWORD: ${TENANT_MGMT_DB_PASSWORD}
+    volumes:
+      - ${TENANT_MGMT_LOG_DIR:-./logs/tenant-management}:/app/logs
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
 
 volumes:
   postgres_data:
