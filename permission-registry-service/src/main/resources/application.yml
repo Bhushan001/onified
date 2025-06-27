@@ -8,7 +8,7 @@ spring:
   application:
     name: permission-registry-service
   datasource:
-    url: ${PERMISSION_DB_URL:jdbc:postgresql://localhost:5432/permission_db}
+    url: ${PERMISSION_DB_URL:jdbc:postgresql://localhost:5432/permission_registry_db}
     username: ${PERMISSION_DB_USERNAME:postgres}
     password: ${PERMISSION_DB_PASSWORD:root}
     driver-class-name: org.postgresql.Driver
