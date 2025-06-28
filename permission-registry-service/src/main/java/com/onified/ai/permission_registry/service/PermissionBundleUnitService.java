@@ -4,9 +4,6 @@ import com.onified.ai.permission_registry.constants.ErrorMessages;
 import com.onified.ai.permission_registry.entity.Action;
 import com.onified.ai.permission_registry.entity.PermissionBundleUnit;
 import com.onified.ai.permission_registry.entity.Scope;
-import com.onified.ai.permission_registry.exception.BadRequestException;
-import com.onified.ai.permission_registry.exception.ConflictException;
-import com.onified.ai.permission_registry.exception.ResourceNotFoundException;
 import com.onified.ai.permission_registry.repository.ActionRepository;
 import com.onified.ai.permission_registry.repository.PermissionBundleUnitRepository;
 import com.onified.ai.permission_registry.repository.ScopeRepository;
@@ -39,18 +36,20 @@ public class PermissionBundleUnitService {
      * Creates a new Permission Bundle Unit (PBU).
      * Validates naming convention, existence of associated action and scope, and uniqueness.
      * @param pbu The PBU entity to create.
-     * @return The created PBU entity.
-     * @throws ConflictException if a PBU with the same pbuId already exists.
-     * @throws BadRequestException if naming convention is violated, or action/scope are invalid.
+     * @return The created PBU entity or null if validation fails.
      */
     public PermissionBundleUnit createPbu(PermissionBundleUnit pbu) {
-        validatePbuIdNamingConvention(pbu.getPbuId());
-
-        if (pbuRepository.existsById(pbu.getPbuId())) {
-            throw new ConflictException(String.format(ErrorMessages.PBU_ALREADY_EXISTS, pbu.getPbuId()));
+        if (!validatePbuIdNamingConvention(pbu.getPbuId())) {
+            return null; // Invalid naming convention
         }
 
-        validateActionAndScope(pbu.getActionCode(), pbu.getScopeCode());
+        if (pbuRepository.existsById(pbu.getPbuId())) {
+            return null; // PBU already exists
+        }
+
+        if (!validateActionAndScope(pbu.getActionCode(), pbu.getScopeCode())) {
+            return null; // Invalid action or scope
+        }
 
         return pbuRepository.save(pbu);
     }
@@ -58,12 +57,10 @@ public class PermissionBundleUnitService {
     /**
      * Retrieves a PBU by its pbuId.
      * @param pbuId The ID of the PBU to retrieve.
-     * @return The found PBU entity.
-     * @throws ResourceNotFoundException if no PBU with the given ID is found.
+     * @return The found PBU entity or null if not found.
      */
     public PermissionBundleUnit getPbuById(String pbuId) {
-        return pbuRepository.findById(pbuId)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.PBU_NOT_FOUND, pbuId)));
+        return pbuRepository.findById(pbuId).orElse(null);
     }
 
     /**
@@ -78,14 +75,14 @@ public class PermissionBundleUnitService {
      * Updates an existing PBU.
      * @param pbuId The ID of the PBU to update.
      * @param updatedPbu The PBU entity with updated details.
-     * @return The updated PBU entity.
-     * @throws ResourceNotFoundException if no PBU with the given ID is found.
-     * @throws BadRequestException if naming convention is violated, or action/scope are invalid.
+     * @return The updated PBU entity or null if not found or validation fails.
      */
     public PermissionBundleUnit updatePbu(String pbuId, PermissionBundleUnit updatedPbu) {
         return pbuRepository.findById(pbuId).map(existingPbu -> {
             // Naming convention cannot change for an existing PBU's ID
-            validateActionAndScope(updatedPbu.getActionCode(), updatedPbu.getScopeCode());
+            if (!validateActionAndScope(updatedPbu.getActionCode(), updatedPbu.getScopeCode())) {
+                return null; // Invalid action or scope
+            }
 
             existingPbu.setDisplayName(updatedPbu.getDisplayName());
             existingPbu.setApiEndpoint(updatedPbu.getApiEndpoint());
@@ -94,38 +91,37 @@ public class PermissionBundleUnitService {
             existingPbu.setIsActive(updatedPbu.getIsActive());
             existingPbu.setVersion(updatedPbu.getVersion());
             return pbuRepository.save(existingPbu);
-        }).orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.PBU_NOT_FOUND, pbuId)));
+        }).orElse(null);
     }
 
     /**
      * Deletes a PBU by its pbuId.
      * @param pbuId The ID of the PBU to delete.
-     * @throws ResourceNotFoundException if no PBU with the given ID is found.
+     * @return true if deleted successfully, false if not found.
      */
-    public void deletePbu(String pbuId) {
+    public boolean deletePbu(String pbuId) {
         if (!pbuRepository.existsById(pbuId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.PBU_NOT_FOUND, pbuId));
+            return false;
         }
         // TODO: Add logic to check and delete PBU-constraint/behavior associations
         // TODO: Add logic to check if any roles or user permission maps reference this PBU before deleting
         pbuRepository.deleteById(pbuId);
+        return true;
     }
 
-    private void validateActionAndScope(String actionCode, String scopeCode) {
-        Action action = actionRepository.findById(actionCode)
-                .orElseThrow(() -> new BadRequestException(String.format(ErrorMessages.PBU_ACTION_SCOPE_INVALID, actionCode, scopeCode)));
-        Scope scope = scopeRepository.findById(scopeCode)
-                .orElseThrow(() -> new BadRequestException(String.format(ErrorMessages.PBU_ACTION_SCOPE_INVALID, actionCode, scopeCode)));
+    private boolean validateActionAndScope(String actionCode, String scopeCode) {
+        Action action = actionRepository.findById(actionCode).orElse(null);
+        Scope scope = scopeRepository.findById(scopeCode).orElse(null);
 
-        if (!action.getIsActive() || !scope.getIsActive()) {
-            throw new BadRequestException(String.format(ErrorMessages.PBU_ACTION_SCOPE_INVALID, actionCode, scopeCode));
+        if (action == null || scope == null) {
+            return false;
         }
+
+        return action.getIsActive() && scope.getIsActive();
     }
 
-    private void validatePbuIdNamingConvention(String pbuId) {
-        if (!PBU_NAMING_PATTERN.matcher(pbuId).matches()) {
-            throw new BadRequestException(String.format(ErrorMessages.PBU_NAMING_CONVENTION_VIOLATION, pbuId));
-        }
+    private boolean validatePbuIdNamingConvention(String pbuId) {
+        return PBU_NAMING_PATTERN.matcher(pbuId).matches();
         // Further parsing logic can be added here to extract resource, action, scope and validate against existing ones if needed.
     }
 }

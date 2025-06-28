@@ -10,8 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import feign.FeignException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,38 +29,26 @@ public class PermissionBundleUnitController {
      */
     @PostMapping
     public ResponseEntity<?> createPbu(@RequestBody PermissionBundleUnitRequestDTO requestDTO) {
-        try {
-            PermissionBundleUnit pbu = new PermissionBundleUnit(
-                    requestDTO.getPbuId(),
-                    requestDTO.getDisplayName(),
-                    requestDTO.getApiEndpoint(),
-                    requestDTO.getActionCode(),
-                    requestDTO.getScopeCode(),
-                    requestDTO.getIsActive(),
-                    requestDTO.getVersion()
-            );
-            PermissionBundleUnit createdPbu = pbuService.createPbu(pbu);
-            ApiResponse<PermissionBundleUnitResponseDTO> response = new ApiResponse<>(
-                    HttpStatus.CREATED.value(), "SUCCESS", convertToResponseDTO(createdPbu));
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
-        } catch (FeignException fe) {
-            String errorBody = fe.contentUTF8();
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                CustomErrorResponse customError = mapper.readValue(errorBody, CustomErrorResponse.class);
-                return ResponseEntity.status(fe.status()).body(customError);
-            } catch (Exception ex) {
-                return ResponseEntity.status(fe.status()).body(
-                    new CustomErrorResponse(String.valueOf(fe.status()), errorBody)
-                );
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new CustomErrorResponse(
-                    String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
-                    "Internal server error"
-                ));
+        PermissionBundleUnit pbu = new PermissionBundleUnit(
+                requestDTO.getPbuId(),
+                requestDTO.getDisplayName(),
+                requestDTO.getApiEndpoint(),
+                requestDTO.getActionCode(),
+                requestDTO.getScopeCode(),
+                requestDTO.getIsActive(),
+                requestDTO.getVersion()
+        );
+        PermissionBundleUnit createdPbu = pbuService.createPbu(pbu);
+        
+        if (createdPbu == null) {
+            CustomErrorResponse errorResponse = new CustomErrorResponse("CONFLICT", "PBU with this ID already exists or validation failed");
+            ApiResponse<CustomErrorResponse> response = new ApiResponse<>(HttpStatus.CONFLICT.value(), "CONFLICT", errorResponse);
+            return new ResponseEntity<>(response, HttpStatus.CONFLICT);
         }
+        
+        ApiResponse<PermissionBundleUnitResponseDTO> response = new ApiResponse<>(
+                HttpStatus.CREATED.value(), "SUCCESS", convertToResponseDTO(createdPbu));
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     /**
@@ -72,8 +58,15 @@ public class PermissionBundleUnitController {
      * @return ResponseEntity with ApiResponse containing the PermissionBundleUnitResponseDTO.
      */
     @GetMapping("/{pbuId}")
-    public ResponseEntity<ApiResponse<PermissionBundleUnitResponseDTO>> getPbuById(@PathVariable String pbuId) {
+    public ResponseEntity<?> getPbuById(@PathVariable String pbuId) {
         PermissionBundleUnit pbu = pbuService.getPbuById(pbuId);
+        
+        if (pbu == null) {
+            CustomErrorResponse errorResponse = new CustomErrorResponse("NOT_FOUND", "PBU not found");
+            ApiResponse<CustomErrorResponse> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", errorResponse);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        
         ApiResponse<PermissionBundleUnitResponseDTO> response = new ApiResponse<>(
                 HttpStatus.OK.value(), "SUCCESS", convertToResponseDTO(pbu));
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -104,38 +97,26 @@ public class PermissionBundleUnitController {
      */
     @PutMapping("/{pbuId}")
     public ResponseEntity<?> updatePbu(@PathVariable String pbuId, @RequestBody PermissionBundleUnitRequestDTO requestDTO) {
-        try {
-            PermissionBundleUnit pbu = new PermissionBundleUnit(
-                    requestDTO.getPbuId(), // Should match path variable
-                    requestDTO.getDisplayName(),
-                    requestDTO.getApiEndpoint(),
-                    requestDTO.getActionCode(),
-                    requestDTO.getScopeCode(),
-                    requestDTO.getIsActive(),
-                    requestDTO.getVersion()
-            );
-            PermissionBundleUnit updatedPbu = pbuService.updatePbu(pbuId, pbu);
-            ApiResponse<PermissionBundleUnitResponseDTO> response = new ApiResponse<>(
-                    HttpStatus.OK.value(), "SUCCESS", convertToResponseDTO(updatedPbu));
-            return new ResponseEntity<>(response, HttpStatus.OK);
-        } catch (FeignException fe) {
-            String errorBody = fe.contentUTF8();
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                CustomErrorResponse customError = mapper.readValue(errorBody, CustomErrorResponse.class);
-                return ResponseEntity.status(fe.status()).body(customError);
-            } catch (Exception ex) {
-                return ResponseEntity.status(fe.status()).body(
-                    new CustomErrorResponse(String.valueOf(fe.status()), errorBody)
-                );
-            }
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new CustomErrorResponse(
-                    String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
-                    "Internal server error"
-                ));
+        PermissionBundleUnit pbu = new PermissionBundleUnit(
+                requestDTO.getPbuId(), // Should match path variable
+                requestDTO.getDisplayName(),
+                requestDTO.getApiEndpoint(),
+                requestDTO.getActionCode(),
+                requestDTO.getScopeCode(),
+                requestDTO.getIsActive(),
+                requestDTO.getVersion()
+        );
+        PermissionBundleUnit updatedPbu = pbuService.updatePbu(pbuId, pbu);
+        
+        if (updatedPbu == null) {
+            CustomErrorResponse errorResponse = new CustomErrorResponse("NOT_FOUND", "PBU not found or validation failed");
+            ApiResponse<CustomErrorResponse> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", errorResponse);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
+        
+        ApiResponse<PermissionBundleUnitResponseDTO> response = new ApiResponse<>(
+                HttpStatus.OK.value(), "SUCCESS", convertToResponseDTO(updatedPbu));
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
@@ -145,8 +126,15 @@ public class PermissionBundleUnitController {
      * @return ResponseEntity with ApiResponse indicating success.
      */
     @DeleteMapping("/{pbuId}")
-    public ResponseEntity<ApiResponse<String>> deletePbu(@PathVariable String pbuId) {
-        pbuService.deletePbu(pbuId);
+    public ResponseEntity<?> deletePbu(@PathVariable String pbuId) {
+        boolean deleted = pbuService.deletePbu(pbuId);
+        
+        if (!deleted) {
+            CustomErrorResponse errorResponse = new CustomErrorResponse("NOT_FOUND", "PBU not found");
+            ApiResponse<CustomErrorResponse> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", errorResponse);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        
         ApiResponse<String> response = new ApiResponse<>(
                 HttpStatus.NO_CONTENT.value(), "SUCCESS", "Permission Bundle Unit deleted successfully.");
         return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);

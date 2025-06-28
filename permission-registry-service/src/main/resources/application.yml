@@ -8,7 +8,7 @@ spring:
   application:
     name: permission-registry-service
   datasource:
-    url: ${PERMISSION_DB_URL:jdbc:postgresql://localhost:5432/permission_db}
+    url: ${PERMISSION_DB_URL:jdbc:postgresql://localhost:5432/permission_registry_db}
     username: ${PERMISSION_DB_USERNAME:postgres}
     password: ${PERMISSION_DB_PASSWORD:root}
     driver-class-name: org.postgresql.Driver
@@ -33,6 +33,8 @@ logging:
     com.onified.permission: DEBUG
   pattern:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
+  file:
+    name: ${LOG_DIR:-/app/logs}/permission-registry-service.log
 
 management:
   endpoints:
@@ -55,9 +57,14 @@ feign:
 
 # Eureka Client Configuration
 eureka:
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+    health-check-url-path: /actuator/health
   client:
-    enabled: ${EUREKA_ENABLED:false}
+    enabled: ${EUREKA_ENABLED:true}
     service-url:
-      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka/}
-    register-with-eureka: ${EUREKA_ENABLED:false}
-    fetch-registry: ${EUREKA_ENABLED:false}
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+    register-with-eureka: ${EUREKA_ENABLED:true}
+    fetch-registry: ${EUREKA_ENABLED:true}

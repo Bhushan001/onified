@@ -2,8 +2,6 @@ package com.onified.ai.permission_registry.service;
 
 import com.onified.ai.permission_registry.constants.ErrorMessages;
 import com.onified.ai.permission_registry.entity.Scope;
-import com.onified.ai.permission_registry.exception.ConflictException;
-import com.onified.ai.permission_registry.exception.ResourceNotFoundException;
 import com.onified.ai.permission_registry.repository.ScopeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,12 +17,11 @@ public class ScopeService {
     /**
      * Creates a new Scope.
      * @param scope The Scope entity to create.
-     * @return The created Scope entity.
-     * @throws ConflictException if a Scope with the same scopeCode already exists.
+     * @return The created Scope entity or null if scope already exists.
      */
     public Scope createScope(Scope scope) {
         if (scopeRepository.existsById(scope.getScopeCode())) {
-            throw new ConflictException(String.format(ErrorMessages.SCOPE_ALREADY_EXISTS, scope.getScopeCode()));
+            return null; // Scope already exists
         }
         return scopeRepository.save(scope);
     }
@@ -32,12 +29,10 @@ public class ScopeService {
     /**
      * Retrieves a Scope by its scopeCode.
      * @param scopeCode The code of the Scope to retrieve.
-     * @return The found Scope entity.
-     * @throws ResourceNotFoundException if no Scope with the given scopeCode is found.
+     * @return The found Scope entity or null if not found.
      */
     public Scope getScopeByCode(String scopeCode) {
-        return scopeRepository.findById(scopeCode)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.SCOPE_NOT_FOUND, scopeCode)));
+        return scopeRepository.findById(scopeCode).orElse(null);
     }
 
     /**
@@ -52,8 +47,7 @@ public class ScopeService {
      * Updates an existing Scope.
      * @param scopeCode The code of the Scope to update.
      * @param updatedScope The Scope entity with updated details.
-     * @return The updated Scope entity.
-     * @throws ResourceNotFoundException if no Scope with the given scopeCode is found.
+     * @return The updated Scope entity or null if not found.
      */
     public Scope updateScope(String scopeCode, Scope updatedScope) {
         return scopeRepository.findById(scopeCode).map(existingScope -> {
@@ -61,19 +55,20 @@ public class ScopeService {
             existingScope.setDescription(updatedScope.getDescription());
             existingScope.setIsActive(updatedScope.getIsActive());
             return scopeRepository.save(existingScope);
-        }).orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.SCOPE_NOT_FOUND, scopeCode)));
+        }).orElse(null);
     }
 
     /**
      * Deletes a Scope by its scopeCode.
      * @param scopeCode The code of the Scope to delete.
-     * @throws ResourceNotFoundException if no Scope with the given scopeCode is found.
+     * @return true if deleted successfully, false if not found.
      */
-    public void deleteScope(String scopeCode) {
+    public boolean deleteScope(String scopeCode) {
         if (!scopeRepository.existsById(scopeCode)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.SCOPE_NOT_FOUND, scopeCode));
+            return false;
         }
         // TODO: Add logic to check if any PBUs reference this scope before deleting
         scopeRepository.deleteById(scopeCode);
+        return true;
     }
 }

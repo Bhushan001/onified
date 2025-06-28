@@ -1,0 +1,42 @@
+{
+  "info": {
+    "_postman_id": "onified-platform-management-service-collection",
+    "name": "Platform Management Service API",
+    "description": "Postman collection for Onified Platform Management Service.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Public Test",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/public/test",
+          "host": ["{{baseUrl}}"],
+          "path": ["public", "test"]
+        }
+      },
+      "response": [
+        {
+          "name": "Success",
+          "originalRequest": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/public/test",
+              "host": ["{{baseUrl}}"],
+              "path": ["public", "test"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "text",
+          "header": [
+            { "key": "Content-Type", "value": "text/plain;charset=UTF-8" }
+          ],
+          "body": "Platform Management Service is reachable (public)"
+        }
+      ]
+    }
+  ]
+} 

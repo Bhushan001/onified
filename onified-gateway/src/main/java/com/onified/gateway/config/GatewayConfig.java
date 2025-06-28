@@ -41,8 +41,8 @@ public class GatewayConfig {
                         .uri("lb://permission-registry-service"))
                 
                 // Authentication Service routes
-                .route("authentication", r -> r.path("/api/auth/**")
-                        .filters(f -> f.rewritePath("/api/auth/(?<segment>.*)", "/api/${segment}"))
+                .route("authentication", r -> r.path("/api/authentication/**")
+                        .filters(f -> f.rewritePath("/api/authentication/(?<segment>.*)", "/api/authentication/${segment}"))
                         .uri("lb://authentication-service"))
                 
                 // Application Config Service routes

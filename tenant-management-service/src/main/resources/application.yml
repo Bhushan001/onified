@@ -20,14 +20,17 @@ server:
   port: ${TENANT_MGMT_PORT:9086}
 
 eureka:
-  client:
-    enabled: ${EUREKA_ENABLED:false}
-    service-url:
-      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka/}
-    register-with-eureka: ${EUREKA_ENABLED:false}
-    fetch-registry: ${EUREKA_ENABLED:false}
   instance:
     prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+    health-check-url-path: /actuator/health
+  client:
+    enabled: ${EUREKA_ENABLED:true}
+    service-url:
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+    register-with-eureka: ${EUREKA_ENABLED:true}
+    fetch-registry: ${EUREKA_ENABLED:true}
 
 management:
   endpoints:
@@ -36,4 +39,8 @@ management:
         include: health,info
   endpoint:
     health:
-      show-details: always 
+      show-details: always
+
+logging:
+  file:
+    name: ${LOG_DIR:-/app/logs}/tenant-management-service.log 

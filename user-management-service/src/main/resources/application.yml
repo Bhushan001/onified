@@ -4,7 +4,7 @@ spring:
   application:
     name: user-management-service
   datasource:
-    url: ${USER_MGMT_DB_URL:jdbc:postgresql://localhost:5432/user_mgmt_db}
+    url: ${USER_MGMT_DB_URL:jdbc:postgresql://localhost:5432/user_management_db}
     username: ${USER_MGMT_DB_USERNAME:postgres}
     password: ${USER_MGMT_DB_PASSWORD:root}
     driver-class-name: org.postgresql.Driver
@@ -41,6 +41,8 @@ logging:
     com.onified.ai.ums: DEBUG # Set your application's logging level
     com.onified.ai.ums.client.PermissionRegistryFeignClient: DEBUG # To see Feign client request/response
     org.springframework.cloud.openfeign: DEBUG # For more detailed Feign logging
+  file:
+    name: ${LOG_DIR:-/app/logs}/user-management-service.log
 
 management:
   endpoints:
@@ -52,9 +54,14 @@ management:
       show-details: always
 
 eureka:
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90
+    health-check-url-path: /actuator/health
   client:
-    enabled: ${EUREKA_ENABLED:false}
+    enabled: ${EUREKA_ENABLED:true}
     service-url:
-      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka/}
-    register-with-eureka: ${EUREKA_ENABLED:false}
-    fetch-registry: ${EUREKA_ENABLED:false}
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+    register-with-eureka: ${EUREKA_ENABLED:true}
+    fetch-registry: ${EUREKA_ENABLED:true}

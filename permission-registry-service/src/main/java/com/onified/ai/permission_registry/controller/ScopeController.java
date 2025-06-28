@@ -4,6 +4,7 @@ import com.onified.ai.permission_registry.dto.ScopeRequestDTO;
 import com.onified.ai.permission_registry.dto.ScopeResponseDTO;
 import com.onified.ai.permission_registry.entity.Scope;
 import com.onified.ai.permission_registry.model.ApiResponse;
+import com.onified.ai.permission_registry.model.CustomErrorResponse;
 import com.onified.ai.permission_registry.service.ScopeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,7 +21,6 @@ public class ScopeController {
 
     private final ScopeService scopeService;
 
-
     /**
      * Creates a new scope.
      * POST /api/scopes
@@ -28,9 +28,16 @@ public class ScopeController {
      * @return ResponseEntity with ApiResponse containing the created ScopeResponseDTO.
      */
     @PostMapping
-    public ResponseEntity<ApiResponse<ScopeResponseDTO>> createScope(@RequestBody ScopeRequestDTO requestDTO) {
+    public ResponseEntity<?> createScope(@RequestBody ScopeRequestDTO requestDTO) {
         Scope scope = new Scope(requestDTO.getScopeCode(), requestDTO.getDisplayName(), requestDTO.getDescription(), requestDTO.getIsActive());
         Scope createdScope = scopeService.createScope(scope);
+        
+        if (createdScope == null) {
+            CustomErrorResponse errorResponse = new CustomErrorResponse("CONFLICT", "Scope with this code already exists");
+            ApiResponse<CustomErrorResponse> response = new ApiResponse<>(HttpStatus.CONFLICT.value(), "CONFLICT", errorResponse);
+            return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+        }
+        
         ApiResponse<ScopeResponseDTO> response = new ApiResponse<>(
                 HttpStatus.CREATED.value(), "SUCCESS", convertToResponseDTO(createdScope));
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -43,8 +50,15 @@ public class ScopeController {
      * @return ResponseEntity with ApiResponse containing the ScopeResponseDTO.
      */
     @GetMapping("/{scopeCode}")
-    public ResponseEntity<ApiResponse<ScopeResponseDTO>> getScopeByCode(@PathVariable String scopeCode) {
+    public ResponseEntity<?> getScopeByCode(@PathVariable String scopeCode) {
         Scope scope = scopeService.getScopeByCode(scopeCode);
+        
+        if (scope == null) {
+            CustomErrorResponse errorResponse = new CustomErrorResponse("NOT_FOUND", "Scope not found");
+            ApiResponse<CustomErrorResponse> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", errorResponse);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        
         ApiResponse<ScopeResponseDTO> response = new ApiResponse<>(
                 HttpStatus.OK.value(), "SUCCESS", convertToResponseDTO(scope));
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -74,9 +88,16 @@ public class ScopeController {
      * @return ResponseEntity with ApiResponse containing the updated ScopeResponseDTO.
      */
     @PutMapping("/{scopeCode}")
-    public ResponseEntity<ApiResponse<ScopeResponseDTO>> updateScope(@PathVariable String scopeCode, @RequestBody ScopeRequestDTO requestDTO) {
+    public ResponseEntity<?> updateScope(@PathVariable String scopeCode, @RequestBody ScopeRequestDTO requestDTO) {
         Scope scope = new Scope(requestDTO.getScopeCode(), requestDTO.getDisplayName(), requestDTO.getDescription(), requestDTO.getIsActive());
         Scope updatedScope = scopeService.updateScope(scopeCode, scope);
+        
+        if (updatedScope == null) {
+            CustomErrorResponse errorResponse = new CustomErrorResponse("NOT_FOUND", "Scope not found");
+            ApiResponse<CustomErrorResponse> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", errorResponse);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        
         ApiResponse<ScopeResponseDTO> response = new ApiResponse<>(
                 HttpStatus.OK.value(), "SUCCESS", convertToResponseDTO(updatedScope));
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -89,8 +110,15 @@ public class ScopeController {
      * @return ResponseEntity with ApiResponse indicating success.
      */
     @DeleteMapping("/{scopeCode}")
-    public ResponseEntity<ApiResponse<String>> deleteScope(@PathVariable String scopeCode) {
-        scopeService.deleteScope(scopeCode);
+    public ResponseEntity<?> deleteScope(@PathVariable String scopeCode) {
+        boolean deleted = scopeService.deleteScope(scopeCode);
+        
+        if (!deleted) {
+            CustomErrorResponse errorResponse = new CustomErrorResponse("NOT_FOUND", "Scope not found");
+            ApiResponse<CustomErrorResponse> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", errorResponse);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        
         ApiResponse<String> response = new ApiResponse<>(
                 HttpStatus.NO_CONTENT.value(), "SUCCESS", "Scope deleted successfully.");
         return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);

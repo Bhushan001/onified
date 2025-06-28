@@ -1,0 +1,685 @@
+{
+	"info": {
+		"_postman_id": "permission-registry-service-collection",
+		"name": "Permission Registry Service",
+		"description": "Complete API collection for Permission Registry Service with all endpoints for actions, scopes, roles, constraints, behaviors, and PBUs.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Public Test",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/public/test",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"public",
+						"test"
+					]
+				},
+				"description": "Public endpoint to test if the service is reachable"
+			},
+			"response": []
+		},
+		{
+			"name": "Actions",
+			"item": [
+				{
+					"name": "Get All Actions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/actions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"actions"
+							]
+						},
+						"description": "Retrieve all actions in the system"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Action",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"actionCode\": \"CREATE\",\n  \"displayName\": \"Create Resource\",\n  \"description\": \"Permission to create new resources\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/actions",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"actions"
+							]
+						},
+						"description": "Create a new action"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Action by Code",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/actions/{{action_code}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"actions",
+								"{{action_code}}"
+							]
+						},
+						"description": "Retrieve a specific action by its code"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Action",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"actionCode\": \"CREATE\",\n  \"displayName\": \"Create Resource Updated\",\n  \"description\": \"Updated permission to create new resources\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/actions/{{action_code}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"actions",
+								"{{action_code}}"
+							]
+						},
+						"description": "Update an existing action"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Action",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/actions/{{action_code}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"actions",
+								"{{action_code}}"
+							]
+						},
+						"description": "Delete an action by its code"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Scopes",
+			"item": [
+				{
+					"name": "Get All Scopes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/scopes",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"scopes"
+							]
+						},
+						"description": "Retrieve all scopes in the system"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Scope",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"scopeCode\": \"USER_MANAGEMENT\",\n  \"displayName\": \"User Management\",\n  \"description\": \"Scope for user management operations\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/scopes",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"scopes"
+							]
+						},
+						"description": "Create a new scope"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Scope by Code",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/scopes/{{scope_code}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"scopes",
+								"{{scope_code}}"
+							]
+						},
+						"description": "Retrieve a specific scope by its code"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Scope",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"scopeCode\": \"USER_MANAGEMENT\",\n  \"displayName\": \"User Management Updated\",\n  \"description\": \"Updated scope for user management operations\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/scopes/{{scope_code}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"scopes",
+								"{{scope_code}}"
+							]
+						},
+						"description": "Update an existing scope"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Scope",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/scopes/{{scope_code}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"scopes",
+								"{{scope_code}}"
+							]
+						},
+						"description": "Delete a scope by its code"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Roles",
+			"item": [
+				{
+					"name": "Get All Roles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/roles",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"roles"
+							]
+						},
+						"description": "Retrieve all roles in the system"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Role",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"roleId\": \"ADMIN\",\n  \"displayName\": \"Administrator\",\n  \"appCode\": \"UMS\",\n  \"moduleCode\": \"USER_MANAGEMENT\",\n  \"roleFunction\": \"MANAGE_USERS\",\n  \"isActive\": true,\n  \"inheritanceDepth\": 0,\n  \"tenantCustomizable\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/roles",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"roles"
+							]
+						},
+						"description": "Create a new role"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Role by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/roles/{{role_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"roles",
+								"{{role_id}}"
+							]
+						},
+						"description": "Retrieve a specific role by its ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Role",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"roleId\": \"ADMIN\",\n  \"displayName\": \"Administrator Updated\",\n  \"appCode\": \"UMS\",\n  \"moduleCode\": \"USER_MANAGEMENT\",\n  \"roleFunction\": \"MANAGE_USERS\",\n  \"isActive\": true,\n  \"inheritanceDepth\": 0,\n  \"tenantCustomizable\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/roles/{{role_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"roles",
+								"{{role_id}}"
+							]
+						},
+						"description": "Update an existing role"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Role",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/roles/{{role_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"roles",
+								"{{role_id}}"
+							]
+						},
+						"description": "Delete a role by its ID"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Permission Bundle Units (PBUs)",
+			"item": [
+				{
+					"name": "Get All PBUs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/pbus",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"pbus"
+							]
+						},
+						"description": "Retrieve all Permission Bundle Units"
+					},
+					"response": []
+				},
+				{
+					"name": "Create PBU",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"pbuId\": \"USER_CREATE\",\n  \"displayName\": \"Create User\",\n  \"apiEndpoint\": \"/api/users\",\n  \"actionCode\": \"CREATE\",\n  \"scopeCode\": \"USER_MANAGEMENT\",\n  \"isActive\": true,\n  \"version\": \"1.0\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/pbus",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"pbus"
+							]
+						},
+						"description": "Create a new Permission Bundle Unit"
+					},
+					"response": []
+				},
+				{
+					"name": "Get PBU by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/pbus/{{pbu_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"pbus",
+								"{{pbu_id}}"
+							]
+						},
+						"description": "Retrieve a specific PBU by its ID"
+					},
+					"response": []
+				},
+				{
+					"name": "Update PBU",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"pbuId\": \"USER_CREATE\",\n  \"displayName\": \"Create User Updated\",\n  \"apiEndpoint\": \"/api/users\",\n  \"actionCode\": \"CREATE\",\n  \"scopeCode\": \"USER_MANAGEMENT\",\n  \"isActive\": true,\n  \"version\": \"1.1\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/pbus/{{pbu_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"pbus",
+								"{{pbu_id}}"
+							]
+						},
+						"description": "Update an existing PBU"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete PBU",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/pbus/{{pbu_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"pbus",
+								"{{pbu_id}}"
+							]
+						},
+						"description": "Delete a PBU by its ID"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Role Inheritance",
+			"item": [
+				{
+					"name": "Get All Role Inheritances",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/role-inheritance",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"role-inheritance"
+							]
+						},
+						"description": "Retrieve all role inheritance relationships"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Role Inheritance",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"parentRoleId\": \"ADMIN\",\n  \"childRoleId\": \"USER_MANAGER\",\n  \"approvedBy\": \"system\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/role-inheritance",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"role-inheritance"
+							]
+						},
+						"description": "Create a new role inheritance relationship"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Children of Role",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/role-inheritance/children/{{parent_role_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"role-inheritance",
+								"children",
+								"{{parent_role_id}}"
+							]
+						},
+						"description": "Get all child roles of a specific parent role"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Parents of Role",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/role-inheritance/parents/{{child_role_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"role-inheritance",
+								"parents",
+								"{{child_role_id}}"
+							]
+						},
+						"description": "Get all parent roles of a specific child role"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Role Inheritance",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/role-inheritance/{{parent_role_id}}/{{child_role_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"role-inheritance",
+								"{{parent_role_id}}",
+								"{{child_role_id}}"
+							]
+						},
+						"description": "Delete a role inheritance relationship"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:9084",
+			"type": "string"
+		},
+		{
+			"key": "action_code",
+			"value": "CREATE",
+			"type": "string"
+		},
+		{
+			"key": "scope_code",
+			"value": "USER_MANAGEMENT",
+			"type": "string"
+		},
+		{
+			"key": "role_id",
+			"value": "ADMIN",
+			"type": "string"
+		},
+		{
+			"key": "pbu_id",
+			"value": "USER_CREATE",
+			"type": "string"
+		},
+		{
+			"key": "parent_role_id",
+			"value": "ADMIN",
+			"type": "string"
+		},
+		{
+			"key": "child_role_id",
+			"value": "USER_MANAGER",
+			"type": "string"
+		}
+	]
+} 

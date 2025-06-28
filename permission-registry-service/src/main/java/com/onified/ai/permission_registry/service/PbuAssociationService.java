@@ -4,12 +4,11 @@ import com.onified.ai.permission_registry.constants.ErrorMessages;
 import com.onified.ai.permission_registry.entity.PbuContextualBehavior;
 import com.onified.ai.permission_registry.entity.PbuFieldConstraint;
 import com.onified.ai.permission_registry.entity.PbuGeneralConstraint;
-import com.onified.ai.permission_registry.exception.ConflictException;
-import com.onified.ai.permission_registry.exception.ResourceNotFoundException;
 import com.onified.ai.permission_registry.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -44,11 +43,13 @@ public class PbuAssociationService {
 
     // --- PBU - General Constraint Associations ---
     public PbuGeneralConstraint associatePbuWithGeneralConstraint(String pbuId, String constraintId) {
-        validatePbuAndGeneralConstraintExistence(pbuId, constraintId);
+        if (!validatePbuAndGeneralConstraintExistence(pbuId, constraintId)) {
+            return null; // Validation failed
+        }
 
         PbuGeneralConstraint.PbuGeneralConstraintId id = new PbuGeneralConstraint.PbuGeneralConstraintId(pbuId, constraintId);
         if (pbuGeneralConstraintRepository.existsById(id)) {
-            throw new ConflictException(String.format(ErrorMessages.PBU_CONSTRAINT_ASSOCIATION_ALREADY_EXISTS, pbuId, constraintId));
+            return null; // Association already exists
         }
         PbuGeneralConstraint association = new PbuGeneralConstraint(pbuId, constraintId);
         return pbuGeneralConstraintRepository.save(association);
@@ -56,26 +57,29 @@ public class PbuAssociationService {
 
     public List<PbuGeneralConstraint> getGeneralConstraintsForPbu(String pbuId) {
         if (!pbuRepository.existsById(pbuId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.PBU_NOT_FOUND, pbuId));
+            return Collections.emptyList();
         }
         return pbuGeneralConstraintRepository.findByPbuId(pbuId);
     }
 
-    public void removePbuGeneralConstraintAssociation(String pbuId, String constraintId) {
+    public boolean removePbuGeneralConstraintAssociation(String pbuId, String constraintId) {
         PbuGeneralConstraint.PbuGeneralConstraintId id = new PbuGeneralConstraint.PbuGeneralConstraintId(pbuId, constraintId);
         if (!pbuGeneralConstraintRepository.existsById(id)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.PBU_CONSTRAINT_ASSOCIATION_NOT_FOUND, pbuId, constraintId));
+            return false;
         }
         pbuGeneralConstraintRepository.deleteById(id);
+        return true;
     }
 
     // --- PBU - Field Constraint Associations ---
     public PbuFieldConstraint associatePbuWithFieldConstraint(String pbuId, String constraintId) {
-        validatePbuAndFieldConstraintExistence(pbuId, constraintId);
+        if (!validatePbuAndFieldConstraintExistence(pbuId, constraintId)) {
+            return null; // Validation failed
+        }
 
         PbuFieldConstraint.PbuFieldConstraintId id = new PbuFieldConstraint.PbuFieldConstraintId(pbuId, constraintId);
         if (pbuFieldConstraintRepository.existsById(id)) {
-            throw new ConflictException(String.format(ErrorMessages.PBU_CONSTRAINT_ASSOCIATION_ALREADY_EXISTS, pbuId, constraintId));
+            return null; // Association already exists
         }
         PbuFieldConstraint association = new PbuFieldConstraint(pbuId, constraintId);
         return pbuFieldConstraintRepository.save(association);
@@ -83,26 +87,29 @@ public class PbuAssociationService {
 
     public List<PbuFieldConstraint> getFieldConstraintsForPbu(String pbuId) {
         if (!pbuRepository.existsById(pbuId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.PBU_NOT_FOUND, pbuId));
+            return Collections.emptyList();
         }
         return pbuFieldConstraintRepository.findByPbuId(pbuId);
     }
 
-    public void removePbuFieldConstraintAssociation(String pbuId, String constraintId) {
+    public boolean removePbuFieldConstraintAssociation(String pbuId, String constraintId) {
         PbuFieldConstraint.PbuFieldConstraintId id = new PbuFieldConstraint.PbuFieldConstraintId(pbuId, constraintId);
         if (!pbuFieldConstraintRepository.existsById(id)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.PBU_CONSTRAINT_ASSOCIATION_NOT_FOUND, pbuId, constraintId));
+            return false;
         }
         pbuFieldConstraintRepository.deleteById(id);
+        return true;
     }
 
     // --- PBU - Contextual Behavior Associations ---
     public PbuContextualBehavior associatePbuWithContextualBehavior(String pbuId, String behaviorId) {
-        validatePbuAndContextualBehaviorExistence(pbuId, behaviorId);
+        if (!validatePbuAndContextualBehaviorExistence(pbuId, behaviorId)) {
+            return null; // Validation failed
+        }
 
         PbuContextualBehavior.PbuContextualBehaviorId id = new PbuContextualBehavior.PbuContextualBehaviorId(pbuId, behaviorId);
         if (pbuContextualBehaviorRepository.existsById(id)) {
-            throw new ConflictException(String.format(ErrorMessages.PBU_BEHAVIOR_ASSOCIATION_ALREADY_EXISTS, pbuId, behaviorId));
+            return null; // Association already exists
         }
         PbuContextualBehavior association = new PbuContextualBehavior(pbuId, behaviorId);
         return pbuContextualBehaviorRepository.save(association);
@@ -110,45 +117,31 @@ public class PbuAssociationService {
 
     public List<PbuContextualBehavior> getContextualBehaviorsForPbu(String pbuId) {
         if (!pbuRepository.existsById(pbuId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.PBU_NOT_FOUND, pbuId));
+            return Collections.emptyList();
         }
         return pbuContextualBehaviorRepository.findByPbuId(pbuId);
     }
 
-    public void removePbuContextualBehaviorAssociation(String pbuId, String behaviorId) {
+    public boolean removePbuContextualBehaviorAssociation(String pbuId, String behaviorId) {
         PbuContextualBehavior.PbuContextualBehaviorId id = new PbuContextualBehavior.PbuContextualBehaviorId(pbuId, behaviorId);
         if (!pbuContextualBehaviorRepository.existsById(id)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.PBU_BEHAVIOR_ASSOCIATION_NOT_FOUND, pbuId, behaviorId));
+            return false;
         }
         pbuContextualBehaviorRepository.deleteById(id);
+        return true;
     }
 
     // --- Private Validation Helpers ---
 
-    private void validatePbuAndGeneralConstraintExistence(String pbuId, String constraintId) {
-        if (!pbuRepository.existsById(pbuId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.PBU_NOT_FOUND, pbuId));
-        }
-        if (!generalConstraintRepository.existsById(constraintId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.GENERAL_CONSTRAINT_NOT_FOUND, constraintId));
-        }
+    private boolean validatePbuAndGeneralConstraintExistence(String pbuId, String constraintId) {
+        return pbuRepository.existsById(pbuId) && generalConstraintRepository.existsById(constraintId);
     }
 
-    private void validatePbuAndFieldConstraintExistence(String pbuId, String constraintId) {
-        if (!pbuRepository.existsById(pbuId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.PBU_NOT_FOUND, pbuId));
-        }
-        if (!fieldConstraintRepository.existsById(constraintId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.FIELD_CONSTRAINT_NOT_FOUND, constraintId));
-        }
+    private boolean validatePbuAndFieldConstraintExistence(String pbuId, String constraintId) {
+        return pbuRepository.existsById(pbuId) && fieldConstraintRepository.existsById(constraintId);
     }
 
-    private void validatePbuAndContextualBehaviorExistence(String pbuId, String behaviorId) {
-        if (!pbuRepository.existsById(pbuId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.PBU_NOT_FOUND, pbuId));
-        }
-        if (contextualBehaviorRepository.findByBehaviorId(behaviorId).isEmpty()) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.CONTEXTUAL_BEHAVIOR_NOT_FOUND, behaviorId));
-        }
+    private boolean validatePbuAndContextualBehaviorExistence(String pbuId, String behaviorId) {
+        return pbuRepository.existsById(pbuId) && contextualBehaviorRepository.findByBehaviorId(behaviorId).isPresent();
     }
 }

@@ -13,7 +13,7 @@ Client ID: onified-auth-service
 Name: Onified Authentication Service
 Description: Backend authentication service for Onified platform
 Client Protocol: openid-connect
-Root URL: http://localhost:9081
+Root URL: http://localhost:9083
 ```
 
 #### Capability Config
@@ -31,16 +31,16 @@ OAuth 2.0 Dynamic Client Registration: OFF
 #### Login Settings
 ```
 Valid redirect URIs: 
-- http://localhost:9081/*
-- http://localhost:9081/api/auth/*
-- http://localhost:9081/actuator/*
+- http://localhost:9083/*
+- http://localhost:9083/api/auth/*
+- http://localhost:9083/actuator/*
 
 Web Origins: 
-- http://localhost:9081
+- http://localhost:9083
 - http://localhost:9080
 
-Admin URL: http://localhost:9081
-Base URL: http://localhost:9081
+Admin URL: http://localhost:9083
+Base URL: http://localhost:9083
 Master SAML Processing URL: (leave empty)
 ```
 
@@ -146,7 +146,7 @@ Logout URL +: (leave empty)
    Name: Onified Authentication Service
    Description: Backend authentication service for Onified platform
    Client Protocol: openid-connect
-   Root URL: http://localhost:9081
+   Root URL: http://localhost:9083
    ```
 
 3. **Click "Save"**
@@ -155,8 +155,8 @@ Logout URL +: (leave empty)
    - **Access Type**: Select "confidential"
    - **Valid Redirect URIs**: Add the redirect URIs listed above
    - **Web Origins**: Add the web origins listed above
-   - **Admin URL**: `http://localhost:9081`
-   - **Base URL**: `http://localhost:9081`
+   - **Admin URL**: `http://localhost:9083`
+   - **Base URL**: `http://localhost:9083`
 
 5. **Capability Config Tab**
    - Enable "Client authentication"
