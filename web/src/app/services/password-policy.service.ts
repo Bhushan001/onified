@@ -42,7 +42,7 @@ export class PasswordPolicyService {
    * Load password policy from backend
    */
   loadPasswordPolicy(): Observable<PasswordPolicy> {
-    const url = `${environment.apiUrl}/platform-management/password-policy/platform`;
+    const url = `${environment.apiUrl}/platform-management/password-policies/platform`;
     return this.http.get<any>(url).pipe(
       map((response) => {
         if (response && response.statusCode === 200 && response.body) {

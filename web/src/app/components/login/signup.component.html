@@ -140,14 +140,14 @@
                         formControlName="confirmPassword" 
                         [type]="showConfirmPassword ? 'text' : 'password'" 
                         class="form-control"
-                        [class.error]="submitted && signupForm.controls['confirmPassword'].errors"
+                        [class.error]="submitted && signupForm.controls['confirmPassword'].errors || signupForm.controls['confirmPassword'].errors?.['mismatch']"
                       />
                       <button type="button" class="toggle-password" (click)="toggleConfirmPasswordVisibility()" tabindex="-1" aria-label="Toggle confirm password visibility">
                         <i *ngIf="!showConfirmPassword" class="fa fa-eye"></i>
                         <i *ngIf="showConfirmPassword" class="fa fa-eye-slash"></i>
                       </button>
                     </div>
-                    <div *ngIf="(submitted && signupForm.controls['confirmPassword'].errors) || (submitted && signupForm.controls['confirmPassword'].touched && signupForm.controls['confirmPassword'].errors?.['mismatch'])" class="error-message">
+                    <div *ngIf="(submitted && signupForm.controls['confirmPassword'].errors) || (signupForm.controls['confirmPassword'].touched && signupForm.controls['confirmPassword'].errors?.['mismatch']) || (signupForm.controls['confirmPassword'].value && signupForm.controls['confirmPassword'].errors?.['mismatch'])" class="error-message">
                       <small *ngIf="signupForm.controls['confirmPassword'].errors?.['mismatch']">Passwords do not match.</small>
                       <small *ngIf="signupForm.controls['confirmPassword'].errors?.['required']">Confirm password is required.</small>
                     </div>
@@ -205,7 +205,9 @@
                   </div>
                 </div>
                 <div *ngIf="error" class="error-message">{{ error }}</div>
-                <button type="submit" class="btn btn-primary btn-lg w-100 continue-btn" [disabled]="signupForm.invalid || (passwordValidation && !passwordValidation.isValid)">Sign Up</button>
+                <button type="submit" class="btn btn-primary btn-lg w-100 continue-btn" [disabled]="signupForm.invalid || (passwordValidation && !passwordValidation.isValid) || signupForm.controls['confirmPassword'].errors?.['mismatch']">Sign Up</button>
+                <!-- Temporary debug button - remove in production -->
+                <button type="button" class="btn btn-secondary btn-sm w-100 mt-2" (click)="debugPasswordValidation()">Debug Password Validation</button>
               </form>
             </div>
           </div>

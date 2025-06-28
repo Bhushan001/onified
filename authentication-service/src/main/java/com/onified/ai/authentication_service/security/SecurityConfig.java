@@ -23,7 +23,7 @@ public class SecurityConfig {
         http.csrf(CsrfConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/authentication/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()// or permitAll if there is no security needed
                         .anyRequest().authenticated());
         return http.build();

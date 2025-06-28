@@ -83,10 +83,16 @@ export class SignupComponent implements OnInit, OnDestroy {
     // Add password change listener
     this.signupForm.get('password')?.valueChanges.subscribe(() => {
       this.validatePassword();
+      this.validatePasswordMatch();
     });
 
     this.signupForm.get('username')?.valueChanges.subscribe(() => {
       this.validatePassword();
+    });
+
+    // Add confirm password change listener
+    this.signupForm.get('confirmPassword')?.valueChanges.subscribe(() => {
+      this.validatePasswordMatch();
     });
 
     // Restore form from localStorage if present
@@ -124,25 +130,34 @@ export class SignupComponent implements OnInit, OnDestroy {
     }
   }
 
-  passwordMatchValidator(form: FormGroup) {
-    const password = form.get('password')!.value;
-    const confirmPassword = form.get('confirmPassword');
-    if (!confirmPassword) return null;
-    if (password !== confirmPassword.value) {
-      confirmPassword.setErrors({ ...(confirmPassword.errors || {}), mismatch: true });
-      return { mismatch: true };
-    } else {
-      if (confirmPassword.hasError('mismatch')) {
-        const errors = { ...(confirmPassword.errors || {}) };
-        delete errors['mismatch'];
-        if (Object.keys(errors).length === 0) {
-          confirmPassword.setErrors(null);
+  validatePasswordMatch(): void {
+    const password = this.signupForm.get('password')?.value;
+    const confirmPassword = this.signupForm.get('confirmPassword')?.value;
+    
+    if (confirmPassword && password !== confirmPassword) {
+      this.signupForm.get('confirmPassword')?.setErrors({ mismatch: true });
+    } else if (confirmPassword && password === confirmPassword) {
+      const currentErrors = this.signupForm.get('confirmPassword')?.errors;
+      if (currentErrors) {
+        delete currentErrors['mismatch'];
+        if (Object.keys(currentErrors).length === 0) {
+          this.signupForm.get('confirmPassword')?.setErrors(null);
         } else {
-          confirmPassword.setErrors(errors);
+          this.signupForm.get('confirmPassword')?.setErrors(currentErrors);
         }
       }
+    }
+  }
+
+  passwordMatchValidator(form: FormGroup) {
+    const password = form.get('password')?.value;
+    const confirmPassword = form.get('confirmPassword')?.value;
+    
+    if (!password || !confirmPassword) {
       return null;
     }
+    
+    return password === confirmPassword ? null : { mismatch: true };
   }
 
   onSubmit() {
@@ -235,5 +250,19 @@ export class SignupComponent implements OnInit, OnDestroy {
     return this.passwordValidation 
       ? `${this.passwordValidation.score}%`
       : '0%';
+  }
+
+  // Debug method to test password validation
+  debugPasswordValidation(): void {
+    const password = this.signupForm.get('password')?.value;
+    const confirmPassword = this.signupForm.get('confirmPassword')?.value;
+    const confirmPasswordErrors = this.signupForm.get('confirmPassword')?.errors;
+    
+    console.log('Password:', password);
+    console.log('Confirm Password:', confirmPassword);
+    console.log('Passwords match:', password === confirmPassword);
+    console.log('Confirm Password Errors:', confirmPasswordErrors);
+    console.log('Form Valid:', this.signupForm.valid);
+    console.log('Form Invalid:', this.signupForm.invalid);
   }
 } 

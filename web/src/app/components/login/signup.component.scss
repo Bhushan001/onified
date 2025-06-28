@@ -225,6 +225,20 @@
   }
 }
 
+/* Confirm Password Error Styling */
+.password-row .error-message {
+  margin-top: 0.5rem;
+  margin-bottom: 0;
+  
+  small {
+    color: var(--color-error);
+    font-size: fonts.$font-size-xs;
+    font-weight: fonts.$font-weight-medium;
+    display: block;
+    margin-top: 0.25rem;
+  }
+}
+
 .continue-btn {
   margin-top: 0.4rem;
   margin-bottom: 0.8rem;
