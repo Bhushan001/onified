@@ -4,9 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onified.ai.permission_registry.constants.ErrorMessages;
 import com.onified.ai.permission_registry.entity.GeneralConstraint;
-import com.onified.ai.permission_registry.exception.BadRequestException;
-import com.onified.ai.permission_registry.exception.ConflictException;
-import com.onified.ai.permission_registry.exception.ResourceNotFoundException;
 import com.onified.ai.permission_registry.repository.GeneralConstraintRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,27 +25,25 @@ public class GeneralConstraintService {
     /**
      * Creates a new GeneralConstraint.
      * @param constraint The GeneralConstraint entity to create.
-     * @return The created GeneralConstraint entity.
-     * @throws ConflictException if a GeneralConstraint with the same constraintId already exists.
-     * @throws BadRequestException if ruleLogic is not valid JSON.
+     * @return The created GeneralConstraint entity or null if constraint already exists or invalid JSON.
      */
     public GeneralConstraint createGeneralConstraint(GeneralConstraint constraint) {
         if (generalConstraintRepository.existsById(constraint.getConstraintId())) {
-            throw new ConflictException(String.format(ErrorMessages.GENERAL_CONSTRAINT_ALREADY_EXISTS, constraint.getConstraintId()));
+            return null; // Constraint already exists
         }
-        validateJsonFields(constraint);
+        if (!validateJsonFields(constraint)) {
+            return null; // Invalid JSON
+        }
         return generalConstraintRepository.save(constraint);
     }
 
     /**
      * Retrieves a GeneralConstraint by its constraintId.
      * @param constraintId The ID of the GeneralConstraint to retrieve.
-     * @return The found GeneralConstraint entity.
-     * @throws ResourceNotFoundException if no GeneralConstraint with the given ID is found.
+     * @return The found GeneralConstraint entity or null if not found.
      */
     public GeneralConstraint getGeneralConstraintById(String constraintId) {
-        return generalConstraintRepository.findById(constraintId)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.GENERAL_CONSTRAINT_NOT_FOUND, constraintId)));
+        return generalConstraintRepository.findById(constraintId).orElse(null);
     }
 
     /**
@@ -63,13 +58,13 @@ public class GeneralConstraintService {
      * Updates an existing GeneralConstraint.
      * @param constraintId The ID of the GeneralConstraint to update.
      * @param updatedConstraint The GeneralConstraint entity with updated details.
-     * @return The updated GeneralConstraint entity.
-     * @throws ResourceNotFoundException if no GeneralConstraint with the given ID is found.
-     * @throws BadRequestException if ruleLogic is not valid JSON.
+     * @return The updated GeneralConstraint entity or null if not found or invalid JSON.
      */
     public GeneralConstraint updateGeneralConstraint(String constraintId, GeneralConstraint updatedConstraint) {
         return generalConstraintRepository.findById(constraintId).map(existingConstraint -> {
-            validateJsonFields(updatedConstraint); // Validate incoming JSON
+            if (!validateJsonFields(updatedConstraint)) {
+                return null; // Invalid JSON
+            }
             existingConstraint.setConstraintName(updatedConstraint.getConstraintName());
             existingConstraint.setTableName(updatedConstraint.getTableName());
             existingConstraint.setColumnName(updatedConstraint.getColumnName());
@@ -79,31 +74,33 @@ public class GeneralConstraintService {
             existingConstraint.setRuleLogic(updatedConstraint.getRuleLogic());
             existingConstraint.setIsActive(updatedConstraint.getIsActive());
             return generalConstraintRepository.save(existingConstraint);
-        }).orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.GENERAL_CONSTRAINT_NOT_FOUND, constraintId)));
+        }).orElse(null);
     }
 
     /**
      * Deletes a GeneralConstraint by its constraintId.
      * @param constraintId The ID of the GeneralConstraint to delete.
-     * @throws ResourceNotFoundException if no GeneralConstraint with the given ID is found.
+     * @return true if deleted successfully, false if not found.
      */
-    public void deleteGeneralConstraint(String constraintId) {
+    public boolean deleteGeneralConstraint(String constraintId) {
         if (!generalConstraintRepository.existsById(constraintId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.GENERAL_CONSTRAINT_NOT_FOUND, constraintId));
+            return false;
         }
         // TODO: Add logic to check if any PBUs or Roles reference this constraint before deleting
         generalConstraintRepository.deleteById(constraintId);
+        return true;
     }
 
-    private void validateJsonFields(GeneralConstraint constraint) {
+    private boolean validateJsonFields(GeneralConstraint constraint) {
         if (constraint.getRuleLogic() != null && !constraint.getRuleLogic().isEmpty()) {
             try {
                 objectMapper.readTree(constraint.getRuleLogic());
             } catch (JsonProcessingException e) {
-                throw new BadRequestException(String.format(ErrorMessages.GENERAL_CONSTRAINT_INVALID_JSON_RULE, constraint.getConstraintId(), e.getMessage()));
+                return false; // Invalid JSON
             }
         }
         // You might want to add similar validation for tableValue and customValue if they are expected to be JSON.
         // For now, assuming ruleLogic is the primary JSON field requiring strict validation.
+        return true;
     }
 }

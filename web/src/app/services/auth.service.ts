@@ -232,7 +232,7 @@ export class AuthService {
    * @returns Observable with success status and optional error message
    */
   public register(registrationData: RegisterRequest): Observable<{ success: boolean; message?: string }> {
-    return this.http.post<RegisterResponse>(`${this.API_URL}/auth/register`, registrationData)
+    return this.http.post<RegisterResponse>(`${this.API_URL}/authentication/register`, registrationData)
       .pipe(
         map(response => {
           if (response.statusCode === 201 && response.status === 'SUCCESS') {

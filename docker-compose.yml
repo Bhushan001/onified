@@ -30,6 +30,8 @@ services:
       timeout: 5s
       retries: 10
       start_period: 20s
+    volumes:
+      - ./logs/eureka-server:/app/logs
 
   # Keycloak Identity Provider
   keycloak:
@@ -67,7 +69,7 @@ services:
       EUREKA_ENABLED: true
       SPRING_APPLICATION_NAME: onified-gateway
     volumes:
-      - ${GATEWAY_LOG_DIR:-./logs/gateway}:/app/logs
+      - ./logs/onified-gateway:/app/logs
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -95,7 +97,7 @@ services:
       EUREKA_ENABLED: true
       SPRING_APPLICATION_NAME: platform-management-service
     volumes:
-      - ${PLATFORM_MGMT_LOG_DIR:-./logs/platform-management}:/app/logs
+      - ./logs/platform-management-service:/app/logs
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -147,7 +149,7 @@ services:
       AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
       KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
     volumes:
-      - ${AUTH_LOG_DIR:-./logs/authentication}:/app/logs
+      - ./logs/authentication-service:/app/logs
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -168,7 +170,7 @@ services:
       USER_MGMT_DB_USERNAME: ${USER_MGMT_DB_USERNAME}
       USER_MGMT_DB_PASSWORD: ${USER_MGMT_DB_PASSWORD}
     volumes:
-      - ${USER_MGMT_LOG_DIR:-./logs/user-management}:/app/logs
+      - ./logs/user-management-service:/app/logs
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -189,7 +191,7 @@ services:
       PERMISSION_DB_USERNAME: ${PERMISSION_DB_USERNAME}
       PERMISSION_DB_PASSWORD: ${PERMISSION_DB_PASSWORD}
     volumes:
-      - ${PERMISSION_REGISTRY_LOG_DIR:-./logs/permission-registry}:/app/logs
+      - ./logs/permission-registry-service:/app/logs
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -210,7 +212,7 @@ services:
       APP_CONFIG_DB_USERNAME: ${APP_CONFIG_DB_USERNAME}
       APP_CONFIG_DB_PASSWORD: ${APP_CONFIG_DB_PASSWORD}
     volumes:
-      - ${APP_CONFIG_LOG_DIR:-./logs/application-config}:/app/logs
+      - ./logs/application-config-service:/app/logs
     depends_on:
       eureka-server:
         condition: service_healthy
@@ -231,7 +233,7 @@ services:
       TENANT_MGMT_DB_USERNAME: ${TENANT_MGMT_DB_USERNAME}
       TENANT_MGMT_DB_PASSWORD: ${TENANT_MGMT_DB_PASSWORD}
     volumes:
-      - ${TENANT_MGMT_LOG_DIR:-./logs/tenant-management}:/app/logs
+      - ./logs/tenant-management-service:/app/logs
     depends_on:
       eureka-server:
         condition: service_healthy

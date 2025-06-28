@@ -19,7 +19,7 @@ public class FallbackController {
         return createFallbackResponse("Application Config Service is currently unavailable");
     }
 
-    @GetMapping("/auth")
+    @GetMapping("/authentication")
     public Mono<ResponseEntity<Map<String, Object>>> authFallback() {
         return createFallbackResponse("Authentication Service is currently unavailable");
     }

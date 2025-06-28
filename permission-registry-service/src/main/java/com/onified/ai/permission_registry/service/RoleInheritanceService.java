@@ -3,9 +3,6 @@ package com.onified.ai.permission_registry.service;
 import com.onified.ai.permission_registry.constants.ErrorMessages;
 import com.onified.ai.permission_registry.entity.Role;
 import com.onified.ai.permission_registry.entity.RoleInheritance;
-import com.onified.ai.permission_registry.exception.BadRequestException;
-import com.onified.ai.permission_registry.exception.ConflictException;
-import com.onified.ai.permission_registry.exception.ResourceNotFoundException;
 import com.onified.ai.permission_registry.repository.RoleInheritanceRepository;
 import com.onified.ai.permission_registry.repository.RoleRepository;
 import jakarta.transaction.Transactional;
@@ -35,36 +32,35 @@ public class RoleInheritanceService {
      * @param parentRoleId The ID of the parent role.
      * @param childRoleId The ID of the child role.
      * @param approvedBy The user who approved the inheritance (optional).
-     * @return The created RoleInheritance entity.
-     * @throws ResourceNotFoundException if parent or child role does not exist.
-     * @throws ConflictException if the inheritance already exists, or a cyclic dependency is detected.
-     * @throws BadRequestException if role tries to inherit from itself or max depth is exceeded.
+     * @return The created RoleInheritance entity or null if validation fails.
      */
     @Transactional
     public RoleInheritance createRoleInheritance(String parentRoleId, String childRoleId, String approvedBy) {
         if (parentRoleId.equals(childRoleId)) {
-            throw new BadRequestException(String.format(ErrorMessages.ROLE_INHERITANCE_SAME_ROLE, parentRoleId));
+            return null; // Cannot inherit from self
         }
 
-        Role parentRole = roleRepository.findById(parentRoleId)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.ROLE_NOT_FOUND, parentRoleId)));
-        Role childRole = roleRepository.findById(childRoleId)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.ROLE_NOT_FOUND, childRoleId)));
+        Role parentRole = roleRepository.findById(parentRoleId).orElse(null);
+        Role childRole = roleRepository.findById(childRoleId).orElse(null);
+        
+        if (parentRole == null || childRole == null) {
+            return null; // Role not found
+        }
 
         RoleInheritance.RoleInheritanceId id = new RoleInheritance.RoleInheritanceId(parentRoleId, childRoleId);
         if (roleInheritanceRepository.existsById(id)) {
-            throw new ConflictException(String.format(ErrorMessages.ROLE_INHERITANCE_ALREADY_EXISTS, parentRoleId, childRoleId));
+            return null; // Inheritance already exists
         }
 
         // Validate for cyclic inheritance before saving
         if (isCyclic(parentRoleId, childRoleId)) {
-            throw new ConflictException(String.format(ErrorMessages.ROLE_INHERITANCE_CYCLIC, childRoleId, parentRoleId));
+            return null; // Cyclic inheritance detected
         }
 
         // Calculate and validate new inheritance depth
         int newChildDepth = parentRole.getInheritanceDepth() + 1;
         if (newChildDepth > MAX_INHERITANCE_DEPTH) {
-            throw new BadRequestException(String.format(ErrorMessages.ROLE_INHERITANCE_DEPTH_EXCEEDED, childRoleId));
+            return null; // Max depth exceeded
         }
 
         RoleInheritance inheritance = new RoleInheritance(parentRoleId, childRoleId, approvedBy, LocalDateTime.now());
@@ -88,11 +84,11 @@ public class RoleInheritanceService {
     /**
      * Retrieves role inheritance relationships where a role is a parent.
      * @param parentRoleId The ID of the parent role.
-     * @return A list of RoleInheritance entities.
+     * @return A list of RoleInheritance entities or empty list if role not found.
      */
     public List<RoleInheritance> getChildrenOfRole(String parentRoleId) {
         if (!roleRepository.existsById(parentRoleId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.ROLE_NOT_FOUND, parentRoleId));
+            return Collections.emptyList();
         }
         return roleInheritanceRepository.findByParentRoleId(parentRoleId);
     }
@@ -100,11 +96,11 @@ public class RoleInheritanceService {
     /**
      * Retrieves role inheritance relationships where a role is a child.
      * @param childRoleId The ID of the child role.
-     * @return A list of RoleInheritance entities.
+     * @return A list of RoleInheritance entities or empty list if role not found.
      */
     public List<RoleInheritance> getParentsOfRole(String childRoleId) {
         if (!roleRepository.existsById(childRoleId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.ROLE_NOT_FOUND, childRoleId));
+            return Collections.emptyList();
         }
         return roleInheritanceRepository.findByChildRoleId(childRoleId);
     }
@@ -113,21 +109,23 @@ public class RoleInheritanceService {
      * Deletes a role inheritance relationship.
      * @param parentRoleId The ID of the parent role.
      * @param childRoleId The ID of the child role.
-     * @throws ResourceNotFoundException if the inheritance relationship does not exist.
+     * @return true if deleted successfully, false if not found.
      */
     @Transactional
-    public void deleteRoleInheritance(String parentRoleId, String childRoleId) {
+    public boolean deleteRoleInheritance(String parentRoleId, String childRoleId) {
         RoleInheritance.RoleInheritanceId id = new RoleInheritance.RoleInheritanceId(parentRoleId, childRoleId);
         if (!roleInheritanceRepository.existsById(id)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.ROLE_INHERITANCE_NOT_FOUND, parentRoleId, childRoleId));
+            return false;
         }
         roleInheritanceRepository.deleteById(id);
 
         // Re-calculate and update child role's inheritance depth (and potentially its children)
         // This is a complex operation in a real system (BFS/DFS to find longest path to root)
         // For simplicity, we'll set it to 0 if no other parents exist, or re-calculate based on longest path from roots.
-        Role childRole = roleRepository.findById(childRoleId)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.ROLE_NOT_FOUND, childRoleId))); // Should not happen if inheritance existed
+        Role childRole = roleRepository.findById(childRoleId).orElse(null);
+        if (childRole == null) {
+            return false;
+        }
 
         List<RoleInheritance> remainingParents = roleInheritanceRepository.findByChildRoleId(childRoleId);
         if (remainingParents.isEmpty()) {
@@ -142,8 +140,8 @@ public class RoleInheritanceService {
         }
         roleRepository.save(childRole);
         // A more advanced solution would propagate depth recalculation down the entire child hierarchy.
+        return true;
     }
-
 
     /**
      * Checks for cyclic inheritance by performing a DFS from the potential child.

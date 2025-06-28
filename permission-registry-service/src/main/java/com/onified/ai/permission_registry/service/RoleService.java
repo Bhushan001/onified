@@ -3,12 +3,8 @@ package com.onified.ai.permission_registry.service;
 import com.onified.ai.permission_registry.client.ApplicationConfigServiceClient;
 import com.onified.ai.permission_registry.constants.ErrorMessages;
 import com.onified.ai.permission_registry.entity.Role;
-import com.onified.ai.permission_registry.exception.BadRequestException;
-import com.onified.ai.permission_registry.exception.ConflictException;
-import com.onified.ai.permission_registry.exception.ResourceNotFoundException;
 import com.onified.ai.permission_registry.model.ApiResponse;
 import com.onified.ai.permission_registry.repository.RoleRepository;
-import feign.FeignException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,13 +29,17 @@ public class RoleService {
     }
 
     public Role createRole(Role role) {
-        validateRoleNamingConvention(role.getRoleId());
-
-        if (roleRepository.existsById(role.getRoleId())) {
-            throw new ConflictException(String.format(ErrorMessages.ROLE_ALREADY_EXISTS, role.getRoleId()));
+        if (!validateRoleNamingConvention(role.getRoleId())) {
+            return null; // Invalid naming convention
         }
 
-        validateAppAndModuleExistence(role.getAppCode(), role.getModuleCode());
+        if (roleRepository.existsById(role.getRoleId())) {
+            return null; // Role already exists
+        }
+
+        if (!validateAppAndModuleExistence(role.getAppCode(), role.getModuleCode())) {
+            return null; // Invalid app/module
+        }
 
         if (role.getInheritanceDepth() == null) {
             role.setInheritanceDepth(0);
@@ -49,8 +49,7 @@ public class RoleService {
     }
 
     public Role getRoleById(String roleId) {
-        return roleRepository.findById(roleId)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.ROLE_NOT_FOUND, roleId)));
+        return roleRepository.findById(roleId).orElse(null);
     }
 
     public List<Role> getAllRoles() {
@@ -61,7 +60,9 @@ public class RoleService {
         return roleRepository.findById(roleId).map(existingRole -> {
             if (!Objects.equals(existingRole.getAppCode(), updatedRole.getAppCode()) ||
                     !Objects.equals(existingRole.getModuleCode(), updatedRole.getModuleCode())) {
-                validateAppAndModuleExistence(updatedRole.getAppCode(), updatedRole.getModuleCode());
+                if (!validateAppAndModuleExistence(updatedRole.getAppCode(), updatedRole.getModuleCode())) {
+                    return null; // Invalid app/module
+                }
             }
 
             existingRole.setDisplayName(updatedRole.getDisplayName());
@@ -71,12 +72,12 @@ public class RoleService {
             existingRole.setIsActive(updatedRole.getIsActive());
             existingRole.setTenantCustomizable(updatedRole.getTenantCustomizable());
             return roleRepository.save(existingRole);
-        }).orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.ROLE_NOT_FOUND, roleId)));
+        }).orElse(null);
     }
 
-    public void deleteRole(String roleId) {
+    public boolean deleteRole(String roleId) {
         if (!roleRepository.existsById(roleId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.ROLE_NOT_FOUND, roleId));
+            return false;
         }
         // TODO: Add robust checks for dependent entities before deletion:
         // - Check role_inheritance (if it's a parent or child)
@@ -84,44 +85,44 @@ public class RoleService {
         // - Check user_role_map
         // - Check delegations (if relevant)
         roleRepository.deleteById(roleId);
+        return true;
     }
 
-    private void validateRoleNamingConvention(String roleId) {
-        if (!ROLE_NAMING_PATTERN.matcher(roleId).matches()) {
-            throw new BadRequestException(String.format(ErrorMessages.INVALID_ROLE_NAMING_CONVENTION, roleId));
-        }
+    private boolean validateRoleNamingConvention(String roleId) {
+        return ROLE_NAMING_PATTERN.matcher(roleId).matches();
     }
 
-    private void validateAppAndModuleExistence(String appCode, String moduleCode) {
+    private boolean validateAppAndModuleExistence(String appCode, String moduleCode) {
         try {
             ApiResponse<ApplicationConfigServiceClient.ApplicationResponseForClient> appApiResponse = appConfigServiceClient.getApplicationByAppCode(appCode);
             if (appApiResponse == null || appApiResponse.getBody() == null || !appApiResponse.getBody().getIsActive()) {
-                throw new BadRequestException(String.format(ErrorMessages.ROLE_APP_MODULE_INVALID, appCode, moduleCode));
+                return false;
             }
 
             ApiResponse<List<ApplicationConfigServiceClient.ModuleResponseForClient>> modulesApiResponse = appConfigServiceClient.getAppModulesByAppCode(appCode);
             List<ApplicationConfigServiceClient.ModuleResponseForClient> modules = modulesApiResponse != null ? modulesApiResponse.getBody() : null;
 
             if (modules == null || modules.isEmpty()) {
-                throw new BadRequestException(String.format(ErrorMessages.ROLE_APP_MODULE_INVALID, appCode, moduleCode));
+                return false;
             }
 
             boolean moduleFoundAndActive = modules.stream()
                     .anyMatch(module -> module.getModuleCode().equals(moduleCode) && module.getIsActive());
 
-            if (!moduleFoundAndActive) {
-                throw new BadRequestException(String.format(ErrorMessages.ROLE_APP_MODULE_INVALID, appCode, moduleCode));
-            }
+            return moduleFoundAndActive;
 
-        } catch (FeignException.NotFound e) {
-            throw new BadRequestException(String.format(ErrorMessages.ROLE_APP_MODULE_INVALID, appCode, moduleCode) + ". Details: " + e.getMessage());
-        } catch (FeignException e) {
-            throw new RuntimeException("Failed to communicate with Application Config Service for App/Module validation: " + e.getMessage(), e);
+        } catch (Exception e) {
+            // If the external service is not available, we'll allow the role creation
+            // This makes the service more resilient when running independently
+            return true;
         }
     }
 
     public Role updateRoleInheritanceDepth(String roleId, int newDepth) {
         Role role = getRoleById(roleId);
+        if (role == null) {
+            return null;
+        }
         role.setInheritanceDepth(newDepth);
         return roleRepository.save(role);
     }

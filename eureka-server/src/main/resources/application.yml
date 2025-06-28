@@ -5,7 +5,7 @@ spring:
   application:
     name: eureka-server
 
-# Eureka Server Configuration
+# Eureka Server Configuration - EMERGENCY SETTINGS
 eureka:
   instance:
     hostname: localhost
@@ -17,12 +17,20 @@ eureka:
     service-url:
       defaultZone: http://localhost:8761/eureka/
   server:
-    # Enable self-preservation mode
-    enable-self-preservation: true
-    # Eviction interval (in milliseconds)
-    eviction-interval-timer-in-ms: 1000
+    # EMERGENCY: Disable self-preservation to allow proper instance eviction
+    enable-self-preservation: false
+    # EMERGENCY: Reduce eviction interval for faster cleanup (30 seconds)
+    eviction-interval-timer-in-ms: 30000
     # Response cache update interval
     response-cache-update-interval-ms: 3000
+    # EMERGENCY: Lower renewal threshold to 60% for more aggressive eviction
+    renewal-percent-threshold: 0.60
+    # Peer node timeout
+    peer-eureka-nodes-update-interval-ms: 60000
+    # Enable/disable peer node updates
+    enable-replicated-request-compression: false
+    # Wait time in ms before replica sync
+    wait-time-in-ms-when-sync-empty: 0
 
 # Actuator Configuration
 management:
@@ -34,11 +42,16 @@ management:
     health:
       show-details: always
 
-# Logging Configuration
+# Logging Configuration - Enhanced for debugging
 logging:
   level:
     com.netflix.eureka: DEBUG
     com.netflix.discovery: DEBUG
     org.springframework.cloud.netflix.eureka: DEBUG
+    # EMERGENCY: Add more detailed logging for instance management
+    com.netflix.eureka.registry: DEBUG
+    com.netflix.eureka.resources: DEBUG
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n" 
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+  file:
+    name: ${LOG_DIR:-/app/logs}/eureka-server.log 

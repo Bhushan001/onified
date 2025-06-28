@@ -4,6 +4,7 @@ import com.onified.ai.permission_registry.dto.ActionRequestDTO;
 import com.onified.ai.permission_registry.dto.ActionResponseDTO;
 import com.onified.ai.permission_registry.entity.Action;
 import com.onified.ai.permission_registry.model.ApiResponse;
+import com.onified.ai.permission_registry.model.CustomErrorResponse;
 import com.onified.ai.permission_registry.service.ActionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,9 +28,16 @@ public class ActionController {
      * @return ResponseEntity with ApiResponse containing the created ActionResponseDTO.
      */
     @PostMapping
-    public ResponseEntity<ApiResponse<ActionResponseDTO>> createAction(@RequestBody ActionRequestDTO requestDTO) {
+    public ResponseEntity<?> createAction(@RequestBody ActionRequestDTO requestDTO) {
         Action action = new Action(requestDTO.getActionCode(), requestDTO.getDisplayName(), requestDTO.getDescription(), requestDTO.getIsActive());
         Action createdAction = actionService.createAction(action);
+        
+        if (createdAction == null) {
+            CustomErrorResponse errorResponse = new CustomErrorResponse("CONFLICT", "Action with this code already exists");
+            ApiResponse<CustomErrorResponse> response = new ApiResponse<>(HttpStatus.CONFLICT.value(), "CONFLICT", errorResponse);
+            return new ResponseEntity<>(response, HttpStatus.CONFLICT);
+        }
+        
         ApiResponse<ActionResponseDTO> response = new ApiResponse<>(
                 HttpStatus.CREATED.value(), "SUCCESS", convertToResponseDTO(createdAction));
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -42,8 +50,15 @@ public class ActionController {
      * @return ResponseEntity with ApiResponse containing the ActionResponseDTO.
      */
     @GetMapping("/{actionCode}")
-    public ResponseEntity<ApiResponse<ActionResponseDTO>> getActionByCode(@PathVariable String actionCode) {
+    public ResponseEntity<?> getActionByCode(@PathVariable String actionCode) {
         Action action = actionService.getActionByCode(actionCode);
+        
+        if (action == null) {
+            CustomErrorResponse errorResponse = new CustomErrorResponse("NOT_FOUND", "Action not found");
+            ApiResponse<CustomErrorResponse> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", errorResponse);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        
         ApiResponse<ActionResponseDTO> response = new ApiResponse<>(
                 HttpStatus.OK.value(), "SUCCESS", convertToResponseDTO(action));
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -73,9 +88,16 @@ public class ActionController {
      * @return ResponseEntity with ApiResponse containing the updated ActionResponseDTO.
      */
     @PutMapping("/{actionCode}")
-    public ResponseEntity<ApiResponse<ActionResponseDTO>> updateAction(@PathVariable String actionCode, @RequestBody ActionRequestDTO requestDTO) {
+    public ResponseEntity<?> updateAction(@PathVariable String actionCode, @RequestBody ActionRequestDTO requestDTO) {
         Action action = new Action(requestDTO.getActionCode(), requestDTO.getDisplayName(), requestDTO.getDescription(), requestDTO.getIsActive());
         Action updatedAction = actionService.updateAction(actionCode, action);
+        
+        if (updatedAction == null) {
+            CustomErrorResponse errorResponse = new CustomErrorResponse("NOT_FOUND", "Action not found");
+            ApiResponse<CustomErrorResponse> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", errorResponse);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        
         ApiResponse<ActionResponseDTO> response = new ApiResponse<>(
                 HttpStatus.OK.value(), "SUCCESS", convertToResponseDTO(updatedAction));
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -88,8 +110,15 @@ public class ActionController {
      * @return ResponseEntity with ApiResponse indicating success.
      */
     @DeleteMapping("/{actionCode}")
-    public ResponseEntity<ApiResponse<String>> deleteAction(@PathVariable String actionCode) {
-        actionService.deleteAction(actionCode);
+    public ResponseEntity<?> deleteAction(@PathVariable String actionCode) {
+        boolean deleted = actionService.deleteAction(actionCode);
+        
+        if (!deleted) {
+            CustomErrorResponse errorResponse = new CustomErrorResponse("NOT_FOUND", "Action not found");
+            ApiResponse<CustomErrorResponse> response = new ApiResponse<>(HttpStatus.NOT_FOUND.value(), "NOT_FOUND", errorResponse);
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
+        
         ApiResponse<String> response = new ApiResponse<>(
                 HttpStatus.NO_CONTENT.value(), "SUCCESS", "Action deleted successfully.");
         return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);

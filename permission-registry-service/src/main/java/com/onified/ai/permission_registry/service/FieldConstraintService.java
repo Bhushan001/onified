@@ -4,9 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onified.ai.permission_registry.constants.ErrorMessages;
 import com.onified.ai.permission_registry.entity.FieldConstraint;
-import com.onified.ai.permission_registry.exception.BadRequestException;
-import com.onified.ai.permission_registry.exception.ConflictException;
-import com.onified.ai.permission_registry.exception.ResourceNotFoundException;
 import com.onified.ai.permission_registry.repository.FieldConstraintRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,27 +25,25 @@ public class FieldConstraintService {
     /**
      * Creates a new FieldConstraint.
      * @param constraint The FieldConstraint entity to create.
-     * @return The created FieldConstraint entity.
-     * @throws ConflictException if a FieldConstraint with the same constraintId already exists.
-     * @throws BadRequestException if conditionLogic is not valid JSON.
+     * @return The created FieldConstraint entity or null if constraint already exists or invalid JSON.
      */
     public FieldConstraint createFieldConstraint(FieldConstraint constraint) {
         if (fieldConstraintRepository.existsById(constraint.getConstraintId())) {
-            throw new ConflictException(String.format(ErrorMessages.FIELD_CONSTRAINT_ALREADY_EXISTS, constraint.getConstraintId()));
+            return null; // Constraint already exists
         }
-        validateJsonFields(constraint);
+        if (!validateJsonFields(constraint)) {
+            return null; // Invalid JSON
+        }
         return fieldConstraintRepository.save(constraint);
     }
 
     /**
      * Retrieves a FieldConstraint by its constraintId.
      * @param constraintId The ID of the FieldConstraint to retrieve.
-     * @return The found FieldConstraint entity.
-     * @throws ResourceNotFoundException if no FieldConstraint with the given ID is found.
+     * @return The found FieldConstraint entity or null if not found.
      */
     public FieldConstraint getFieldConstraintById(String constraintId) {
-        return fieldConstraintRepository.findById(constraintId)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.FIELD_CONSTRAINT_NOT_FOUND, constraintId)));
+        return fieldConstraintRepository.findById(constraintId).orElse(null);
     }
 
     /**
@@ -63,43 +58,45 @@ public class FieldConstraintService {
      * Updates an existing FieldConstraint.
      * @param constraintId The ID of the FieldConstraint to update.
      * @param updatedConstraint The FieldConstraint entity with updated details.
-     * @return The updated FieldConstraint entity.
-     * @throws ResourceNotFoundException if no FieldConstraint with the given ID is found.
-     * @throws BadRequestException if conditionLogic is not valid JSON.
+     * @return The updated FieldConstraint entity or null if not found or invalid JSON.
      */
     public FieldConstraint updateFieldConstraint(String constraintId, FieldConstraint updatedConstraint) {
         return fieldConstraintRepository.findById(constraintId).map(existingConstraint -> {
-            validateJsonFields(updatedConstraint);
+            if (!validateJsonFields(updatedConstraint)) {
+                return null; // Invalid JSON
+            }
             existingConstraint.setEntityName(updatedConstraint.getEntityName());
             existingConstraint.setFieldName(updatedConstraint.getFieldName());
             existingConstraint.setAccessType(updatedConstraint.getAccessType());
             existingConstraint.setConditionLogic(updatedConstraint.getConditionLogic());
             existingConstraint.setIsActive(updatedConstraint.getIsActive());
             return fieldConstraintRepository.save(existingConstraint);
-        }).orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.FIELD_CONSTRAINT_NOT_FOUND, constraintId)));
+        }).orElse(null);
     }
 
     /**
      * Deletes a FieldConstraint by its constraintId.
      * @param constraintId The ID of the FieldConstraint to delete.
-     * @throws ResourceNotFoundException if no FieldConstraint with the given ID is found.
+     * @return true if deleted successfully, false if not found.
      */
-    public void deleteFieldConstraint(String constraintId) {
+    public boolean deleteFieldConstraint(String constraintId) {
         if (!fieldConstraintRepository.existsById(constraintId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.FIELD_CONSTRAINT_NOT_FOUND, constraintId));
+            return false;
         }
         // TODO: Add logic to check if any PBUs or Roles reference this constraint before deleting
         fieldConstraintRepository.deleteById(constraintId);
+        return true;
     }
 
-    private void validateJsonFields(FieldConstraint constraint) {
+    private boolean validateJsonFields(FieldConstraint constraint) {
         if (constraint.getConditionLogic() != null && !constraint.getConditionLogic().isEmpty()) {
             try {
                 objectMapper.readTree(constraint.getConditionLogic());
             } catch (JsonProcessingException e) {
-                throw new BadRequestException(String.format(ErrorMessages.FIELD_CONSTRAINT_INVALID_JSON_CONDITION, constraint.getConstraintId(), e.getMessage()));
+                return false; // Invalid JSON
             }
         }
+        return true;
     }
 }
 

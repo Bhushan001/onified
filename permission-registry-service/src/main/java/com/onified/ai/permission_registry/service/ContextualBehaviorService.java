@@ -4,9 +4,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.onified.ai.permission_registry.constants.ErrorMessages;
 import com.onified.ai.permission_registry.entity.ContextualBehavior;
-import com.onified.ai.permission_registry.exception.BadRequestException;
-import com.onified.ai.permission_registry.exception.ConflictException;
-import com.onified.ai.permission_registry.exception.ResourceNotFoundException;
 import com.onified.ai.permission_registry.repository.ContextualBehaviorRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,27 +25,25 @@ public class ContextualBehaviorService {
     /**
      * Creates a new ContextualBehavior.
      * @param behavior The ContextualBehavior entity to create.
-     * @return The created ContextualBehavior entity.
-     * @throws ConflictException if a ContextualBehavior with the same behaviorId already exists.
-     * @throws BadRequestException if conditionLogic is not valid JSON.
+     * @return The created ContextualBehavior entity or null if behavior already exists or invalid JSON.
      */
     public ContextualBehavior createContextualBehavior(ContextualBehavior behavior) {
         if (contextualBehaviorRepository.findByBehaviorId(behavior.getBehaviorId()).isPresent()) {
-            throw new ConflictException(String.format(ErrorMessages.CONTEXTUAL_BEHAVIOR_ALREADY_EXISTS, behavior.getBehaviorId()));
+            return null; // Behavior already exists
         }
-        validateJsonFields(behavior);
+        if (!validateJsonFields(behavior)) {
+            return null; // Invalid JSON
+        }
         return contextualBehaviorRepository.save(behavior);
     }
 
     /**
      * Retrieves a ContextualBehavior by its behaviorId.
      * @param behaviorId The ID of the ContextualBehavior to retrieve.
-     * @return The found ContextualBehavior entity.
-     * @throws ResourceNotFoundException if no ContextualBehavior with the given ID is found.
+     * @return The found ContextualBehavior entity or null if not found.
      */
     public ContextualBehavior getContextualBehaviorById(String behaviorId) {
-        return contextualBehaviorRepository.findByBehaviorId(behaviorId)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.CONTEXTUAL_BEHAVIOR_NOT_FOUND, behaviorId)));
+        return contextualBehaviorRepository.findByBehaviorId(behaviorId).orElse(null);
     }
 
     /**
@@ -63,41 +58,45 @@ public class ContextualBehaviorService {
      * Updates an existing ContextualBehavior.
      * @param behaviorId The ID of the ContextualBehavior to update.
      * @param updatedBehavior The ContextualBehavior entity with updated details.
-     * @return The updated ContextualBehavior entity.
-     * @throws ResourceNotFoundException if no ContextualBehavior with the given ID is found.
-     * @throws BadRequestException if conditionLogic is not valid JSON.
+     * @return The updated ContextualBehavior entity or null if not found or invalid JSON.
      */
     public ContextualBehavior updateContextualBehavior(String behaviorId, ContextualBehavior updatedBehavior) {
         return contextualBehaviorRepository.findByBehaviorId(behaviorId).map(existingBehavior -> {
-            validateJsonFields(updatedBehavior);
+            if (!validateJsonFields(updatedBehavior)) {
+                return null; // Invalid JSON
+            }
             existingBehavior.setBehaviorCode(updatedBehavior.getBehaviorCode());
             existingBehavior.setDisplayName(updatedBehavior.getDisplayName());
             existingBehavior.setConditionLogic(updatedBehavior.getConditionLogic());
             existingBehavior.setIsActive(updatedBehavior.getIsActive());
             return contextualBehaviorRepository.save(existingBehavior);
-        }).orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.CONTEXTUAL_BEHAVIOR_NOT_FOUND, behaviorId)));
+        }).orElse(null);
     }
 
     /**
      * Deletes a ContextualBehavior by its behaviorId.
      * @param behaviorId The ID of the ContextualBehavior to delete.
-     * @throws ResourceNotFoundException if no ContextualBehavior with the given ID is found.
+     * @return true if deleted successfully, false if not found.
      */
-    public void deleteContextualBehavior(String behaviorId) {
-        ContextualBehavior behavior = contextualBehaviorRepository.findByBehaviorId(behaviorId)
-                .orElseThrow(() -> new ResourceNotFoundException(String.format(ErrorMessages.CONTEXTUAL_BEHAVIOR_NOT_FOUND, behaviorId)));
+    public boolean deleteContextualBehavior(String behaviorId) {
+        ContextualBehavior behavior = contextualBehaviorRepository.findByBehaviorId(behaviorId).orElse(null);
+        if (behavior == null) {
+            return false;
+        }
         // TODO: Add logic to check if any PBUs or Roles reference this behavior before deleting
         contextualBehaviorRepository.deleteById(behavior.getId()); // Delete by actual PK (id), not behaviorId
+        return true;
     }
 
-    private void validateJsonFields(ContextualBehavior behavior) {
+    private boolean validateJsonFields(ContextualBehavior behavior) {
         if (behavior.getConditionLogic() != null && !behavior.getConditionLogic().isEmpty()) {
             try {
                 objectMapper.readTree(behavior.getConditionLogic());
             } catch (JsonProcessingException e) {
-                throw new BadRequestException(String.format(ErrorMessages.CONTEXTUAL_BEHAVIOR_INVALID_JSON_CONDITION, behavior.getBehaviorId(), e.getMessage()));
+                return false; // Invalid JSON
             }
         }
+        return true;
     }
 }
 

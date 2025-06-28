@@ -1,0 +1,107 @@
+{
+  "info": {
+    "_postman_id": "onified-authentication-service-collection",
+    "name": "Authentication Service API",
+    "description": "Postman collection for Onified Authentication Service. Supports direct and gateway calls via environment switching.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Public Test",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/public/test",
+          "host": ["{{baseUrl}}"],
+          "path": ["public", "test"]
+        }
+      },
+      "response": [
+        {
+          "name": "Success",
+          "originalRequest": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/public/test",
+              "host": ["{{baseUrl}}"],
+              "path": ["public", "test"]
+            }
+          },
+          "status": "OK",
+          "code": 200,
+          "_postman_previewlanguage": "text",
+          "header": [
+            { "key": "Content-Type", "value": "text/plain;charset=UTF-8" }
+          ],
+          "body": "Authentication Service is reachable (public)"
+        }
+      ]
+    },
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/authentication/health",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "authentication", "health"]
+        }
+      }
+    },
+    {
+      "name": "Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"password123\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/authentication/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "authentication", "login"]
+        }
+      }
+    },
+    {
+      "name": "Register",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"newuser\",\n  \"password\": \"securepassword\",\n  \"email\": \"newuser@example.com\",\n  \"firstName\": \"John\",\n  \"lastName\": \"Doe\",\n  \"roles\": [\"USER\"]\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/authentication/register",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "authentication", "register"]
+        }
+      }
+    },
+    {
+      "name": "Refresh Token",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/authentication/refresh?refreshToken={{refreshToken}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "authentication", "refresh"],
+          "query": [
+            { "key": "refreshToken", "value": "{{refreshToken}}" }
+          ]
+        }
+      }
+    }
+  ]
+} 

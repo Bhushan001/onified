@@ -4,12 +4,11 @@ import com.onified.ai.permission_registry.constants.ErrorMessages;
 import com.onified.ai.permission_registry.entity.RoleContextualBehavior;
 import com.onified.ai.permission_registry.entity.RoleFieldConstraint;
 import com.onified.ai.permission_registry.entity.RoleGeneralConstraint;
-import com.onified.ai.permission_registry.exception.ConflictException;
-import com.onified.ai.permission_registry.exception.ResourceNotFoundException;
 import com.onified.ai.permission_registry.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -44,11 +43,13 @@ public class RoleConstraintOverrideService {
 
     // --- Role - General Constraint Overrides ---
     public RoleGeneralConstraint addRoleGeneralConstraintOverride(String roleId, String constraintId) {
-        validateRoleAndGeneralConstraintExistence(roleId, constraintId);
+        if (!validateRoleAndGeneralConstraintExistence(roleId, constraintId)) {
+            return null; // Validation failed
+        }
 
         RoleGeneralConstraint.RoleGeneralConstraintId id = new RoleGeneralConstraint.RoleGeneralConstraintId(roleId, constraintId);
         if (roleGeneralConstraintRepository.existsById(id)) {
-            throw new ConflictException(String.format(ErrorMessages.ROLE_CONSTRAINT_OVERRIDE_ALREADY_EXISTS, roleId, constraintId));
+            return null; // Override already exists
         }
         RoleGeneralConstraint override = new RoleGeneralConstraint(roleId, constraintId);
         return roleGeneralConstraintRepository.save(override);
@@ -56,26 +57,29 @@ public class RoleConstraintOverrideService {
 
     public List<RoleGeneralConstraint> getGeneralConstraintOverridesForRole(String roleId) {
         if (!roleRepository.existsById(roleId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.ROLE_NOT_FOUND, roleId));
+            return Collections.emptyList();
         }
         return roleGeneralConstraintRepository.findByRoleId(roleId);
     }
 
-    public void removeRoleGeneralConstraintOverride(String roleId, String constraintId) {
+    public boolean removeRoleGeneralConstraintOverride(String roleId, String constraintId) {
         RoleGeneralConstraint.RoleGeneralConstraintId id = new RoleGeneralConstraint.RoleGeneralConstraintId(roleId, constraintId);
         if (!roleGeneralConstraintRepository.existsById(id)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.ROLE_CONSTRAINT_OVERRIDE_NOT_FOUND, roleId, constraintId));
+            return false;
         }
         roleGeneralConstraintRepository.deleteById(id);
+        return true;
     }
 
     // --- Role - Field Constraint Overrides ---
     public RoleFieldConstraint addRoleFieldConstraintOverride(String roleId, String constraintId) {
-        validateRoleAndFieldConstraintExistence(roleId, constraintId);
+        if (!validateRoleAndFieldConstraintExistence(roleId, constraintId)) {
+            return null; // Validation failed
+        }
 
         RoleFieldConstraint.RoleFieldConstraintId id = new RoleFieldConstraint.RoleFieldConstraintId(roleId, constraintId);
         if (roleFieldConstraintRepository.existsById(id)) {
-            throw new ConflictException(String.format(ErrorMessages.ROLE_CONSTRAINT_OVERRIDE_ALREADY_EXISTS, roleId, constraintId));
+            return null; // Override already exists
         }
         RoleFieldConstraint override = new RoleFieldConstraint(roleId, constraintId);
         return roleFieldConstraintRepository.save(override);
@@ -83,26 +87,29 @@ public class RoleConstraintOverrideService {
 
     public List<RoleFieldConstraint> getFieldConstraintOverridesForRole(String roleId) {
         if (!roleRepository.existsById(roleId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.ROLE_NOT_FOUND, roleId));
+            return Collections.emptyList();
         }
         return roleFieldConstraintRepository.findByRoleId(roleId);
     }
 
-    public void removeRoleFieldConstraintOverride(String roleId, String constraintId) {
+    public boolean removeRoleFieldConstraintOverride(String roleId, String constraintId) {
         RoleFieldConstraint.RoleFieldConstraintId id = new RoleFieldConstraint.RoleFieldConstraintId(roleId, constraintId);
         if (!roleFieldConstraintRepository.existsById(id)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.ROLE_CONSTRAINT_OVERRIDE_NOT_FOUND, roleId, constraintId));
+            return false;
         }
         roleFieldConstraintRepository.deleteById(id);
+        return true;
     }
 
     // --- Role - Contextual Behavior Overrides ---
     public RoleContextualBehavior addRoleContextualBehaviorOverride(String roleId, String behaviorId) {
-        validateRoleAndContextualBehaviorExistence(roleId, behaviorId);
+        if (!validateRoleAndContextualBehaviorExistence(roleId, behaviorId)) {
+            return null; // Validation failed
+        }
 
         RoleContextualBehavior.RoleContextualBehaviorId id = new RoleContextualBehavior.RoleContextualBehaviorId(roleId, behaviorId);
         if (roleContextualBehaviorRepository.existsById(id)) {
-            throw new ConflictException(String.format(ErrorMessages.ROLE_BEHAVIOR_OVERRIDE_ALREADY_EXISTS, roleId, behaviorId));
+            return null; // Override already exists
         }
         RoleContextualBehavior override = new RoleContextualBehavior(roleId, behaviorId);
         return roleContextualBehaviorRepository.save(override);
@@ -110,45 +117,31 @@ public class RoleConstraintOverrideService {
 
     public List<RoleContextualBehavior> getContextualBehaviorOverridesForRole(String roleId) {
         if (!roleRepository.existsById(roleId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.ROLE_NOT_FOUND, roleId));
+            return Collections.emptyList();
         }
         return roleContextualBehaviorRepository.findByRoleId(roleId);
     }
 
-    public void removeRoleContextualBehaviorOverride(String roleId, String behaviorId) {
+    public boolean removeRoleContextualBehaviorOverride(String roleId, String behaviorId) {
         RoleContextualBehavior.RoleContextualBehaviorId id = new RoleContextualBehavior.RoleContextualBehaviorId(roleId, behaviorId);
         if (!roleContextualBehaviorRepository.existsById(id)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.ROLE_BEHAVIOR_OVERRIDE_NOT_FOUND, roleId, behaviorId));
+            return false;
         }
         roleContextualBehaviorRepository.deleteById(id);
+        return true;
     }
 
     // --- Private Validation Helpers ---
 
-    private void validateRoleAndGeneralConstraintExistence(String roleId, String constraintId) {
-        if (!roleRepository.existsById(roleId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.ROLE_NOT_FOUND, roleId));
-        }
-        if (!generalConstraintRepository.existsById(constraintId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.GENERAL_CONSTRAINT_NOT_FOUND, constraintId));
-        }
+    private boolean validateRoleAndGeneralConstraintExistence(String roleId, String constraintId) {
+        return roleRepository.existsById(roleId) && generalConstraintRepository.existsById(constraintId);
     }
 
-    private void validateRoleAndFieldConstraintExistence(String roleId, String constraintId) {
-        if (!roleRepository.existsById(roleId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.ROLE_NOT_FOUND, roleId));
-        }
-        if (!fieldConstraintRepository.existsById(constraintId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.FIELD_CONSTRAINT_NOT_FOUND, constraintId));
-        }
+    private boolean validateRoleAndFieldConstraintExistence(String roleId, String constraintId) {
+        return roleRepository.existsById(roleId) && fieldConstraintRepository.existsById(constraintId);
     }
 
-    private void validateRoleAndContextualBehaviorExistence(String roleId, String behaviorId) {
-        if (!roleRepository.existsById(roleId)) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.ROLE_NOT_FOUND, roleId));
-        }
-        if (contextualBehaviorRepository.findByBehaviorId(behaviorId).isEmpty()) {
-            throw new ResourceNotFoundException(String.format(ErrorMessages.CONTEXTUAL_BEHAVIOR_NOT_FOUND, behaviorId));
-        }
+    private boolean validateRoleAndContextualBehaviorExistence(String roleId, String behaviorId) {
+        return roleRepository.existsById(roleId) && contextualBehaviorRepository.findByBehaviorId(behaviorId).isPresent();
     }
 }

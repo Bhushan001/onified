@@ -4,7 +4,7 @@ spring:
   application:
     name: authentication-service
   datasource:
-    url: ${AUTH_DB_URL:jdbc:postgresql://localhost:5432/auth_db}
+    url: ${AUTH_DB_URL:jdbc:postgresql://localhost:5432/authentication_db}
     username: ${AUTH_DB_USERNAME:postgres}
     password: ${AUTH_DB_PASSWORD:root}
     driver-class-name: org.postgresql.Driver
@@ -65,20 +65,32 @@ keycloak:
   auth-server-url: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:9090}
   realm: ${KEYCLOAK_REALM:onified}
   client-id: ${KEYCLOAK_CLIENT_ID:onified-auth-service}
-  client-secret: ${KEYCLOAK_CLIENT_SECRET:your-client-secret-here}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET:qflytBTZoCyPJbNbeHsNjB2RGCike2ia}
   admin:
     username: admin
     password: admin123
     realm: master
 
-# Eureka Client Configuration
+# Eureka Client Configuration - EMERGENCY SETTINGS
 eureka:
+  instance:
+    prefer-ip-address: true
+    # EMERGENCY: More aggressive heartbeat intervals
+    lease-renewal-interval-in-seconds: 15
+    lease-expiration-duration-in-seconds: 45
+    health-check-url-path: /actuator/health
+    # EMERGENCY: Add instance metadata for better tracking
+    metadata-map:
+      emergency-mode: true
+      last-update: ${spring.application.startup-date:}
   client:
-    enabled: ${EUREKA_ENABLED:false}
+    enabled: ${EUREKA_ENABLED:true}
     service-url:
-      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://eureka-server:8761/eureka/}
-    register-with-eureka: ${EUREKA_ENABLED:false}
-    fetch-registry: ${EUREKA_ENABLED:false}
+      defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
+    register-with-eureka: ${EUREKA_ENABLED:true}
+    fetch-registry: ${EUREKA_ENABLED:true}
+    # EMERGENCY: More frequent registry fetches
+    registry-fetch-interval-seconds: 10
 
 # Actuator Configuration
 management:
