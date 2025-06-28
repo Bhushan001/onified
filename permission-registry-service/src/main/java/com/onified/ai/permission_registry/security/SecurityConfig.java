@@ -33,6 +33,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/pbus/**").permitAll()
                         .requestMatchers("/api/roles/**").permitAll()
                         .requestMatchers("/api/role-inheritance/**").permitAll()
+                        .requestMatchers("/api/public/**").permitAll()// or permitAll if there is no security needed
                         .anyRequest().authenticated());
         return http.build();
     }

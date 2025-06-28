@@ -19,6 +19,45 @@ public class PasswordPolicyController {
     
     @Autowired
     private PasswordPolicyService passwordPolicyService;
+
+    @GetMapping("/platform")
+    public ResponseEntity<ApiResponse<PasswordPolicy>> getPlatformPasswordPolicy() {
+        try {
+            Optional<PasswordPolicy> policy = passwordPolicyService.getDefaultPasswordPolicy();
+            if (policy.isPresent()) {
+                ApiResponse<PasswordPolicy> response = new ApiResponse<>(
+                        HttpStatus.OK.value(),
+                        MessageConstants.STATUS_SUCCESS,
+                        policy.get()
+                );
+                return ResponseEntity.ok(response);
+            } else {
+                ApiResponse<CustomErrorResponse> errorResponse = new ApiResponse<>(
+                        HttpStatus.NOT_FOUND.value(),
+                        MessageConstants.STATUS_ERROR,
+                        new CustomErrorResponse(
+                                HttpStatus.NOT_FOUND.value(),
+                                MessageConstants.STATUS_ERROR,
+                                "Default platform password policy not found.",
+                                null
+                        )
+                );
+                return new ResponseEntity(errorResponse, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception ex) {
+            ApiResponse<CustomErrorResponse> errorResponse = new ApiResponse<>(
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    MessageConstants.STATUS_ERROR,
+                    new CustomErrorResponse(
+                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                            MessageConstants.STATUS_ERROR,
+                            "An unexpected error occurred: " + ex.getMessage(),
+                            null
+                    )
+            );
+            return new ResponseEntity(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     
     @GetMapping
     public ResponseEntity<List<PasswordPolicy>> getAllPasswordPolicies() {
@@ -95,53 +134,3 @@ public class PasswordPolicyController {
         return ResponseEntity.ok(defaultPolicy);
     }
 }
-
-// New controller for platform password policy endpoint
-@RestController
-@RequestMapping("/api/password-policy")
-class PlatformPasswordPolicyController {
-    private final PasswordPolicyService passwordPolicyService;
-
-    public PlatformPasswordPolicyController(PasswordPolicyService passwordPolicyService) {
-        this.passwordPolicyService = passwordPolicyService;
-    }
-
-    @GetMapping("/platform")
-    public ResponseEntity<ApiResponse<PasswordPolicy>> getPlatformPasswordPolicy() {
-        try {
-            Optional<PasswordPolicy> policy = passwordPolicyService.getDefaultPasswordPolicy();
-            if (policy.isPresent()) {
-                ApiResponse<PasswordPolicy> response = new ApiResponse<>(
-                        HttpStatus.OK.value(),
-                        MessageConstants.STATUS_SUCCESS,
-                        policy.get()
-                );
-                return ResponseEntity.ok(response);
-            } else {
-                ApiResponse<CustomErrorResponse> errorResponse = new ApiResponse<>(
-                        HttpStatus.NOT_FOUND.value(),
-                        MessageConstants.STATUS_ERROR,
-                        new CustomErrorResponse(
-                                HttpStatus.NOT_FOUND.value(),
-                                MessageConstants.STATUS_ERROR,
-                                "Default platform password policy not found.",
-                                null
-                        )
-                );
-                return new ResponseEntity(errorResponse, HttpStatus.NOT_FOUND);
-            }
-        } catch (Exception ex) {
-            ApiResponse<CustomErrorResponse> errorResponse = new ApiResponse<>(
-                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                    MessageConstants.STATUS_ERROR,
-                    new CustomErrorResponse(
-                            HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                            MessageConstants.STATUS_ERROR,
-                            "An unexpected error occurred: " + ex.getMessage(),
-                            null
-                    )
-            );
-            return new ResponseEntity(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-} 

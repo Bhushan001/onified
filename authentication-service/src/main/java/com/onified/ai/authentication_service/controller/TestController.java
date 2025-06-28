@@ -5,11 +5,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/test")
+@RequestMapping("/api/public")
 public class TestController {
 
-    @GetMapping("/ping")
-    public String ping() {
-        return "pong";
+    @GetMapping("/test")
+    public String publicTest() {
+        return "Authentication Service is reachable (public)";
     }
 } 
