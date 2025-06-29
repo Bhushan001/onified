@@ -1,5 +1,6 @@
 package com.onified.ai.appConfig.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,9 +14,18 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Standardized API response wrapper")
 public class ApiResponse<T> {
+    
+    @Schema(description = "HTTP status code", 
+            example = "200")
     private int statusCode;
+    
+    @Schema(description = "Status message", 
+            example = "SUCCESS")
     private String status;
+    
+    @Schema(description = "Response body containing the actual data")
     private T body;
 
     /**

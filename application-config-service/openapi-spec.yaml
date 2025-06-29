@@ -1,0 +1,573 @@
+openapi: 3.0.3
+info:
+  title: Application Config Service API
+  description: |
+    RESTful API for managing application configurations and modules in the Onified platform.
+    
+    This service provides endpoints for:
+    - Creating, reading, updating, and deleting applications
+    - Managing application modules
+    - Application configuration management
+    
+    ## Features
+    - **Application Management**: Full CRUD operations for applications
+    - **Module Management**: Create and manage modules within applications
+    - **Active/Inactive Status**: Toggle application and module status
+    - **Standardized Responses**: Consistent API response format
+    
+    ## Authentication
+    This service requires proper authentication and authorization.
+    
+    ## Rate Limiting
+    API calls are subject to rate limiting to ensure service stability.
+  version: 1.0.0
+  contact:
+    name: Onified Development Team
+    email: dev@onified.ai
+    url: https://onified.ai
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:9082
+    description: Local Development Server
+  - url: https://api.onified.ai
+    description: Production Server
+
+tags:
+  - name: Application Management
+    description: APIs for managing applications in the Onified platform
+  - name: Module Management
+    description: APIs for managing application modules in the Onified platform
+  - name: Public Endpoints
+    description: Public endpoints for testing and health checks
+
+paths:
+  /api/applications:
+    post:
+      tags:
+        - Application Management
+      summary: Create a new application
+      description: Creates a new application with the provided details. The application code must be unique.
+      operationId: createApplication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationRequestDTO'
+            examples:
+              create-app:
+                summary: Create Application Example
+                value:
+                  appCode: "APP001"
+                  displayName: "User Management System"
+                  isActive: true
+      responses:
+        '201':
+          description: Application created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_ApplicationResponseDTO'
+              examples:
+                success:
+                  summary: Success Response
+                  value:
+                    statusCode: 201
+                    status: "SUCCESS"
+                    body:
+                      appCode: "APP001"
+                      displayName: "User Management System"
+                      isActive: true
+        '400':
+          description: Bad request - Invalid input data
+        '409':
+          description: Conflict - Application code already exists
+        '500':
+          description: Internal server error
+    get:
+      tags:
+        - Application Management
+      summary: Get all applications
+      description: Retrieves a list of all applications in the system.
+      operationId: getAllApplications
+      responses:
+        '200':
+          description: Applications retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_List_ApplicationResponseDTO'
+        '500':
+          description: Internal server error
+
+  /api/applications/{appCode}:
+    get:
+      tags:
+        - Application Management
+      summary: Get application by code
+      description: Retrieves an application by its unique application code.
+      operationId: getApplicationByAppCode
+      parameters:
+        - name: appCode
+          in: path
+          required: true
+          description: Unique application code
+          schema:
+            type: string
+            example: "APP001"
+      responses:
+        '200':
+          description: Application found successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_ApplicationResponseDTO'
+        '404':
+          description: Application not found
+        '500':
+          description: Internal server error
+    put:
+      tags:
+        - Application Management
+      summary: Update an application
+      description: Updates an existing application with new details. The application code in the path must match the one in the request body.
+      operationId: updateApplication
+      parameters:
+        - name: appCode
+          in: path
+          required: true
+          description: Application code to update
+          schema:
+            type: string
+            example: "APP001"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationRequestDTO'
+            examples:
+              update-app:
+                summary: Update Application Example
+                value:
+                  appCode: "APP001"
+                  displayName: "Updated User Management System"
+                  isActive: false
+      responses:
+        '200':
+          description: Application updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_ApplicationResponseDTO'
+        '400':
+          description: Bad request - Invalid input data
+        '404':
+          description: Application not found
+        '500':
+          description: Internal server error
+    delete:
+      tags:
+        - Application Management
+      summary: Delete an application
+      description: Deletes an application by its application code. This operation is irreversible.
+      operationId: deleteApplication
+      parameters:
+        - name: appCode
+          in: path
+          required: true
+          description: Application code to delete
+          schema:
+            type: string
+            example: "APP001"
+      responses:
+        '204':
+          description: Application deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_String'
+              examples:
+                success:
+                  summary: Success Response
+                  value:
+                    statusCode: 204
+                    status: "SUCCESS"
+                    body: "Application deleted successfully."
+        '404':
+          description: Application not found
+        '500':
+          description: Internal server error
+
+  /api/modules:
+    post:
+      tags:
+        - Module Management
+      summary: Create a new application module
+      description: Creates a new module for an existing application. The module code must be unique within the application.
+      operationId: createAppModule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModuleRequestDTO'
+            examples:
+              create-module:
+                summary: Create Module Example
+                value:
+                  appCode: "APP001"
+                  moduleCode: "MOD001"
+                  isActive: true
+      responses:
+        '201':
+          description: Module created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_ModuleResponseDTO'
+              examples:
+                success:
+                  summary: Success Response
+                  value:
+                    statusCode: 201
+                    status: "SUCCESS"
+                    body:
+                      moduleId: 1
+                      appCode: "APP001"
+                      moduleCode: "MOD001"
+                      isActive: true
+        '400':
+          description: Bad request - Invalid input data
+        '404':
+          description: Application not found
+        '409':
+          description: Conflict - Module code already exists in the application
+        '500':
+          description: Internal server error
+
+  /api/modules/{moduleId}:
+    get:
+      tags:
+        - Module Management
+      summary: Get module by ID
+      description: Retrieves a module by its unique module ID.
+      operationId: getAppModuleById
+      parameters:
+        - name: moduleId
+          in: path
+          required: true
+          description: Unique module identifier
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '200':
+          description: Module found successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_ModuleResponseDTO'
+        '404':
+          description: Module not found
+        '500':
+          description: Internal server error
+    put:
+      tags:
+        - Module Management
+      summary: Update an application module
+      description: Updates an existing module with new details. The module ID in the path must match the one being updated.
+      operationId: updateAppModule
+      parameters:
+        - name: moduleId
+          in: path
+          required: true
+          description: Module ID to update
+          schema:
+            type: integer
+            example: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModuleRequestDTO'
+            examples:
+              update-module:
+                summary: Update Module Example
+                value:
+                  appCode: "APP001"
+                  moduleCode: "MOD001"
+                  isActive: false
+      responses:
+        '200':
+          description: Module updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_ModuleResponseDTO'
+        '400':
+          description: Bad request - Invalid input data
+        '404':
+          description: Module not found
+        '500':
+          description: Internal server error
+    delete:
+      tags:
+        - Module Management
+      summary: Delete an application module
+      description: Deletes a module by its module ID. This operation is irreversible.
+      operationId: deleteAppModule
+      parameters:
+        - name: moduleId
+          in: path
+          required: true
+          description: Module ID to delete
+          schema:
+            type: integer
+            example: 1
+      responses:
+        '204':
+          description: Module deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_String'
+              examples:
+                success:
+                  summary: Success Response
+                  value:
+                    statusCode: 204
+                    status: "SUCCESS"
+                    body: "Module deleted successfully."
+        '404':
+          description: Module not found
+        '500':
+          description: Internal server error
+
+  /api/modules/by-app/{appCode}:
+    get:
+      tags:
+        - Module Management
+      summary: Get modules by application code
+      description: Retrieves all modules for a specific application.
+      operationId: getAppModulesByAppCode
+      parameters:
+        - name: appCode
+          in: path
+          required: true
+          description: Application code to get modules for
+          schema:
+            type: string
+            example: "APP001"
+      responses:
+        '200':
+          description: Modules retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_List_ModuleResponseDTO'
+        '404':
+          description: Application not found
+        '500':
+          description: Internal server error
+
+  /api/public/test:
+    get:
+      tags:
+        - Public Endpoints
+      summary: Public test endpoint
+      description: A public endpoint to test if the Application Config Service is reachable and responding.
+      operationId: publicTest
+      responses:
+        '200':
+          description: Service is reachable and responding
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Application Config Service is reachable (public)"
+
+components:
+  schemas:
+    ApplicationRequestDTO:
+      type: object
+      description: Request DTO for creating or updating an application
+      required:
+        - appCode
+        - displayName
+        - isActive
+      properties:
+        appCode:
+          type: string
+          description: Unique application code identifier
+          example: "APP001"
+          minLength: 1
+          maxLength: 50
+        displayName:
+          type: string
+          description: Display name for the application
+          example: "User Management System"
+          minLength: 1
+          maxLength: 100
+        isActive:
+          type: boolean
+          description: Whether the application is active
+          example: true
+
+    ApplicationResponseDTO:
+      type: object
+      description: Response DTO for application data
+      properties:
+        appCode:
+          type: string
+          description: Unique application code identifier
+          example: "APP001"
+        displayName:
+          type: string
+          description: Display name for the application
+          example: "User Management System"
+        isActive:
+          type: boolean
+          description: Whether the application is active
+          example: true
+
+    ModuleRequestDTO:
+      type: object
+      description: Request DTO for creating or updating an application module
+      required:
+        - appCode
+        - moduleCode
+        - isActive
+      properties:
+        appCode:
+          type: string
+          description: Application code that this module belongs to
+          example: "APP001"
+          minLength: 1
+          maxLength: 50
+        moduleCode:
+          type: string
+          description: Unique module code identifier
+          example: "MOD001"
+          minLength: 1
+          maxLength: 50
+        isActive:
+          type: boolean
+          description: Whether the module is active
+          example: true
+
+    ModuleResponseDTO:
+      type: object
+      description: Response DTO for application module data
+      properties:
+        moduleId:
+          type: integer
+          description: Unique module identifier
+          example: 1
+        appCode:
+          type: string
+          description: Application code that this module belongs to
+          example: "APP001"
+        moduleCode:
+          type: string
+          description: Unique module code identifier
+          example: "MOD001"
+        isActive:
+          type: boolean
+          description: Whether the module is active
+          example: true
+
+    ApiResponse_ApplicationResponseDTO:
+      type: object
+      description: Standardized API response wrapper for ApplicationResponseDTO
+      properties:
+        statusCode:
+          type: integer
+          description: HTTP status code
+          example: 200
+        status:
+          type: string
+          description: Status message
+          example: "SUCCESS"
+        body:
+          $ref: '#/components/schemas/ApplicationResponseDTO'
+
+    ApiResponse_ModuleResponseDTO:
+      type: object
+      description: Standardized API response wrapper for ModuleResponseDTO
+      properties:
+        statusCode:
+          type: integer
+          description: HTTP status code
+          example: 200
+        status:
+          type: string
+          description: Status message
+          example: "SUCCESS"
+        body:
+          $ref: '#/components/schemas/ModuleResponseDTO'
+
+    ApiResponse_List_ApplicationResponseDTO:
+      type: object
+      description: Standardized API response wrapper for list of ApplicationResponseDTO
+      properties:
+        statusCode:
+          type: integer
+          description: HTTP status code
+          example: 200
+        status:
+          type: string
+          description: Status message
+          example: "SUCCESS"
+        body:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationResponseDTO'
+
+    ApiResponse_List_ModuleResponseDTO:
+      type: object
+      description: Standardized API response wrapper for list of ModuleResponseDTO
+      properties:
+        statusCode:
+          type: integer
+          description: HTTP status code
+          example: 200
+        status:
+          type: string
+          description: Status message
+          example: "SUCCESS"
+        body:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModuleResponseDTO'
+
+    ApiResponse_String:
+      type: object
+      description: Standardized API response wrapper for String
+      properties:
+        statusCode:
+          type: integer
+          description: HTTP status code
+          example: 204
+        status:
+          type: string
+          description: Status message
+          example: "SUCCESS"
+        body:
+          type: string
+          description: Response body containing the actual data
+          example: "Application deleted successfully."
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+
+security:
+  - bearerAuth: [] 

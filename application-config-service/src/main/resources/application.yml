@@ -22,6 +22,24 @@ spring:
         format_sql: true
     open-in-view: false
 
+# SpringDoc OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+    doc-expansion: none
+    disable-swagger-default-url: true
+    display-request-duration: true
+    try-it-out-enabled: true
+    filter: true
+  packages-to-scan: com.onified.ai.appConfig.controller
+  paths-to-match: /api/**
+
 logging:
   level:
     root: INFO
@@ -31,6 +49,8 @@ logging:
     org.hibernate.SQL: DEBUG
     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
     com.onified.appconfig: DEBUG
+    # Add logging for SpringDoc
+    org.springdoc: DEBUG
   pattern:
     level: "%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]"
   file:
