@@ -54,6 +54,11 @@ feign:
     config:
       application-config-service:
         url: ${APPLICATION_CONFIG_URL:http://localhost:9082}
+      keycloak-client:
+        connect-timeout: 5000
+        read-timeout: 10000
+        logger-level: BASIC
+        error-decoder: com.onified.ai.permission_registry.client.KeycloakFeignConfig$KeycloakErrorDecoder
 
 # Eureka Client Configuration
 eureka:
@@ -68,3 +73,14 @@ eureka:
       defaultZone: ${EUREKA_CLIENT_SERVICEURL_DEFAULTZONE:http://localhost:8761/eureka/}
     register-with-eureka: ${EUREKA_ENABLED:true}
     fetch-registry: ${EUREKA_ENABLED:true}
+
+# Keycloak Configuration for Permission Registry Service
+# Using master realm with admin-cli for admin operations
+keycloak:
+  auth-server-url: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:9090}
+  realm: ${KEYCLOAK_REALM:master}
+  client-id: ${KEYCLOAK_CLIENT_ID:admin-cli}
+  admin:
+    username: ${KEYCLOAK_ADMIN_USERNAME:admin}
+    password: ${KEYCLOAK_ADMIN_PASSWORD:admin123}
+    realm: master

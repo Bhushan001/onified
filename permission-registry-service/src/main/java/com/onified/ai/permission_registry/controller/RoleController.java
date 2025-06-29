@@ -142,6 +142,25 @@ public class RoleController {
         return new ResponseEntity<>(response, HttpStatus.NO_CONTENT);
     }
 
+    /**
+     * Syncs all roles from the database to Keycloak.
+     * POST /api/roles/sync-to-keycloak
+     * @return ResponseEntity with ApiResponse indicating sync status.
+     */
+    @PostMapping("/sync-to-keycloak")
+    public ResponseEntity<ApiResponse<?>> syncAllRolesToKeycloak() {
+        try {
+            roleService.syncAllRolesToKeycloak();
+            ApiResponse<String> response = new ApiResponse<>(
+                    HttpStatus.OK.value(), "SUCCESS", "All roles synced to Keycloak successfully.");
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (Exception e) {
+            CustomErrorResponse errorResponse = new CustomErrorResponse("SYNC_ERROR", "Failed to sync roles to Keycloak: " + e.getMessage());
+            ApiResponse<CustomErrorResponse> response = new ApiResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), "ERROR", errorResponse);
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     private RoleResponseDTO convertToResponseDTO(Role role) {
         return new RoleResponseDTO(
                 role.getRoleId(),

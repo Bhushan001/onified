@@ -1,0 +1,147 @@
+{
+	"info": {
+		"_postman_id": "keycloak-sync-collection",
+		"name": "Permission Registry - Keycloak Sync",
+		"description": "Collection for testing role synchronization between Permission Registry and Keycloak",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Create Role (Auto-sync to Keycloak)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"roleId\": \"UMS.USER_MANAGEMENT.ADMIN\",\n  \"displayName\": \"User Management Administrator\",\n  \"appCode\": \"UMS\",\n  \"moduleCode\": \"USER_MANAGEMENT\",\n  \"roleFunction\": \"ADMIN\",\n  \"isActive\": true,\n  \"tenantCustomizable\": false\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/roles",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"roles"
+					]
+				},
+				"description": "Creates a new role in permission-registry and automatically syncs it to Keycloak"
+			}
+		},
+		{
+			"name": "Update Role (Auto-sync to Keycloak)",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"roleId\": \"UMS.USER_MANAGEMENT.ADMIN\",\n  \"displayName\": \"Updated User Management Administrator\",\n  \"appCode\": \"UMS\",\n  \"moduleCode\": \"USER_MANAGEMENT\",\n  \"roleFunction\": \"ADMIN\",\n  \"isActive\": true,\n  \"tenantCustomizable\": true\n}"
+				},
+				"url": {
+					"raw": "{{base_url}}/api/roles/UMS.USER_MANAGEMENT.ADMIN",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"roles",
+						"UMS.USER_MANAGEMENT.ADMIN"
+					]
+				},
+				"description": "Updates an existing role and automatically syncs changes to Keycloak"
+			}
+		},
+		{
+			"name": "Delete Role (Auto-sync to Keycloak)",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/roles/UMS.USER_MANAGEMENT.ADMIN",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"roles",
+						"UMS.USER_MANAGEMENT.ADMIN"
+					]
+				},
+				"description": "Deletes a role from permission-registry and automatically removes it from Keycloak"
+			}
+		},
+		{
+			"name": "Manual Sync All Roles to Keycloak",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/roles/sync-to-keycloak",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"roles",
+						"sync-to-keycloak"
+					]
+				},
+				"description": "Manually syncs all existing roles from the database to Keycloak (useful for initial setup or recovery)"
+			}
+		},
+		{
+			"name": "Get All Roles",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/roles",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"roles"
+					]
+				},
+				"description": "Retrieves all roles from the permission-registry database"
+			}
+		},
+		{
+			"name": "Get Role by ID",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/api/roles/UMS.USER_MANAGEMENT.ADMIN",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"api",
+						"roles",
+						"UMS.USER_MANAGEMENT.ADMIN"
+					]
+				},
+				"description": "Retrieves a specific role by its ID"
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:9084",
+			"type": "string"
+		}
+	]
+} 

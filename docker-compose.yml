@@ -34,7 +34,7 @@ services:
 
   # Keycloak Identity Provider
   keycloak:
-    image: quay.io/keycloak/keycloak:24.0.2
+    image: quay.io/keycloak/keycloak:25.0.2
     container_name: keycloak
     environment:
       KC_DB: postgres

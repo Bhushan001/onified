@@ -17,15 +17,19 @@ public class RoleService {
 
     private final RoleRepository roleRepository;
     private final ApplicationConfigServiceClient appConfigServiceClient;
+    private final KeycloakSyncService keycloakSyncService;
 
     // Updated Regex for Role naming convention: {APP}.{MODULE}.{ROLE_FUNCTION}
     // Now allows alphanumeric characters and underscores for MODULE and ROLE_FUNCTION.
     private static final Pattern ROLE_NAMING_PATTERN = Pattern.compile("^[A-Z]+\\.[A-Za-z0-9_]+\\.[A-Za-z0-9_]+$");
 
     @Autowired
-    public RoleService(RoleRepository roleRepository, ApplicationConfigServiceClient appConfigServiceClient) {
+    public RoleService(RoleRepository roleRepository, 
+                      ApplicationConfigServiceClient appConfigServiceClient,
+                      KeycloakSyncService keycloakSyncService) {
         this.roleRepository = roleRepository;
         this.appConfigServiceClient = appConfigServiceClient;
+        this.keycloakSyncService = keycloakSyncService;
     }
 
     public Role createRole(Role role) {
@@ -45,7 +49,17 @@ public class RoleService {
             role.setInheritanceDepth(0);
         }
 
-        return roleRepository.save(role);
+        // Save role to database
+        Role savedRole = roleRepository.save(role);
+        
+        // Sync to Keycloak (non-blocking - don't fail if Keycloak sync fails)
+        try {
+            keycloakSyncService.syncRoleToKeycloak(savedRole);
+        } catch (Exception e) {
+            System.err.println("Warning: Failed to sync role to Keycloak, but role was saved to database: " + e.getMessage());
+        }
+
+        return savedRole;
     }
 
     public Role getRoleById(String roleId) {
@@ -71,7 +85,18 @@ public class RoleService {
             existingRole.setRoleFunction(updatedRole.getRoleFunction());
             existingRole.setIsActive(updatedRole.getIsActive());
             existingRole.setTenantCustomizable(updatedRole.getTenantCustomizable());
-            return roleRepository.save(existingRole);
+            
+            // Save updated role to database
+            Role savedRole = roleRepository.save(existingRole);
+            
+            // Sync to Keycloak (non-blocking)
+            try {
+                keycloakSyncService.updateRoleInKeycloak(savedRole);
+            } catch (Exception e) {
+                System.err.println("Warning: Failed to sync role update to Keycloak: " + e.getMessage());
+            }
+            
+            return savedRole;
         }).orElse(null);
     }
 
@@ -79,12 +104,23 @@ public class RoleService {
         if (!roleRepository.existsById(roleId)) {
             return false;
         }
+        
         // TODO: Add robust checks for dependent entities before deletion:
         // - Check role_inheritance (if it's a parent or child)
         // - Check role_general_constraints, role_field_constraints, role_contextual_behaviors
         // - Check user_role_map
         // - Check delegations (if relevant)
+        
+        // Delete from database
         roleRepository.deleteById(roleId);
+        
+        // Delete from Keycloak (non-blocking)
+        try {
+            keycloakSyncService.deleteRoleFromKeycloak(roleId);
+        } catch (Exception e) {
+            System.err.println("Warning: Failed to delete role from Keycloak: " + e.getMessage());
+        }
+        
         return true;
     }
 
@@ -124,6 +160,25 @@ public class RoleService {
             return null;
         }
         role.setInheritanceDepth(newDepth);
-        return roleRepository.save(role);
+        
+        // Save to database
+        Role savedRole = roleRepository.save(role);
+        
+        // Sync to Keycloak (non-blocking)
+        try {
+            keycloakSyncService.updateRoleInKeycloak(savedRole);
+        } catch (Exception e) {
+            System.err.println("Warning: Failed to sync role inheritance depth update to Keycloak: " + e.getMessage());
+        }
+        
+        return savedRole;
+    }
+
+    /**
+     * Sync all existing roles to Keycloak (useful for initial setup or recovery)
+     */
+    public void syncAllRolesToKeycloak() {
+        List<Role> allRoles = getAllRoles();
+        keycloakSyncService.syncAllRolesToKeycloak(allRoles);
     }
 }

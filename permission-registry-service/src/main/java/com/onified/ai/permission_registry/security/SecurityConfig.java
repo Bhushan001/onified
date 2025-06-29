@@ -26,6 +26,7 @@ public class SecurityConfig {
         http.csrf(CsrfConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/keycloak-test/**").permitAll()
                         .requestMatchers("/api/actions/**").permitAll()
                         .requestMatchers("/api/scopes/**").permitAll()
                         .requestMatchers("/api/constraints/**").permitAll()
