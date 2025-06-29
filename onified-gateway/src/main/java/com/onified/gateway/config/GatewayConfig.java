@@ -17,8 +17,8 @@ public class GatewayConfig {
                         .uri("http://localhost:8080"))
                 
                 // Platform Management Service routes
-                .route("platform-management", r -> r.path("/api/platform-management/**")
-                        .filters(f -> f.rewritePath("/api/platform-management/(?<segment>.*)", "/api/${segment}"))
+                .route("platform", r -> r.path("/api/platform/**")
+                        .filters(f -> f.rewritePath("/api/platform/(?<segment>.*)", "/api/${segment}"))
                         .uri("lb://platform-management-service"))
                 
                 // Password Policy routes (platform level)
@@ -41,8 +41,8 @@ public class GatewayConfig {
                         .uri("lb://permission-registry-service"))
                 
                 // Authentication Service routes
-                .route("authentication", r -> r.path("/api/authentication/**")
-                        .filters(f -> f.rewritePath("/api/authentication/(?<segment>.*)", "/api/authentication/${segment}"))
+                .route("auth", r -> r.path("/api/auth/**")
+                        .filters(f -> f.rewritePath("/api/auth/(?<segment>.*)", "/api/${segment}"))
                         .uri("lb://authentication-service"))
                 
                 // Application Config Service routes
