@@ -1,0 +1,160 @@
+{
+	"info": {
+		"_postman_id": "2a1f2fe8-f8cb-4f57-a4d7-e32853c51adb",
+		"name": "Authentication Service API",
+		"description": "Postman collection for Onified Authentication Service. Supports direct and gateway calls via environment switching.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "786934",
+		"_collection_link": "https://www.postman.com/n8n555-8857/workspace/onified-workspace/collection/786934-2a1f2fe8-f8cb-4f57-a4d7-e32853c51adb?action=share&source=collection_link&creator=786934"
+	},
+	"item": [
+		{
+			"name": "Public Test",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/public/test",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"public",
+						"test"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/public/test",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"test"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain;charset=UTF-8"
+						}
+					],
+					"cookie": [],
+					"body": "Authentication Service is reachable (public)"
+				}
+			]
+		},
+		{
+			"name": "Health Check",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/authentication/health",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"authentication",
+						"health"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"password123\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/authentication/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"authentication",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Register",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"bhushangadekar\",\n    \"email\": \"bhushangadekar@yahoo.com\",\n    \"password\": \"Bhushan@123\",\n    \"confirmPassword\": \"Bhushan@123\",\n    \"name\": \"Bhushan Gadekar\",\n    \"firstName\": \"Bhushan\",\n    \"lastName\": \"Gadekar\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/authentication/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"authentication",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Refresh Token",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"url": {
+					"raw": "{{baseUrl}}/authentication/refresh?refreshToken={{refreshToken}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"authentication",
+						"refresh"
+					],
+					"query": [
+						{
+							"key": "refreshToken",
+							"value": "{{refreshToken}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -1,0 +1,344 @@
+{
+	"info": {
+		"_postman_id": "5ce17bf3-2185-4b12-af5e-afd4c0911c83",
+		"name": "User Management Service",
+		"description": "Complete API collection for User Management Service with all endpoints for user operations, role management, and user attributes.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "786934",
+		"_collection_link": "https://www.postman.com/n8n555-8857/workspace/onified-workspace/collection/786934-5ce17bf3-2185-4b12-af5e-afd4c0911c83?action=share&source=collection_link&creator=786934"
+	},
+	"item": [
+		{
+			"name": "User Management",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Retrieve all users in the system"
+					},
+					"response": []
+				},
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"bhushangadekar\",\n    \"email\": \"bhushangadekar@yahoo.com\",\n    \"password\": \"Bhushan@123\",\n    \"name\": \"Bhushan Gadekar\",\n    \"firstName\": \"Bhushan\",\n    \"lastName\": \"Gadekar\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users"
+							]
+						},
+						"description": "Create a new user with required fields and optional roles"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/{{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}"
+							]
+						},
+						"description": "Retrieve a specific user by their UUID"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User by Username",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/username/{{username}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"username",
+								"{{username}}"
+							]
+						},
+						"description": "Retrieve a specific user by their username"
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Auth Details",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/auth-details/{{username}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"auth-details",
+								"{{username}}"
+							]
+						},
+						"description": "Get user authentication details including password hash (used by auth service)"
+					},
+					"response": []
+				},
+				{
+					"name": "Update User",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"username\": \"john.doe.updated\",\n  \"email\": \"john.doe.updated@example.com\",\n  \"firstName\": \"John Updated\",\n  \"lastName\": \"Doe Updated\",\n  \"password\": \"NewSecurePass123!\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}"
+							]
+						},
+						"description": "Update an existing user's information"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/{{user_id}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}"
+							]
+						},
+						"description": "Delete a user by their UUID"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Role Management",
+			"item": [
+				{
+					"name": "Assign Role to User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"roleId\": \"ADMIN\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{user_id}}/roles",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}",
+								"roles"
+							]
+						},
+						"description": "Assign a role to a specific user"
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Role from User",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/{{user_id}}/roles/{{role_name}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}",
+								"roles",
+								"{{role_name}}"
+							]
+						},
+						"description": "Remove a specific role from a user"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Attributes",
+			"item": [
+				{
+					"name": "Add/Update User Attribute",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"attributeName\": \"department\",\n  \"attributeValue\": \"Engineering\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/users/{{user_id}}/attributes",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}",
+								"attributes"
+							]
+						},
+						"description": "Add or update a custom attribute for a user"
+					},
+					"response": []
+				},
+				{
+					"name": "Remove User Attribute",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/users/{{user_id}}/attributes/{{attribute_name}}",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"users",
+								"{{user_id}}",
+								"attributes",
+								"{{attribute_name}}"
+							]
+						},
+						"description": "Remove a specific attribute from a user"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Public Test",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/public/test",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"public",
+						"test"
+					]
+				},
+				"description": "Public endpoint to test if the service is reachable"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:9085",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "00000000-0000-0000-0000-000000000000",
+			"type": "string"
+		},
+		{
+			"key": "username",
+			"value": "john.doe",
+			"type": "string"
+		},
+		{
+			"key": "role_name",
+			"value": "ADMIN",
+			"type": "string"
+		},
+		{
+			"key": "attribute_name",
+			"value": "department",
+			"type": "string"
+		}
+	]
+}

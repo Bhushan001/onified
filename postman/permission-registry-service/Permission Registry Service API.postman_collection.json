@@ -1,0 +1,2339 @@
+{
+	"info": {
+		"_postman_id": "9f24e1de-898f-430c-8c15-cf2f45b6d799",
+		"name": "Permission Registry Service API",
+		"description": "Comprehensive Postman collection for the Onified.ai Permission Registry Service, running on port 9082. Includes Actions, Scopes, Constraints (General, Field, Contextual), PBUs, PBU Associations, Roles, Role Inheritance, and Role Constraint Overrides.\n\n***IMPORTANT: For Role creation/update, ensure the 'appCode' and 'moduleCode' exist and are active in your Application Config Service (running on http://localhost:9081).***",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "786934",
+		"_collection_link": "https://www.postman.com/n8n555-8857/workspace/onified-workspace/collection/786934-9f24e1de-898f-430c-8c15-cf2f45b6d799?action=share&source=collection_link&creator=786934"
+	},
+	"item": [
+		{
+			"name": "1. Actions Management (/api/actions)",
+			"item": [
+				{
+					"name": "CREATE Action - READ",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"actionCode\": \"READ\",\n    \"displayName\": \"View Data\",\n    \"description\": \"Allows viewing data without modification.\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/actions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CREATE Action - CREATE",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"actionCode\": \"CREATE\",\n    \"displayName\": \"Create New Entities\",\n    \"description\": \"Allows creating new entities or records.\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/actions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CREATE Action - APPROVE",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"actionCode\": \"APPROVE\",\n    \"displayName\": \"Formally Approve\",\n    \"description\": \"Allows formal approval of entities or processes.\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/actions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET All Actions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/actions",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actions"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Action by Code - READ",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/actions/{{testActionCode}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actions",
+								"{{testActionCode}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Action by Code - NON_EXISTENT",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/actions/NON_EXISTENT",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actions",
+								"NON_EXISTENT"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UPDATE Action - READ (Deactivate)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"actionCode\": \"READ\",\n    \"displayName\": \"View Data (Inactive)\",\n    \"description\": \"Allows viewing data without modification.\",\n    \"isActive\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/actions/{{testActionCode}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actions",
+								"{{testActionCode}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UPDATE Action - CREATE (Update Description)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"actionCode\": \"CREATE\",\n    \"displayName\": \"Create New Entities\",\n    \"description\": \"Create new records or items in the system.\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/actions/CREATE",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actions",
+								"CREATE"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Action - READ",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/actions/{{testActionCode}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actions",
+								"{{testActionCode}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Action - NON_EXISTENT",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/actions/NON_EXISTENT_DELETE",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"actions",
+								"NON_EXISTENT_DELETE"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2. Scopes Management (/api/scopes)",
+			"item": [
+				{
+					"name": "CREATE Scope - TENANT",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"scopeCode\": \"TENANT\",\n    \"displayName\": \"Tenant-wide Access\",\n    \"description\": \"Access to all resources within the current tenant.\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/scopes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"scopes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CREATE Scope - Platform",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"scopeCode\": \"PLATFORM\",\n    \"displayName\": \"Platform-wide Access\",\n    \"description\": \"Access to all resources within the platform.\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/scopes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"scopes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CREATE Scope - SELF",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"scopeCode\": \"SELF\",\n    \"displayName\": \"Self-Service Access\",\n    \"description\": \"Access limited to resources created by or assigned directly to the user.\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/scopes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"scopes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CREATE Scope - ORG_UNIT_ONLY",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"scopeCode\": \"ORG_UNIT_ONLY\",\n    \"displayName\": \"Organizational Unit Access\",\n    \"description\": \"Access limited to resources within the user's specific organizational unit.\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/scopes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"scopes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET All Scopes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/scopes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"scopes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Scope by Code - TENANT",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/scopes/{{testScopeCode}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"scopes",
+								"{{testScopeCode}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Scope by Code - NON_EXISTENT",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/scopes/NON_EXISTENT",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"scopes",
+								"NON_EXISTENT"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UPDATE Scope - TENANT (Deactivate)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"scopeCode\": \"TENANT\",\n    \"displayName\": \"Tenant-wide Access (Inactive)\",\n    \"description\": \"Access to all resources within the current tenant.\",\n    \"isActive\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/scopes/{{testScopeCode}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"scopes",
+								"{{testScopeCode}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UPDATE Scope - SELF (Update Description)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"scopeCode\": \"SELF\",\n    \"displayName\": \"Self-Service Access\",\n    \"description\": \"Limited to user's own resources.\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/scopes/SELF",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"scopes",
+								"SELF"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Scope - TENANT",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/scopes/{{testScopeCode}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"scopes",
+								"{{testScopeCode}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Scope - NON_EXISTENT",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/scopes/NON_EXISTENT_DELETE",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"scopes",
+								"NON_EXISTENT_DELETE"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3. General Constraints Management (/api/constraints/general)",
+			"item": [
+				{
+					"name": "CREATE General Constraint - GC_PLANT_101",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"constraintId\": \"GC_PLANT_101\",\n    \"constraintName\": \"Access to Plant 101 Data\",\n    \"tableName\": \"documents\",\n    \"columnName\": \"plant_id\",\n    \"valueType\": \"CUSTOM_VALUE\",\n    \"customValue\": \"{\\\"operator\\\": \\\"=\\\", \\\"value\\\": \\\"101\\\"}\",\n    \"ruleLogic\": \"{\\\"condition\\\": \\\"AND\\\", \\\"rules\\\": [{\\\"field\\\": \\\"plant_id\\\", \\\"operator\\\": \\\"=\\\", \\\"value\\\": \\\"101\\\"}]}\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/constraints/general",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"constraints",
+								"general"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CREATE General Constraint - GC_DEPARTMENT_HR",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"constraintId\": \"GC_DEPARTMENT_HR\",\n    \"constraintName\": \"Access to HR Department Data\",\n    \"tableName\": \"employees\",\n    \"columnName\": \"department\",\n    \"valueType\": \"CUSTOM_VALUE\",\n    \"customValue\": \"{\\\"operator\\\": \\\"=\\\", \\\"value\\\": \\\"HR\\\"}\",\n    \"ruleLogic\": \"{\\\"condition\\\": \\\"AND\\\", \\\"rules\\\": [{\\\"field\\\": \\\"department\\\", \\\"operator\\\": \\\"=\\\", \\\"value\\\": \\\"HR\\\"}]}\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/constraints/general",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"constraints",
+								"general"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CREATE General Constraint - GC_DOC_STATUS_DRAFT",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"constraintId\": \"GC_DOC_STATUS_DRAFT\",\n    \"constraintName\": \"Access to Draft Documents Only\",\n    \"tableName\": \"documents\",\n    \"columnName\": \"status\",\n    \"valueType\": \"CUSTOM_VALUE\",\n    \"customValue\": \"{\\\"operator\\\": \\\"=\\\", \\\"value\\\": \\\"DRAFT\\\"}\",\n    \"ruleLogic\": \"{\\\"condition\\\": \\\"AND\\\", \\\"rules\\\": [{\\\"field\\\": \\\"status\\\", \\\"operator\\\": \\\"=\\\", \\\"value\\\": \\\"DRAFT\\\"}]}\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/constraints/general",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"constraints",
+								"general"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET All General Constraints",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/constraints/general",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"constraints",
+								"general"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET General Constraint by ID - GC_PLANT_101",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/constraints/general/{{testGeneralConstraintId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"constraints",
+								"general",
+								"{{testGeneralConstraintId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET General Constraint by ID - NON_EXISTENT",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/constraints/general/NON_EXISTENT_GC",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"constraints",
+								"general",
+								"NON_EXISTENT_GC"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UPDATE General Constraint - GC_PLANT_101 (Deactivate)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"constraintId\": \"GC_PLANT_101\",\n    \"constraintName\": \"Access to Plant 101 Data (Inactive)\",\n    \"tableName\": \"documents\",\n    \"columnName\": \"plant_id\",\n    \"valueType\": \"CUSTOM_VALUE\",\n    \"customValue\": \"{\\\"operator\\\": \\\"=\\\", \\\"value\\\": \\\"101\\\"}\",\n    \"ruleLogic\": \"{\\\"condition\\\": \\\"AND\\\", \\\"rules\\\": [{\\\"field\\\": \\\"plant_id\\\", \\\"operator\\\": \\\"=\\\", \\\"value\\\": \\\"101\\\"}]}\",\n    \"isActive\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/constraints/general/{{testGeneralConstraintId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"constraints",
+								"general",
+								"{{testGeneralConstraintId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UPDATE General Constraint - GC_DEPARTMENT_HR (Update Rule Logic)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"constraintId\": \"GC_DEPARTMENT_HR\",\n    \"constraintName\": \"Access to HR Department and Active Employees\",\n    \"tableName\": \"employees\",\n    \"columnName\": \"department\",\n    \"valueType\": \"CUSTOM_VALUE\",\n    \"customValue\": \"{\\\"operator\\\": \\\"=\\\", \\\"value\\\": \\\"HR\\\"}\",\n    \"ruleLogic\": \"{\\\"condition\\\": \\\"AND\\\", \\\"rules\\\": [{\\\"field\\\": \\\"department\\\", \\\"operator\\\": \\\"=\\\", \\\"value\\\": \\\"HR\\\"}, {\\\"field\\\": \\\"status\\\", \\\"operator\\\": \\\"=\\\", \\\"value\\\": \\\"ACTIVE\\\"}]}\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/constraints/general/GC_DEPARTMENT_HR",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"constraints",
+								"general",
+								"GC_DEPARTMENT_HR"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE General Constraint - GC_PLANT_101",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/constraints/general/{{testGeneralConstraintId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"constraints",
+								"general",
+								"{{testGeneralConstraintId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE General Constraint - NON_EXISTENT",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/constraints/general/NON_EXISTENT_GC_DELETE",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"constraints",
+								"general",
+								"NON_EXISTENT_GC_DELETE"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4. Field Constraints Management (/api/constraints/field)",
+			"item": [
+				{
+					"name": "CREATE Field Constraint - FC_DOCUMENT_NOTES_FORBIDDEN",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"constraintId\": \"FC_DOCUMENT_NOTES_FORBIDDEN\",\n    \"entityName\": \"document\",\n    \"fieldName\": \"confidential_notes\",\n    \"accessType\": \"FORBIDDEN\",\n    \"conditionLogic\": null,\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/constraints/field",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"constraints",
+								"field"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CREATE Field Constraint - FC_USER_SALARY_MASKED",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"constraintId\": \"FC_USER_SALARY_MASKED\",\n    \"entityName\": \"user\",\n    \"fieldName\": \"salary\",\n    \"accessType\": \"CONDITIONAL_READ\",\n    \"conditionLogic\": \"{\\\"maskType\\\": \\\"PARTIAL\\\", \\\"rolesRequired\\\": [\\\"HR.Payroll.Manager\\\"]}\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/constraints/field",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"constraints",
+								"field"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CREATE Field Constraint - FC_CONTACT_EMAIL_WRITE_DENIED",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"constraintId\": \"FC_CONTACT_EMAIL_WRITE_DENIED\",\n    \"entityName\": \"contact\",\n    \"fieldName\": \"email_address\",\n    \"accessType\": \"WRITE_DENIED\",\n    \"conditionLogic\": null,\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/constraints/field",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"constraints",
+								"field"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET All Field Constraints",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/constraints/field",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"constraints",
+								"field"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Field Constraint by ID - FC_DOCUMENT_NOTES_FORBIDDEN",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/constraints/field/{{testFieldConstraintId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"constraints",
+								"field",
+								"{{testFieldConstraintId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Field Constraint by ID - NON_EXISTENT",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/constraints/field/NON_EXISTENT_FC",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"constraints",
+								"field",
+								"NON_EXISTENT_FC"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UPDATE Field Constraint - FC_DOCUMENT_NOTES_FORBIDDEN (Deactivate)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"constraintId\": \"FC_DOCUMENT_NOTES_FORBIDDEN\",\n    \"entityName\": \"document\",\n    \"fieldName\": \"confidential_notes\",\n    \"accessType\": \"FORBIDDEN\",\n    \"conditionLogic\": null,\n    \"isActive\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/constraints/field/{{testFieldConstraintId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"constraints",
+								"field",
+								"{{testFieldConstraintId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UPDATE Field Constraint - FC_USER_SALARY_MASKED (Update Logic)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"constraintId\": \"FC_USER_SALARY_MASKED\",\n    \"entityName\": \"user\",\n    \"fieldName\": \"salary\",\n    \"accessType\": \"CONDITIONAL_READ\",\n    \"conditionLogic\": \"{\\\"maskType\\\": \\\"FULL\\\", \\\"rolesRequired\\\": [\\\"HR.Payroll.Manager\\\", \\\"HR.Audit.Officer\\\"]}\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/constraints/field/FC_USER_SALARY_MASKED",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"constraints",
+								"field",
+								"FC_USER_SALARY_MASKED"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Field Constraint - FC_DOCUMENT_NOTES_FORBIDDEN",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/constraints/field/{{testFieldConstraintId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"constraints",
+								"field",
+								"{{testFieldConstraintId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Field Constraint - NON_EXISTENT",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/constraints/field/NON_EXISTENT_FC_DELETE",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"constraints",
+								"field",
+								"NON_EXISTENT_FC_DELETE"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5. Contextual Behaviors Management (/api/behaviors/contextual)",
+			"item": [
+				{
+					"name": "CREATE Contextual Behavior - CB_VPN_OFFICE_HOURS",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"behaviorId\": \"CB_VPN_OFFICE_HOURS\",\n    \"behaviorCode\": \"VPN_HOURS_ACCESS\",\n    \"displayName\": \"Requires VPN & Office Hours\",\n    \"conditionLogic\": \"{\\\"networkType\\\": \\\"VPN\\\", \\\"timeRange\\\": {\\\"start\\\": \\\"09:00\\\", \\\"end\\\": \\\"17:00\\\"}}\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/behaviors/contextual",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"behaviors",
+								"contextual"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CREATE Contextual Behavior - CB_MOBILE_ACCESS",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"behaviorId\": \"CB_MOBILE_ACCESS\",\n    \"behaviorCode\": \"MOBILE_DEVICE_ACCESS\",\n    \"displayName\": \"Limited Mobile Device Access\",\n    \"conditionLogic\": \"{\\\"deviceType\\\": \\\"MOBILE\\\", \\\"limitedFeatures\\\": true}\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/behaviors/contextual",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"behaviors",
+								"contextual"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CREATE Contextual Behavior - CB_GEOLOCATION_RESTRICTED",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"behaviorId\": \"CB_GEOLOCATION_RESTRICTED\",\n    \"behaviorCode\": \"GEO_FENCE_ACCESS\",\n    \"displayName\": \"Geofence Restricted Access\",\n    \"conditionLogic\": \"{\\\"allowedCountry\\\": \\\"US\\\", \\\"allowedCity\\\": \\\"New York\\\"}\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/behaviors/contextual",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"behaviors",
+								"contextual"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET All Contextual Behaviors",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/behaviors/contextual",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"behaviors",
+								"contextual"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Contextual Behavior by ID - CB_VPN_OFFICE_HOURS",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/behaviors/contextual/{{testContextualBehaviorId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"behaviors",
+								"contextual",
+								"{{testContextualBehaviorId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Contextual Behavior by ID - NON_EXISTENT",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/behaviors/contextual/NON_EXISTENT_CB",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"behaviors",
+								"contextual",
+								"NON_EXISTENT_CB"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UPDATE Contextual Behavior - CB_VPN_OFFICE_HOURS (Deactivate)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"behaviorId\": \"CB_VPN_OFFICE_HOURS\",\n    \"behaviorCode\": \"VPN_HOURS_ACCESS\",\n    \"displayName\": \"Requires VPN & Office Hours (Inactive)\",\n    \"conditionLogic\": \"{\\\"networkType\\\": \\\"VPN\\\", \\\"timeRange\\\": {\\\"start\\\": \\\"09:00\\\", \\\"end\\\": \\\"17:00\\\"}}\",\n    \"isActive\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/behaviors/contextual/{{testContextualBehaviorId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"behaviors",
+								"contextual",
+								"{{testContextualBehaviorId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UPDATE Contextual Behavior - CB_MOBILE_ACCESS (Update Logic)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"behaviorId\": \"CB_MOBILE_ACCESS\",\n    \"behaviorCode\": \"MOBILE_DEVICE_ACCESS\",\n    \"displayName\": \"Limited Mobile Device Access\",\n    \"conditionLogic\": \"{\\\"deviceType\\\": \\\"MOBILE\\\", \\\"limitedFeatures\\\": true, \\\"maxDurationMin\\\": 60}\",\n    \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/behaviors/contextual/CB_MOBILE_ACCESS",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"behaviors",
+								"contextual",
+								"CB_MOBILE_ACCESS"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Contextual Behavior - CB_VPN_OFFICE_HOURS",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/behaviors/contextual/{{testContextualBehaviorId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"behaviors",
+								"contextual",
+								"{{testContextualBehaviorId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Contextual Behavior - NON_EXISTENT",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/behaviors/contextual/NON_EXISTENT_CB_DELETE",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"behaviors",
+								"contextual",
+								"NON_EXISTENT_CB_DELETE"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "6. Permission Bundle Units (PBUs) Management (/api/pbus)",
+			"item": [
+				{
+					"name": "CREATE PBU - PBU_DOCUMENT_READ_SELF",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"pbuId\": \"PBU_DOCUMENT_READ_SELF\",\n    \"displayName\": \"Read Own Documents\",\n    \"apiEndpoint\": \"/api/documents\",\n    \"actionCode\": \"READ\",\n    \"scopeCode\": \"SELF\",\n    \"isActive\": true,\n    \"version\": \"1.0\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/pbus",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pbus"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CREATE PBU - PBU_SOP_EXECUTE_TENANT",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"pbuId\": \"PBU_SOP_EXECUTE_TENANT\",\n    \"displayName\": \"Execute SOPs Tenant-wide\",\n    \"apiEndpoint\": \"/api/sops/execute\",\n    \"actionCode\": \"EXECUTE\",\n    \"scopeCode\": \"TENANT\",\n    \"isActive\": true,\n    \"version\": \"1.0\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/pbus",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pbus"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CREATE PBU - PBU_ASSET_CREATE_ORG_UNIT",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"pbuId\": \"PBU_ASSET_CREATE_ORG_UNIT\",\n    \"displayName\": \"Create Assets within Org Unit\",\n    \"apiEndpoint\": \"/api/assets\",\n    \"actionCode\": \"CREATE\",\n    \"scopeCode\": \"ORG_UNIT_ONLY\",\n    \"isActive\": true,\n    \"version\": \"1.0\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/pbus",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pbus"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CREATE PBU - PBU_TENANT_CREATE_UNIT",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"pbuId\": \"PBU_TENANT_CREATE_UNIT\",\n    \"displayName\": \"Create Tenants within platform\",\n    \"apiEndpoint\": \"/api/tenants\",\n    \"actionCode\": \"CREATE\",\n    \"scopeCode\": \"PLATFORM\",\n    \"isActive\": true,\n    \"version\": \"1.0\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/pbus",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pbus"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET All PBUs",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/pbus",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pbus"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET PBU by ID - PBU_DOCUMENT_READ_SELF",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/pbus/{{testPbuId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pbus",
+								"{{testPbuId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET PBU by ID - NON_EXISTENT",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/pbus/NON_EXISTENT_PBU",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pbus",
+								"NON_EXISTENT_PBU"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UPDATE PBU - PBU_DOCUMENT_READ_SELF (Update Version)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"pbuId\": \"PBU_DOCUMENT_READ_SELF\",\n    \"displayName\": \"Read Own Documents\",\n    \"apiEndpoint\": \"/api/documents\",\n    \"actionCode\": \"READ\",\n    \"scopeCode\": \"SELF\",\n    \"isActive\": true,\n    \"version\": \"1.1\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/pbus/{{testPbuId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pbus",
+								"{{testPbuId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UPDATE PBU - PBU_SOP_EXECUTE_TENANT (Deactivate)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"pbuId\": \"PBU_SOP_EXECUTE_TENANT\",\n    \"displayName\": \"Execute SOPs Tenant-wide (Inactive)\",\n    \"apiEndpoint\": \"/api/sops/execute\",\n    \"actionCode\": \"EXECUTE\",\n    \"scopeCode\": \"TENANT\",\n    \"isActive\": false,\n    \"version\": \"1.0\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/pbus/PBU_SOP_EXECUTE_TENANT",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pbus",
+								"PBU_SOP_EXECUTE_TENANT"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE PBU - PBU_DOCUMENT_READ_SELF",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/pbus/{{testPbuId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pbus",
+								"{{testPbuId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE PBU - NON_EXISTENT",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/pbus/NON_EXISTENT_PBU_DELETE",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pbus",
+								"NON_EXISTENT_PBU_DELETE"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "7. PBU Associations Management (/api/pbus/{pbuId}/associations)",
+			"item": [
+				{
+					"name": "GET All Associations for PBU_ASSET_CREATE_ORG_UNIT",
+					"item": [
+						{
+							"name": "GET Field Constraints for PBU_ASSET_CREATE_ORG_UNIT",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/pbus/PBU_ASSET_CREATE_ORG_UNIT/associations/field-constraints",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"pbus",
+										"PBU_ASSET_CREATE_ORG_UNIT",
+										"associations",
+										"field-constraints"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET Contextual Behaviors for PBU_ASSET_CREATE_ORG_UNIT",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/pbus/PBU_ASSET_CREATE_ORG_UNIT/associations/contextual-behaviors",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"pbus",
+										"PBU_ASSET_CREATE_ORG_UNIT",
+										"associations",
+										"contextual-behaviors"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Associate PBU_SOP_EXECUTE_TENANT with GC_DEPARTMENT_HR",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/pbus/{{anotherPbuId}}/associations/general-constraints/{{anotherGeneralConstraintId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pbus",
+								"{{anotherPbuId}}",
+								"associations",
+								"general-constraints",
+								"{{anotherGeneralConstraintId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Associate PBU_ASSET_CREATE_ORG_UNIT with FC_CONTACT_EMAIL_WRITE_DENIED",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/pbus/PBU_ASSET_CREATE_ORG_UNIT/associations/field-constraints/FC_CONTACT_EMAIL_WRITE_DENIED",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pbus",
+								"PBU_ASSET_CREATE_ORG_UNIT",
+								"associations",
+								"field-constraints",
+								"FC_CONTACT_EMAIL_WRITE_DENIED"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Associate PBU_ASSET_CREATE_ORG_UNIT with CB_MOBILE_ACCESS",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/pbus/PBU_ASSET_CREATE_ORG_UNIT/associations/contextual-behaviors/{{anotherContextualBehaviorId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pbus",
+								"PBU_ASSET_CREATE_ORG_UNIT",
+								"associations",
+								"contextual-behaviors",
+								"{{anotherContextualBehaviorId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET General Constraints for PBU_SOP_EXECUTE_TENANT",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/pbus/{{anotherPbuId}}/associations/general-constraints",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pbus",
+								"{{anotherPbuId}}",
+								"associations",
+								"general-constraints"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "REMOVE PBU_SOP_EXECUTE_TENANT with GC_DEPARTMENT_HR",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/pbus/{{anotherPbuId}}/associations/general-constraints/{{anotherGeneralConstraintId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"pbus",
+								"{{anotherPbuId}}",
+								"associations",
+								"general-constraints",
+								"{{anotherGeneralConstraintId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "8. Roles Management (/api/roles)",
+			"item": [
+				{
+					"name": "CREATE Role - SOP.Checklist.Executor",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"roleId\": \"SOP.Checklist.Executor\",\n    \"displayName\": \"SOP Checklist Executor\",\n    \"appCode\": \"SOP\",\n    \"moduleCode\": \"Checklist\",\n    \"roleFunction\": \"Executor\",\n    \"isActive\": true,\n    \"tenantCustomizable\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/roles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CREATE Role - SOP.Checklist.User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"roleId\": \"SOP.Checklist.User\",\n    \"displayName\": \"SOP Checklist Executor\",\n    \"appCode\": \"SOP\",\n    \"moduleCode\": \"Checklist\",\n    \"roleFunction\": \"Executor\",\n    \"isActive\": true,\n    \"tenantCustomizable\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/roles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CREATE Role - SOP.Checklist.ContentManager",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"roleId\": \"SOP.Checklist.ContentManager\",\n    \"displayName\": \"SOP Checklist Content Manager\",\n    \"appCode\": \"SOP\",\n    \"moduleCode\": \"Checklist\",\n    \"roleFunction\": \"ContentManager\",\n    \"isActive\": true,\n    \"tenantCustomizable\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/roles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CREATE Role - PLATFORM_ADMIN",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"roleId\": \"PLATFORM.Admin.management\",\n    \"displayName\": \"PLATFORM Admin Manager \",\n    \"appCode\": \"PLATFORM\",\n    \"moduleCode\": \"Admin\",\n    \"roleFunction\": \"PLATFORM_ADMIN\",\n    \"isActive\": true,\n    \"tenantCustomizable\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/roles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CREATE Role - PLATFORM.Tenant.Admin",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"roleId\": \"PLATFORM.Tenant.Admin\",\n    \"displayName\": \"Platform Tenant Administrator\",\n    \"appCode\": \"PLATFORM\",\n    \"moduleCode\": \"Tenant\",\n    \"roleFunction\": \"Admin\",\n    \"isActive\": true,\n    \"tenantCustomizable\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/roles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET All Roles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/roles",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"roles"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Role by ID - SOP.Checklist.Executor",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/roles/{{testRoleId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"roles",
+								"{{testRoleId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Role by ID - NON_EXISTENT",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/roles/NON_EXISTENT_ROLE",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"roles",
+								"NON_EXISTENT_ROLE"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UPDATE Role - SOP.Checklist.Executor (Deactivate)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"roleId\": \"SOP.Checklist.User\",\n    \"displayName\": \"SOP Checklist User\",\n    \"appCode\": \"SOP\",\n    \"moduleCode\": \"Checklist\",\n    \"roleFunction\": \"User\",\n    \"isActive\": true,\n    \"tenantCustomizable\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/roles/{{testRoleId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"roles",
+								"{{testRoleId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "UPDATE Role - PLATFORM.Tenant.Admin (Update Display Name)",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"roleId\": \"PLATFORM.Tenant.Admin\",\n    \"displayName\": \"Platform Tenant Administrator - Global\",\n    \"appCode\": \"PLATFORM\",\n    \"moduleCode\": \"Tenant\",\n    \"roleFunction\": \"Admin\",\n    \"isActive\": true,\n    \"tenantCustomizable\": false\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/roles/PLATFORM.Tenant.Admin",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"roles",
+								"PLATFORM.Tenant.Admin"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Role - SOP.Checklist.Executor",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/roles/{{testRoleId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"roles",
+								"{{testRoleId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Role - NON_EXISTENT",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/roles/NON_EXISTENT_ROLE_DELETE",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"roles",
+								"NON_EXISTENT_ROLE_DELETE"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "9. Role Inheritance Management (/api/role-inheritance)",
+			"item": [
+				{
+					"name": "CREATE Inheritance - SOP.Checklist.ContentManager -> SOP.Checklist.Executor",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"parentRoleId\": \"{{testParentRoleId}}\",\n    \"childRoleId\": \"{{testChildRoleId}}\",\n    \"approvedBy\": \"System\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/role-inheritance",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"role-inheritance"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CREATE Inheritance - PLATFORM.Tenant.Admin -> PLATFORM.User.Viewer",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"parentRoleId\": \"{{anotherRoleId}}\",\n    \"childRoleId\": \"PLATFORM.User.Viewer\",\n    \"approvedBy\": \"Admin User\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/role-inheritance",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"role-inheritance"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET All Role Inheritances",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/role-inheritance",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"role-inheritance"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Children of SOP.Checklist.ContentManager",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/role-inheritance/children/{{testParentRoleId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"role-inheritance",
+								"children",
+								"{{testParentRoleId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET Parents of SOP.Checklist.Executor",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/role-inheritance/parents/{{testChildRoleId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"role-inheritance",
+								"parents",
+								"{{testChildRoleId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Inheritance - SOP.Checklist.ContentManager -> SOP.Checklist.Executor",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/role-inheritance/{{testParentRoleId}}/{{testChildRoleId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"role-inheritance",
+								"{{testParentRoleId}}",
+								"{{testChildRoleId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE Inheritance - NON_EXISTENT",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/role-inheritance/NON_EXISTENT_PARENT/NON_EXISTENT_CHILD",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"role-inheritance",
+								"NON_EXISTENT_PARENT",
+								"NON_EXISTENT_CHILD"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "10. Role Constraint Overrides Management (/api/roles/{roleId}/overrides)",
+			"item": [
+				{
+					"name": "GET All Overrides for PLATFORM.Tenant.Admin",
+					"item": [
+						{
+							"name": "GET Field Constraint Overrides for PLATFORM.Tenant.Admin",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/roles/{{anotherRoleId}}/overrides/field-constraints",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"roles",
+										"{{anotherRoleId}}",
+										"overrides",
+										"field-constraints"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET Contextual Behavior Overrides for PLATFORM.Tenant.Admin",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/roles/{{anotherRoleId}}/overrides/contextual-behaviors",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"roles",
+										"{{anotherRoleId}}",
+										"overrides",
+										"contextual-behaviors"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Add SOP.Checklist.Executor -> GC_PLANT_101",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/roles/{{testRoleId}}/overrides/general-constraints/{{testGeneralConstraintId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"roles",
+								"{{testRoleId}}",
+								"overrides",
+								"general-constraints",
+								"{{testGeneralConstraintId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add PLATFORM.Tenant.Admin -> FC_USER_SALARY_MASKED",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/roles/{{anotherRoleId}}/overrides/field-constraints/FC_USER_SALARY_MASKED",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"roles",
+								"{{anotherRoleId}}",
+								"overrides",
+								"field-constraints",
+								"FC_USER_SALARY_MASKED"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add PLATFORM.Tenant.Admin -> CB_GEOLOCATION_RESTRICTED",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{baseUrl}}/roles/{{anotherRoleId}}/overrides/contextual-behaviors/CB_GEOLOCATION_RESTRICTED",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"roles",
+								"{{anotherRoleId}}",
+								"overrides",
+								"contextual-behaviors",
+								"CB_GEOLOCATION_RESTRICTED"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GET General Constraint Overrides for SOP.Checklist.Executor",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/roles/{{testRoleId}}/overrides/general-constraints",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"roles",
+								"{{testRoleId}}",
+								"overrides",
+								"general-constraints"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove SOP.Checklist.Executor -> GC_PLANT_101",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/roles/{{testRoleId}}/overrides/general-constraints/{{testGeneralConstraintId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"roles",
+								"{{testRoleId}}",
+								"overrides",
+								"general-constraints",
+								"{{testGeneralConstraintId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Public Test",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/public/test",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"public",
+						"test"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/public/test",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"test"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain;charset=UTF-8"
+						}
+					],
+					"cookie": [],
+					"body": "Authentication Service is reachable (public)"
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:9082",
+			"type": "string"
+		},
+		{
+			"key": "testActionCode",
+			"value": "READ",
+			"type": "string"
+		},
+		{
+			"key": "testScopeCode",
+			"value": "TENANT",
+			"type": "string"
+		},
+		{
+			"key": "testGeneralConstraintId",
+			"value": "GC_PLANT_101",
+			"type": "string"
+		},
+		{
+			"key": "testFieldConstraintId",
+			"value": "FC_DOC_NOTES_FORBIDDEN",
+			"type": "string"
+		},
+		{
+			"key": "testContextualBehaviorId",
+			"value": "CB_VPN_OFFICE_HOURS",
+			"type": "string"
+		},
+		{
+			"key": "testPbuId",
+			"value": "PBU_DOCUMENT_READ_SELF",
+			"type": "string"
+		},
+		{
+			"key": "testRoleId",
+			"value": "SOP.Checklist.Executor",
+			"type": "string"
+		},
+		{
+			"key": "testParentRoleId",
+			"value": "SOP.Checklist.ContentManager",
+			"type": "string"
+		},
+		{
+			"key": "testChildRoleId",
+			"value": "SOP.Checklist.Executor",
+			"type": "string"
+		},
+		{
+			"key": "anotherPbuId",
+			"value": "PBU_SOP_EXECUTE_TENANT",
+			"type": "string"
+		},
+		{
+			"key": "anotherGeneralConstraintId",
+			"value": "GC_DEPT_HR",
+			"type": "string"
+		},
+		{
+			"key": "anotherContextualBehaviorId",
+			"value": "CB_MOBILE_ACCESS",
+			"type": "string"
+		},
+		{
+			"key": "anotherRoleId",
+			"value": "PLATFORM.Tenant.Admin",
+			"type": "string"
+		}
+	]
+}

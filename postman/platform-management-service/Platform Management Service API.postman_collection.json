@@ -1,0 +1,105 @@
+{
+	"info": {
+		"_postman_id": "7101c1b0-5999-49f2-b58e-edbce3fb8193",
+		"name": "Platform Management Service API",
+		"description": "Postman collection for Onified Platform Management Service.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "786934",
+		"_collection_link": "https://www.postman.com/n8n555-8857/workspace/onified-workspace/collection/786934-7101c1b0-5999-49f2-b58e-edbce3fb8193?action=share&source=collection_link&creator=786934"
+	},
+	"item": [
+		{
+			"name": "Public Test",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/public/test",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"public",
+						"test"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/public/test",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"test"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain;charset=UTF-8"
+						}
+					],
+					"cookie": [],
+					"body": "Platform Management Service is reachable (public)"
+				}
+			]
+		},
+		{
+			"name": "Password Policies",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/password-policies",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"password-policies"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/public/test",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"test"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain;charset=UTF-8"
+						}
+					],
+					"cookie": [],
+					"body": "Platform Management Service is reachable (public)"
+				}
+			]
+		}
+	]
+}

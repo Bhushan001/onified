@@ -1,0 +1,124 @@
+{
+	"info": {
+		"_postman_id": "70e29dcc-1f1f-4205-9586-a69ab6121d95",
+		"name": "Tenant Management Service",
+		"description": "Complete API collection for Tenant Management Service with all endpoints for tenant configuration management.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "786934",
+		"_collection_link": "https://www.postman.com/n8n555-8857/workspace/onified-workspace/collection/786934-70e29dcc-1f1f-4205-9586-a69ab6121d95?action=share&source=collection_link&creator=786934"
+	},
+	"item": [
+		{
+			"name": "Tenant Configuration",
+			"item": [
+				{
+					"name": "Get Tenant Config",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/tenants/{{tenant_id}}/config",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"tenants",
+								"{{tenant_id}}",
+								"config"
+							]
+						},
+						"description": "Retrieve tenant configuration. If config doesn't exist, a default config will be created and returned."
+					},
+					"response": []
+				},
+				{
+					"name": "Update Tenant Config",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tenantId\": \"{{tenant_id}}\",\n  \"branding\": \"{\\\"logo\\\": \\\"https://example.com/logo.png\\\", \\\"primaryColor\\\": \\\"#007bff\\\", \\\"secondaryColor\\\": \\\"#6c757d\\\"}\",\n  \"appSubscriptions\": [\"app1\", \"app2\", \"app3\"]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/tenants/{{tenant_id}}/config",
+							"host": [
+								"{{base_url}}"
+							],
+							"path": [
+								"api",
+								"tenants",
+								"{{tenant_id}}",
+								"config"
+							]
+						},
+						"description": "Update tenant configuration with branding and app subscriptions"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Public Test",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{base_url}}/public/test",
+					"host": [
+						"{{base_url}}"
+					],
+					"path": [
+						"public",
+						"test"
+					]
+				},
+				"description": "Public endpoint to test if the service is reachable"
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:9086",
+			"type": "string"
+		},
+		{
+			"key": "tenant_id",
+			"value": "tenant-001",
+			"type": "string"
+		},
+		{
+			"key": "test_tenant_id",
+			"value": "test-tenant-123",
+			"type": "string"
+		}
+	]
+}

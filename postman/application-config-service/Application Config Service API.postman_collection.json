@@ -1,0 +1,629 @@
+{
+	"info": {
+		"_postman_id": "85e62513-eaab-4d68-b62e-cf489dba44a9",
+		"name": "Application Config Service API",
+		"description": "Postman collection for Onified Application Config Service. Supports direct and gateway calls via environment switching.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "786934",
+		"_collection_link": "https://www.postman.com/n8n555-8857/workspace/onified-workspace/collection/786934-85e62513-eaab-4d68-b62e-cf489dba44a9?action=share&source=collection_link&creator=786934"
+	},
+	"item": [
+		{
+			"name": "Applications",
+			"item": [
+				{
+					"name": "Create Application",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"appCode\": \"TEST_APP\",\n  \"displayName\": \"Test Application\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/applications",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"applications"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"appCode\": \"TEST_APP\",\n  \"displayName\": \"Test Application\",\n  \"isActive\": true\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/applications",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"applications"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"statusCode\": 201,\n  \"status\": \"SUCCESS\",\n  \"data\": {\n    \"appCode\": \"TEST_APP\",\n    \"displayName\": \"Test Application\",\n    \"isActive\": true\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Application by App Code",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/applications/{{appCode}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"applications",
+								"{{appCode}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/applications/TEST_APP",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"applications",
+										"TEST_APP"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"statusCode\": 200,\n  \"status\": \"SUCCESS\",\n  \"data\": {\n    \"appCode\": \"TEST_APP\",\n    \"displayName\": \"Test Application\",\n    \"isActive\": true\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get All Applications",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/applications",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"applications"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/applications",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"applications"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"statusCode\": 200,\n  \"status\": \"SUCCESS\",\n  \"data\": [\n    {\n      \"appCode\": \"TEST_APP\",\n      \"displayName\": \"Test Application\",\n      \"isActive\": true\n    },\n    {\n      \"appCode\": \"ANOTHER_APP\",\n      \"displayName\": \"Another Application\",\n      \"isActive\": false\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Application",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"appCode\": \"TEST_APP\",\n  \"displayName\": \"Updated Test Application\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/applications/{{appCode}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"applications",
+								"{{appCode}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"appCode\": \"TEST_APP\",\n  \"displayName\": \"Updated Test Application\",\n  \"isActive\": true\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/applications/TEST_APP",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"applications",
+										"TEST_APP"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"statusCode\": 200,\n  \"status\": \"SUCCESS\",\n  \"data\": {\n    \"appCode\": \"TEST_APP\",\n    \"displayName\": \"Updated Test Application\",\n    \"isActive\": true\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete Application",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/applications/{{appCode}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"applications",
+								"{{appCode}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/applications/TEST_APP",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"applications",
+										"TEST_APP"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"statusCode\": 204,\n  \"status\": \"SUCCESS\",\n  \"data\": \"Application deleted successfully.\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Modules",
+			"item": [
+				{
+					"name": "Create Module",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"appCode\": \"TEST_APP\",\n  \"moduleCode\": \"USER_MODULE\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/modules",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"modules"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"appCode\": \"TEST_APP\",\n  \"moduleCode\": \"USER_MODULE\",\n  \"isActive\": true\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/modules",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"modules"
+									]
+								}
+							},
+							"status": "Created",
+							"code": 201,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"statusCode\": 201,\n  \"status\": \"SUCCESS\",\n  \"data\": {\n    \"moduleId\": 1,\n    \"appCode\": \"TEST_APP\",\n    \"moduleCode\": \"USER_MODULE\",\n    \"isActive\": true\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Module by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/modules/{{moduleId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"modules",
+								"{{moduleId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/modules/1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"modules",
+										"1"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"statusCode\": 200,\n  \"status\": \"SUCCESS\",\n  \"data\": {\n    \"moduleId\": 1,\n    \"appCode\": \"TEST_APP\",\n    \"moduleCode\": \"USER_MODULE\",\n    \"isActive\": true\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Get Modules by App Code",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/modules/by-app/{{appCode}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"modules",
+								"by-app",
+								"{{appCode}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/modules/by-app/TEST_APP",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"modules",
+										"by-app",
+										"TEST_APP"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"statusCode\": 200,\n  \"status\": \"SUCCESS\",\n  \"data\": [\n    {\n      \"moduleId\": 1,\n      \"appCode\": \"TEST_APP\",\n      \"moduleCode\": \"USER_MODULE\",\n      \"isActive\": true\n    },\n    {\n      \"moduleId\": 2,\n      \"appCode\": \"TEST_APP\",\n      \"moduleCode\": \"AUTH_MODULE\",\n      \"isActive\": true\n    }\n  ]\n}"
+						}
+					]
+				},
+				{
+					"name": "Update Module",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"appCode\": \"TEST_APP\",\n  \"moduleCode\": \"UPDATED_USER_MODULE\",\n  \"isActive\": true\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/modules/{{moduleId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"modules",
+								"{{moduleId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"appCode\": \"TEST_APP\",\n  \"moduleCode\": \"UPDATED_USER_MODULE\",\n  \"isActive\": true\n}"
+								},
+								"url": {
+									"raw": "{{baseUrl}}/api/modules/1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"modules",
+										"1"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"statusCode\": 200,\n  \"status\": \"SUCCESS\",\n  \"data\": {\n    \"moduleId\": 1,\n    \"appCode\": \"TEST_APP\",\n    \"moduleCode\": \"UPDATED_USER_MODULE\",\n    \"isActive\": true\n  }\n}"
+						}
+					]
+				},
+				{
+					"name": "Delete Module",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/modules/{{moduleId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"modules",
+								"{{moduleId}}"
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "Success",
+							"originalRequest": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/api/modules/1",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"api",
+										"modules",
+										"1"
+									]
+								}
+							},
+							"status": "No Content",
+							"code": 204,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "Content-Type",
+									"value": "application/json"
+								}
+							],
+							"cookie": [],
+							"body": "{\n  \"statusCode\": 204,\n  \"status\": \"SUCCESS\",\n  \"data\": \"Module deleted successfully.\"\n}"
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Public Test",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/public/test",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"public",
+						"test"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Success",
+					"originalRequest": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/public/test",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"public",
+								"test"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "text",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "text/plain;charset=UTF-8"
+						}
+					],
+					"cookie": [],
+					"body": "Application Config Service is reachable (public)"
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "appCode",
+			"value": "TEST_APP",
+			"type": "string"
+		},
+		{
+			"key": "moduleId",
+			"value": "1",
+			"type": "string"
+		}
+	]
+}
