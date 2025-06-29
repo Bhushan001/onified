@@ -18,7 +18,7 @@ import feign.FeignException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/authentication")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -83,34 +83,13 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserCreateRequest request) {
-        try {
-            UserResponse userResponse = registrationService.registerUser(request);
-            ApiResponse<UserResponse> response = new ApiResponse<>(
-                    HttpStatus.CREATED.value(),
-                    MessageConstants.STATUS_SUCCESS,
-                    userResponse
-            );
-            return new ResponseEntity<>(response, HttpStatus.CREATED);
-        } catch (FeignException fe) {
-            String errorBody = fe.contentUTF8();
-            try {
-                ObjectMapper mapper = new ObjectMapper();
-                CustomErrorResponse customError = mapper.readValue(errorBody, CustomErrorResponse.class);
-                return ResponseEntity.status(fe.status()).body(customError);
-            } catch (Exception ex) {
-                // fallback: return raw error body as message
-                return ResponseEntity.status(fe.status()).body(
-                    new CustomErrorResponse(String.valueOf(fe.status()), errorBody)
-                );
-            }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            CustomErrorResponse error = new CustomErrorResponse(
-                String.valueOf(HttpStatus.INTERNAL_SERVER_ERROR.value()),
-                "Internal server error"
-            );
-            return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        UserResponse userResponse = registrationService.registerUser(request);
+        ApiResponse<UserResponse> response = new ApiResponse<>(
+                HttpStatus.CREATED.value(),
+                MessageConstants.STATUS_SUCCESS,
+                userResponse
+        );
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @GetMapping("/health")

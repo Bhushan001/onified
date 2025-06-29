@@ -21,10 +21,6 @@ public class GatewayConfig {
                         .filters(f -> f.rewritePath("/api/platform/(?<segment>.*)", "/api/${segment}"))
                         .uri("lb://platform-management-service"))
                 
-                // Password Policy routes (platform level)
-                .route("password-policies", r -> r.path("/api/password-policies/**")
-                        .uri("lb://platform-management-service"))
-                
                 // Tenant Management Service routes
                 .route("tenant-management", r -> r.path("/api/tenant/**")
                         .filters(f -> f.rewritePath("/api/tenant/(?<segment>.*)", "/api/tenant/${segment}"))

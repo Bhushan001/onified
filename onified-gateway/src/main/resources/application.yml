@@ -16,25 +16,25 @@ spring:
         - id: platform-management-service
           uri: http://platform-management-service:9081
           predicates:
-            - Path=/platform-management/**
+            - Path=/api/platform/**
           filters:
             - StripPrefix=1
             - name: CircuitBreaker
               args:
                 name: platform-management-circuit-breaker
-                fallbackUri: forward:/fallback/platform-management
+                fallbackUri: forward:/fallback/platform
 
         # Authentication Service
         - id: authentication-service
           uri: http://authentication-service:9083
           predicates:
-            - Path=/api/authentication/**
+            - Path=/api/auth/**
           filters:
             - StripPrefix=1
             - name: CircuitBreaker
               args:
                 name: authentication-circuit-breaker
-                fallbackUri: forward:/fallback/authentication
+                fallbackUri: forward:/fallback/auth
       
 # Eureka Client Configuration (Disabled for now)
 eureka:
