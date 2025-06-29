@@ -25,7 +25,7 @@ import feign.FeignException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
-@RequestMapping("/api/authentication")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 @Tag(name = "Authentication", description = "APIs for user authentication and authorization")
 public class AuthController {
