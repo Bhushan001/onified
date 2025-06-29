@@ -1,0 +1,429 @@
+openapi: 3.0.3
+info:
+  title: Authentication Service API
+  description: |
+    RESTful API for user authentication and authorization in the Onified platform.
+    
+    This service provides endpoints for:
+    - User authentication and login
+    - Token refresh and management
+    - User registration
+    - Health monitoring
+    
+    ## Features
+    - **Keycloak Integration**: Secure authentication using Keycloak
+    - **JWT Token Management**: Access and refresh token handling
+    - **User Registration**: New user account creation
+    - **Token Refresh**: Automatic token renewal
+    - **Health Monitoring**: Service status and health checks
+    
+    ## Authentication
+    This service integrates with Keycloak for secure authentication.
+    Users can authenticate using username/password and receive JWT tokens.
+    
+    ## Security
+    - All sensitive endpoints require proper authentication
+    - JWT tokens are used for session management
+    - Passwords are securely handled and never stored in plain text
+    
+    ## Rate Limiting
+    API calls are subject to rate limiting to prevent abuse.
+  version: 1.0.0
+  contact:
+    name: Onified Development Team
+    email: dev@onified.ai
+    url: https://onified.ai
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:9083
+    description: Local Development Server
+  - url: https://api.onified.ai
+    description: Production Server
+
+tags:
+  - name: Authentication
+    description: APIs for user authentication and authorization
+  - name: Public Endpoints
+    description: Public endpoints for testing and health checks
+
+paths:
+  /api/authentication/login:
+    post:
+      tags:
+        - Authentication
+      summary: Authenticate user
+      description: Authenticates a user with username and password, returning JWT tokens for API access.
+      operationId: login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            examples:
+              login-example:
+                summary: Login Example
+                value:
+                  username: "john.doe"
+                  password: "securePassword123"
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_LoginResponse'
+              examples:
+                success:
+                  summary: Success Response
+                  value:
+                    statusCode: 200
+                    status: "SUCCESS"
+                    body:
+                      accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                      tokenType: "Bearer"
+                      expiresIn: 3600
+                      username: "john.doe"
+                      message: "Login successful"
+                      status: "SUCCESS"
+        '401':
+          description: Invalid credentials
+        '400':
+          description: Bad request - Invalid input data
+        '500':
+          description: Internal server error
+
+  /api/authentication/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      description: Refreshes an expired access token using a valid refresh token.
+      operationId: refreshToken
+      parameters:
+        - name: refreshToken
+          in: query
+          required: true
+          description: Refresh token
+          schema:
+            type: string
+            example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_LoginResponse'
+        '401':
+          description: Invalid refresh token
+        '400':
+          description: Bad request - Invalid refresh token
+        '500':
+          description: Internal server error
+
+  /api/authentication/register:
+    post:
+      tags:
+        - Authentication
+      summary: Register new user
+      description: Registers a new user account with the provided details. The user will be created in Keycloak and the user management service.
+      operationId: register
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateRequest'
+            examples:
+              register-example:
+                summary: Registration Example
+                value:
+                  username: "john.doe"
+                  password: "SecurePassword123!"
+                  email: "john.doe@example.com"
+                  firstName: "John"
+                  lastName: "Doe"
+                  roles: ["USER"]
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_UserResponse'
+              examples:
+                success:
+                  summary: Success Response
+                  value:
+                    statusCode: 201
+                    status: "SUCCESS"
+                    body:
+                      id: "123e4567-e89b-12d3-a456-426614174000"
+                      username: "john.doe"
+                      email: "john.doe@example.com"
+                      firstName: "John"
+                      lastName: "Doe"
+                      status: "ACTIVE"
+                      createdAt: "2024-01-15T10:30:00Z"
+                      updatedAt: "2024-01-15T10:30:00Z"
+                      roles: ["USER"]
+        '400':
+          description: Bad request - Invalid input data
+        '409':
+          description: Conflict - User already exists
+        '500':
+          description: Internal server error
+
+  /api/authentication/health:
+    get:
+      tags:
+        - Authentication
+      summary: Health check
+      description: Returns the health status of the authentication service.
+      operationId: health
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse_String'
+              examples:
+                success:
+                  summary: Success Response
+                  value:
+                    statusCode: 200
+                    status: "SUCCESS"
+                    body: "Authentication Service is running"
+        '500':
+          description: Service is unhealthy
+
+  /api/public/test:
+    get:
+      tags:
+        - Public Endpoints
+      summary: Public test endpoint
+      description: A public endpoint to test if the Authentication Service is reachable and responding.
+      operationId: publicTest
+      responses:
+        '200':
+          description: Service is reachable and responding
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: "Authentication Service is reachable (public)"
+
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      description: Request DTO for user authentication
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          description: Username for authentication
+          example: "john.doe"
+          minLength: 1
+          maxLength: 50
+        password:
+          type: string
+          description: Password for authentication
+          example: "securePassword123"
+          minLength: 6
+          maxLength: 100
+
+    LoginResponse:
+      type: object
+      description: Response DTO for authentication
+      properties:
+        accessToken:
+          type: string
+          description: JWT access token for API authentication
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        refreshToken:
+          type: string
+          description: JWT refresh token for obtaining new access tokens
+          example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        tokenType:
+          type: string
+          description: Type of token
+          example: "Bearer"
+        expiresIn:
+          type: integer
+          description: Token expiration time in seconds
+          example: 3600
+        username:
+          type: string
+          description: Authenticated username
+          example: "john.doe"
+        message:
+          type: string
+          description: Response message
+          example: "Login successful"
+        status:
+          type: string
+          description: Response status
+          example: "SUCCESS"
+          enum: ["SUCCESS", "ERROR"]
+
+    UserCreateRequest:
+      type: object
+      description: Request DTO for user registration
+      required:
+        - username
+        - password
+        - email
+        - firstName
+        - lastName
+      properties:
+        username:
+          type: string
+          description: Unique username for the user
+          example: "john.doe"
+          minLength: 3
+          maxLength: 50
+        password:
+          type: string
+          description: Secure password for the user
+          example: "SecurePassword123!"
+          minLength: 8
+          maxLength: 100
+        email:
+          type: string
+          description: Email address for the user
+          example: "john.doe@example.com"
+          format: email
+        firstName:
+          type: string
+          description: First name of the user
+          example: "John"
+          minLength: 1
+          maxLength: 50
+        lastName:
+          type: string
+          description: Last name of the user
+          example: "Doe"
+          minLength: 1
+          maxLength: 50
+        roles:
+          type: array
+          description: Set of roles assigned to the user
+          items:
+            type: string
+          example: ["USER", "ADMIN"]
+
+    UserResponse:
+      type: object
+      description: Response DTO for user data
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the user
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        username:
+          type: string
+          description: Username of the user
+          example: "john.doe"
+        email:
+          type: string
+          description: Email address of the user
+          example: "john.doe@example.com"
+        firstName:
+          type: string
+          description: First name of the user
+          example: "John"
+        lastName:
+          type: string
+          description: Last name of the user
+          example: "Doe"
+        status:
+          type: string
+          description: Current status of the user
+          example: "ACTIVE"
+          enum: ["ACTIVE", "INACTIVE", "SUSPENDED"]
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the user was created
+          example: "2024-01-15T10:30:00Z"
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the user was last updated
+          example: "2024-01-15T10:30:00Z"
+        roles:
+          type: array
+          description: Set of roles assigned to the user
+          items:
+            type: string
+          example: ["USER", "ADMIN"]
+
+    ApiResponse_LoginResponse:
+      type: object
+      description: Standardized API response wrapper for LoginResponse
+      properties:
+        statusCode:
+          type: integer
+          description: HTTP status code
+          example: 200
+        status:
+          type: string
+          description: Status message
+          example: "SUCCESS"
+          enum: ["SUCCESS", "ERROR", "FAILURE"]
+        body:
+          $ref: '#/components/schemas/LoginResponse'
+
+    ApiResponse_UserResponse:
+      type: object
+      description: Standardized API response wrapper for UserResponse
+      properties:
+        statusCode:
+          type: integer
+          description: HTTP status code
+          example: 201
+        status:
+          type: string
+          description: Status message
+          example: "SUCCESS"
+          enum: ["SUCCESS", "ERROR", "FAILURE"]
+        body:
+          $ref: '#/components/schemas/UserResponse'
+
+    ApiResponse_String:
+      type: object
+      description: Standardized API response wrapper for String
+      properties:
+        statusCode:
+          type: integer
+          description: HTTP status code
+          example: 200
+        status:
+          type: string
+          description: Status message
+          example: "SUCCESS"
+          enum: ["SUCCESS", "ERROR", "FAILURE"]
+        body:
+          type: string
+          description: Response body containing the actual data
+          example: "Authentication Service is running"
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+
+security:
+  - bearerAuth: [] 

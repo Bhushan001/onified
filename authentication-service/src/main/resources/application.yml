@@ -21,6 +21,24 @@ spring:
 server:
   port: ${AUTH_PORT:9083}
 
+# SpringDoc OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+    doc-expansion: none
+    disable-swagger-default-url: true
+    display-request-duration: true
+    try-it-out-enabled: true
+    filter: true
+  packages-to-scan: com.onified.ai.authentication_service.controller
+  paths-to-match: /api/**
+
 jwt:
   secret: yourVerySecretKeyForJWTTokenGenerationThatShouldBeLongAndComplex12345!@#$%^&*() # !! IMPORTANT: Change this in production !!
   expiration: 3600000 # 1 hour in milliseconds (adjust as needed)
@@ -40,6 +58,8 @@ logging:
     com.onified.ai.authentication_service: DEBUG
     org.springframework.security: DEBUG
     org.keycloak: DEBUG
+    # Add logging for SpringDoc
+    org.springdoc: DEBUG
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
   file:

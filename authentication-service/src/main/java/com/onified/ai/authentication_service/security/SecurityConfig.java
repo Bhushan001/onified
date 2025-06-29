@@ -23,8 +23,16 @@ public class SecurityConfig {
         http.csrf(CsrfConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Swagger UI and OpenAPI documentation endpoints
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
+                        .requestMatchers("/api-docs/**", "/api-docs").permitAll()
+                        .requestMatchers("/v3/api-docs/**", "/v3/api-docs").permitAll()
+                        .requestMatchers("/swagger-resources/**").permitAll()
+                        .requestMatchers("/webjars/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
+                        // Application endpoints
                         .requestMatchers("/api/authentication/**").permitAll()
-                        .requestMatchers("/api/public/**").permitAll()// or permitAll if there is no security needed
+                        .requestMatchers("/api/public/**").permitAll()
                         .anyRequest().authenticated());
         return http.build();
     }
