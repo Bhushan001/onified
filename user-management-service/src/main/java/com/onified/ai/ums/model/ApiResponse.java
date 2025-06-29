@@ -1,5 +1,6 @@
 package com.onified.ai.ums.model;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,9 +14,22 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Schema(description = "Standardized API response wrapper for all endpoints")
 public class ApiResponse<T> {
+    
+    @Schema(description = "HTTP status code", 
+            example = "200", 
+            required = true)
     private int statusCode;
+    
+    @Schema(description = "Status message indicating success or error type", 
+            example = "SUCCESS", 
+            required = true,
+            allowableValues = {"SUCCESS", "FAILURE", "ERROR", "VALIDATION_ERROR", "NOT_FOUND", "CONFLICT"})
     private String status; // Corresponds to your "status" field (e.g., "SUCCESS", "FAILURE")
+    
+    @Schema(description = "Response body containing the actual data or error details", 
+            required = true)
     private T body; // Corresponds to your "body" field (the actual data)
 
     /**

@@ -26,6 +26,9 @@ public class SecurityConfig {
         http.csrf(CsrfConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Swagger UI and OpenAPI documentation endpoints
+                        .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/v3/api-docs/**").permitAll()
+                        // API endpoints
                         .requestMatchers("/api/actions/**").permitAll()
                         .requestMatchers("/api/scopes/**").permitAll()
                         .requestMatchers("/api/constraints/**").permitAll()
@@ -33,7 +36,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/pbus/**").permitAll()
                         .requestMatchers("/api/roles/**").permitAll()
                         .requestMatchers("/api/role-inheritance/**").permitAll()
-                        .requestMatchers("/api/public/**").permitAll()// or permitAll if there is no security needed
+                        .requestMatchers("/api/public/**").permitAll()
+                        // Health check endpoints
+                        .requestMatchers("/actuator/health/**", "/actuator/info").permitAll()
                         .anyRequest().authenticated());
         return http.build();
     }

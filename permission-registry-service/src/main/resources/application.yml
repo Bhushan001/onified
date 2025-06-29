@@ -22,6 +22,20 @@ spring:
         format_sql: true
     open-in-view: false
 
+# SpringDoc OpenAPI Configuration
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    doc-expansion: none
+    disable-swagger-default-url: true
+    display-request-duration: true
+  packages-to-scan: com.onified.ai.permission_registry.controller
+  paths-to-match: /api/**
+
 logging:
   level:
     root: INFO

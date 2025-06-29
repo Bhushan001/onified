@@ -1,0 +1,651 @@
+openapi: 3.0.3
+info:
+  title: Permission Registry Service API
+  description: |
+    **Permission Registry Service** - Comprehensive RBAC/ABAC Framework for Onified.ai
+    
+    This service provides a complete permission management system with the following capabilities:
+    
+    ## Core Features
+    - **Role Management**: Create, read, update, and delete roles with inheritance support
+    - **Permission Bundle Units (PBUs)**: Manage granular permissions with API endpoints and actions
+    - **Scopes**: Define resource scopes for fine-grained access control
+    - **Actions**: Manage available actions that can be performed on resources
+    - **Constraints**: Implement both general and field-level constraints for ABAC
+    - **Contextual Behaviors**: Define context-aware permission behaviors
+    - **Role Inheritance**: Support for hierarchical role structures
+    - **Constraint Overrides**: Allow role-specific constraint modifications
+    
+    ## Key Components
+    
+    ### Roles (`/api/roles`)
+    - Core role definitions with inheritance depth tracking
+    - Support for tenant customization
+    - Role function categorization
+    
+    ### Permission Bundle Units (`/api/pbus`)
+    - Granular permission definitions
+    - API endpoint mapping
+    - Action and scope associations
+    - Version control support
+    
+    ### Scopes (`/api/scopes`)
+    - Resource scope definitions
+    - Hierarchical scope structures
+    - Active/inactive state management
+    
+    ### Actions (`/api/actions`)
+    - Available action definitions
+    - Action categorization
+    - State management
+    
+    ### Constraints
+    - **General Constraints** (`/api/constraints/general`): Application-wide constraint rules
+    - **Field Constraints** (`/api/constraints/field`): Field-level access control
+    
+    ### Behaviors (`/api/behaviors`)
+    - Contextual behavior definitions
+    - Dynamic permission evaluation
+    - Behavior state management
+    
+    ### Associations
+    - **PBU-Constraint Associations** (`/api/pbus/constraints`): Link constraints to PBUs
+    - **Role Inheritance** (`/api/role-inheritance`): Define role hierarchies
+    - **Role Constraint Overrides** (`/api/role-constraint-overrides`): Role-specific constraint modifications
+    
+    ## Authentication & Security
+    - Stateless session management
+    - CORS enabled for cross-origin requests
+    - CSRF protection disabled for API endpoints
+    - Method-level security support
+    
+    ## Response Format
+    All API responses follow a standardized format:
+    ```json
+    {
+      "statusCode": 200,
+      "status": "SUCCESS",
+      "body": { ... }
+    }
+    ```
+    
+    ## Error Handling
+    - Consistent error response format
+    - HTTP status codes for different error types
+    - Detailed error messages for debugging
+    
+    ## Development & Testing
+    - Health check endpoint: `/actuator/health`
+    - Public test endpoints: `/api/public/**`
+    - Comprehensive logging with trace IDs
+  version: 1.0.0
+  contact:
+    name: Onified.ai Development Team
+    email: dev@onified.ai
+    url: https://onified.ai
+  license:
+    name: Proprietary
+    url: https://onified.ai/license
+
+servers:
+  - url: http://localhost:9084
+    description: Local Development Server
+  - url: https://api.onified.ai/permission-registry
+    description: Production Server
+
+security:
+  - bearerAuth: []
+
+paths:
+  # Public Test Endpoints
+  /api/public/health:
+    get:
+      tags:
+        - Public Test Endpoints
+      summary: Health check endpoint
+      description: Simple health check to verify the service is running
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                statusCode: 200
+                status: SUCCESS
+                body:
+                  service: permission-registry-service
+                  status: UP
+                  timestamp: '2024-01-15T10:30:00'
+
+  /api/public/info:
+    get:
+      tags:
+        - Public Test Endpoints
+      summary: Service information
+      description: Returns basic information about the permission registry service
+      responses:
+        '200':
+          description: Service information retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/public/echo:
+    post:
+      tags:
+        - Public Test Endpoints
+      summary: Echo endpoint
+      description: Echoes back the provided data for testing purposes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Data echoed back successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  # Role Management Endpoints
+  /api/roles:
+    get:
+      tags:
+        - Role Management
+      summary: Get all roles
+      description: Retrieves all roles in the system
+      responses:
+        '200':
+          description: Roles retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+              example:
+                statusCode: 200
+                status: SUCCESS
+                body:
+                  - roleId: ADMIN_ROLE
+                    displayName: Administrator Role
+                    appCode: USER_MGMT
+                    moduleCode: AUTH
+                    roleFunction: USER_ADMINISTRATION
+                    isActive: true
+                    inheritanceDepth: 0
+                    tenantCustomizable: false
+                    createdAt: '2024-01-15T10:30:00'
+                    updatedAt: '2024-01-15T10:30:00'
+    post:
+      tags:
+        - Role Management
+      summary: Create a new role
+      description: Creates a new role with the specified properties. The role will be assigned an inheritance depth of 0 initially.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleRequestDTO'
+            example:
+              roleId: ADMIN_ROLE
+              displayName: Administrator Role
+              appCode: USER_MGMT
+              moduleCode: AUTH
+              roleFunction: USER_ADMINISTRATION
+              isActive: true
+              tenantCustomizable: false
+      responses:
+        '201':
+          description: Role created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '409':
+          description: Role with this ID already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/roles/{roleId}:
+    get:
+      tags:
+        - Role Management
+      summary: Get role by ID
+      description: Retrieves a specific role by its unique identifier
+      parameters:
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: ADMIN_ROLE
+          description: Unique identifier of the role
+      responses:
+        '200':
+          description: Role found successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: Role not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    put:
+      tags:
+        - Role Management
+      summary: Update an existing role
+      description: Updates an existing role with new properties. The inheritance depth will be preserved.
+      parameters:
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: ADMIN_ROLE
+          description: Unique identifier of the role to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleRequestDTO'
+      responses:
+        '200':
+          description: Role updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: Role not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    delete:
+      tags:
+        - Role Management
+      summary: Delete a role
+      description: Deletes a role by its unique identifier
+      parameters:
+        - name: roleId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: ADMIN_ROLE
+          description: Unique identifier of the role to delete
+      responses:
+        '204':
+          description: Role deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: Role not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  # Permission Bundle Unit Endpoints
+  /api/pbus:
+    get:
+      tags:
+        - Permission Bundle Units
+      summary: Get all PBUs
+      description: Retrieves all Permission Bundle Units in the system
+      responses:
+        '200':
+          description: PBUs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    post:
+      tags:
+        - Permission Bundle Units
+      summary: Create a new PBU
+      description: Creates a new Permission Bundle Unit with the specified properties
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PermissionBundleUnitRequestDTO'
+      responses:
+        '201':
+          description: PBU created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '409':
+          description: PBU with this ID already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /api/pbus/{pbuId}:
+    get:
+      tags:
+        - Permission Bundle Units
+      summary: Get PBU by ID
+      description: Retrieves a specific Permission Bundle Unit by its unique identifier
+      parameters:
+        - name: pbuId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: USER_CREATE_PBU
+          description: Unique identifier of the PBU
+      responses:
+        '200':
+          description: PBU found successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: PBU not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    put:
+      tags:
+        - Permission Bundle Units
+      summary: Update an existing PBU
+      description: Updates an existing Permission Bundle Unit with new properties
+      parameters:
+        - name: pbuId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: USER_CREATE_PBU
+          description: Unique identifier of the PBU to update
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PermissionBundleUnitRequestDTO'
+      responses:
+        '200':
+          description: PBU updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: PBU not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+    delete:
+      tags:
+        - Permission Bundle Units
+      summary: Delete a PBU
+      description: Deletes a Permission Bundle Unit by its unique identifier
+      parameters:
+        - name: pbuId
+          in: path
+          required: true
+          schema:
+            type: string
+          example: USER_CREATE_PBU
+          description: Unique identifier of the PBU to delete
+      responses:
+        '204':
+          description: PBU deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+        '404':
+          description: PBU not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  # Additional endpoints for other controllers would follow the same pattern...
+  # For brevity, I'm including the main ones here
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token for authentication
+
+  schemas:
+    ApiResponse:
+      type: object
+      description: Standardized API response wrapper for all endpoints
+      properties:
+        statusCode:
+          type: integer
+          description: HTTP status code
+          example: 200
+        status:
+          type: string
+          description: Status message indicating success or error type
+          example: SUCCESS
+          enum:
+            - SUCCESS
+            - CONFLICT
+            - NOT_FOUND
+            - BAD_REQUEST
+            - UNAUTHORIZED
+            - FORBIDDEN
+            - INTERNAL_SERVER_ERROR
+        body:
+          description: Response body containing the actual data or error details
+
+    RoleRequestDTO:
+      type: object
+      description: Request DTO for creating or updating a role
+      required:
+        - roleId
+        - displayName
+        - appCode
+        - moduleCode
+        - roleFunction
+      properties:
+        roleId:
+          type: string
+          description: Unique identifier for the role
+          example: ADMIN_ROLE
+        displayName:
+          type: string
+          description: Human-readable display name for the role
+          example: Administrator Role
+        appCode:
+          type: string
+          description: Application code that this role belongs to
+          example: USER_MGMT
+        moduleCode:
+          type: string
+          description: Module code within the application
+          example: AUTH
+        roleFunction:
+          type: string
+          description: Functional purpose of the role
+          example: USER_ADMINISTRATION
+        isActive:
+          type: boolean
+          description: Whether the role is currently active
+          example: true
+          default: true
+        inheritanceDepth:
+          type: integer
+          description: Inheritance depth in the role hierarchy (calculated by service)
+          example: 0
+          default: 0
+        tenantCustomizable:
+          type: boolean
+          description: Whether this role can be customized by tenants
+          example: false
+          default: false
+
+    RoleResponseDTO:
+      type: object
+      description: Response DTO for role operations
+      properties:
+        roleId:
+          type: string
+          description: Unique identifier for the role
+          example: ADMIN_ROLE
+        displayName:
+          type: string
+          description: Human-readable display name for the role
+          example: Administrator Role
+        appCode:
+          type: string
+          description: Application code that this role belongs to
+          example: USER_MGMT
+        moduleCode:
+          type: string
+          description: Module code within the application
+          example: AUTH
+        roleFunction:
+          type: string
+          description: Functional purpose of the role
+          example: USER_ADMINISTRATION
+        isActive:
+          type: boolean
+          description: Whether the role is currently active
+          example: true
+        inheritanceDepth:
+          type: integer
+          description: Inheritance depth in the role hierarchy
+          example: 0
+        tenantCustomizable:
+          type: boolean
+          description: Whether this role can be customized by tenants
+          example: false
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the role was created
+          example: '2024-01-15T10:30:00'
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the role was last updated
+          example: '2024-01-15T14:45:00'
+
+    PermissionBundleUnitRequestDTO:
+      type: object
+      description: Request DTO for creating or updating a Permission Bundle Unit (PBU)
+      required:
+        - pbuId
+        - displayName
+        - apiEndpoint
+        - actionCode
+        - scopeCode
+      properties:
+        pbuId:
+          type: string
+          description: Unique identifier for the PBU
+          example: USER_CREATE_PBU
+        displayName:
+          type: string
+          description: Human-readable display name for the PBU
+          example: User Creation Permission
+        apiEndpoint:
+          type: string
+          description: API endpoint that this PBU controls
+          example: /api/users
+        actionCode:
+          type: string
+          description: Action code that this PBU represents
+          example: CREATE
+        scopeCode:
+          type: string
+          description: Scope code for the resource being accessed
+          example: USER
+        isActive:
+          type: boolean
+          description: Whether the PBU is currently active
+          example: true
+          default: true
+        version:
+          type: string
+          description: Version number of the PBU
+          example: '1.0'
+          default: '1.0'
+
+    PermissionBundleUnitResponseDTO:
+      type: object
+      description: Response DTO for Permission Bundle Unit (PBU) operations
+      properties:
+        pbuId:
+          type: string
+          description: Unique identifier for the PBU
+          example: USER_CREATE_PBU
+        displayName:
+          type: string
+          description: Human-readable display name for the PBU
+          example: User Creation Permission
+        apiEndpoint:
+          type: string
+          description: API endpoint that this PBU controls
+          example: /api/users
+        actionCode:
+          type: string
+          description: Action code that this PBU represents
+          example: CREATE
+        scopeCode:
+          type: string
+          description: Scope code for the resource being accessed
+          example: USER
+        isActive:
+          type: boolean
+          description: Whether the PBU is currently active
+          example: true
+        version:
+          type: string
+          description: Version number of the PBU
+          example: '1.0'
+        createdAt:
+          type: string
+          format: date-time
+          description: Timestamp when the PBU was created
+          example: '2024-01-15T10:30:00'
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp when the PBU was last updated
+          example: '2024-01-15T14:45:00'
+
+    CustomErrorResponse:
+      type: object
+      description: Standardized error response format
+      properties:
+        errorCode:
+          type: string
+          description: Error code for the specific error type
+          example: NOT_FOUND
+        message:
+          type: string
+          description: Human-readable error message
+          example: Role not found 
