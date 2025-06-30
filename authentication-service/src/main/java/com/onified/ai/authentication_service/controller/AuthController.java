@@ -16,6 +16,10 @@ import org.springframework.web.bind.annotation.*;
 import com.onified.ai.authentication_service.model.CustomErrorResponse;
 import feign.FeignException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.onified.ai.authentication_service.auth.client.UserManagementFeignClient;
+import com.onified.ai.authentication_service.dto.UserAuthDetailsResponse;
+import com.onified.ai.authentication_service.exception.UserNotFoundException;
+import com.onified.ai.authentication_service.constants.ErrorConstants;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -24,6 +28,7 @@ public class AuthController {
 
     private final KeycloakAuthService keycloakAuthService;
     private final RegistrationService registrationService;
+    private final UserManagementFeignClient userManagementFeignClient;
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
@@ -125,6 +130,16 @@ public class AuthController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
+    @PostMapping("/logout")
+    public ResponseEntity<ApiResponse<String>> logout() {
+        ApiResponse<String> response = new ApiResponse<>(
+                HttpStatus.OK.value(),
+                MessageConstants.STATUS_SUCCESS,
+                "Logout successful"
+        );
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @GetMapping("/health")
     public ResponseEntity<ApiResponse<String>> health() {
         ApiResponse<String> response = new ApiResponse<>(
@@ -133,5 +148,23 @@ public class AuthController {
                 "Authentication Service is running"
         );
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/profile/{username}")
+    public ResponseEntity<ApiResponse<UserAuthDetailsResponse>> getUserProfile(@PathVariable String username) {
+        try {
+            ApiResponse<UserAuthDetailsResponse> umsResponse = userManagementFeignClient.getUserAuthDetailsByUsername(username);
+            if (umsResponse == null || umsResponse.getStatusCode() != HttpStatus.OK.value() || umsResponse.getBody() == null) {
+                throw new UserNotFoundException(String.format(ErrorConstants.USER_NOT_FOUND_USERNAME, username));
+            }
+            return new ResponseEntity<>(umsResponse, HttpStatus.OK);
+        } catch (Exception e) {
+            ApiResponse<UserAuthDetailsResponse> response = new ApiResponse<>(
+                HttpStatus.NOT_FOUND.value(),
+                "ERROR",
+                null
+            );
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
     }
 }

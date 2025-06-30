@@ -48,7 +48,7 @@
                 </p>
               </div>
               
-              <form class="login-form" (ngSubmit)="onContinue()">
+              <form class="login-form" [formGroup]="loginForm" (ngSubmit)="onContinue()">
                 <!-- Identifier Step (Username/Phone/Domain) -->
                 <div class="form-group" *ngIf="currentStep === 'identifier'">
                   <label for="identifier" class="form-label">
@@ -59,13 +59,13 @@
                     id="identifier"
                     name="identifier"
                     class="form-control"
-                    [(ngModel)]="identifier"
+                    formControlName="identifier"
                     [placeholder]="getIdentifierPlaceholder()"
                     (input)="onIdentifierChange()"
                     (keypress)="onKeyPress($event)"
                     required
                     autocomplete="username"
-                    [class.error]="errorMessage && identifierType === 'username' && !authService.isValidUsername(identifier)"
+                    [class.error]="errorMessage && identifierType === 'username' && !authService.isValidUsername(loginForm.get('identifier')?.value)"
                   />
                   <div class="input-hint" *ngIf="identifierType === 'username'">
                     <small class="hint-text">
@@ -95,7 +95,7 @@
                       id="password"
                       name="password"
                       class="form-control"
-                      [(ngModel)]="password"
+                      formControlName="password"
                       [placeholder]="getPasswordPlaceholder()"
                       (keypress)="onKeyPress($event)"
                       required
@@ -106,7 +106,7 @@
                     <button type="button" class="back-link" (click)="onBackToIdentifier()">
                       ← Back to change {{ identifierType === 'domain' ? 'domain' : 'username' }}
                     </button>
-                    <span class="current-identifier">{{ identifier }}</span>
+                    <span class="current-identifier">{{ loginForm.get('identifier')?.value }}</span>
                   </div>
                   <div class="forgot-password">
                     <button type="button" class="forgot-link" (click)="onForgotPassword()">
@@ -124,7 +124,7 @@
                 <button
                   type="submit"
                   class="btn btn-primary btn-lg w-100 continue-btn"
-                  [disabled]="isLoading || (identifierType === 'username' && !authService.isValidUsername(identifier))"
+                  [disabled]="isLoading || !loginForm.get('identifier')?.value"
                 >
                   {{ getButtonText() }}
                 </button>

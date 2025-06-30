@@ -65,7 +65,7 @@ keycloak:
   auth-server-url: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:9090}
   realm: ${KEYCLOAK_REALM:onified}
   client-id: ${KEYCLOAK_CLIENT_ID:onified-auth-service}
-  client-secret: ${KEYCLOAK_CLIENT_SECRET:qs3hXtE80MDTPTTLjh3rUoz9UXj1tJ4c}
+  client-secret: ${KEYCLOAK_CLIENT_SECRET:R4yfuS1gJNVGYN3KrsvViAE2E4fIXnMb}
   admin:
     username: admin
     password: admin123

@@ -62,6 +62,7 @@ public class AuthService {
         return LoginResponse.builder()
             .accessToken(token)
             .username(userAuthDetails.getUsername())
+            .userProfile(userAuthDetails)
             .build();
     }
 }

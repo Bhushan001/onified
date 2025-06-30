@@ -46,10 +46,9 @@ export class LoginComponent implements OnInit {
   errorMessage = '';
   showPassword = false;
   currentStep: 'identifier' | 'password' = 'identifier';
-  identifier = '';
-  password = '';
   identifierType: 'username' | 'phone' | 'domain' = 'username';
   currentTheme = 'light';
+  userProfile: any = null;
   
   testimonial = {
     quote: "Onified has transformed how we manage our enterprise applications. The seamless integration and powerful features have made our workflow incredibly efficient.",
@@ -90,8 +89,23 @@ export class LoginComponent implements OnInit {
 
   onContinue(): void {
     if (this.currentStep === 'identifier') {
-      if (this.identifier && this.identifier.trim()) {
-        this.identifierType = this.authService.getIdentifierType(this.identifier);
+      const identifier = this.loginForm.get('identifier')?.value;
+      if (identifier && identifier.trim()) {
+        this.identifierType = this.authService.getIdentifierType(identifier);
+        // Fetch user profile
+        this.authService.getUserProfile(identifier).subscribe({
+          next: (res) => {
+            if (res.statusCode === 200 && res.body) {
+              console.log('User profile:', res.body);
+              this.userProfile = res.body;
+            } else {
+              this.errorMessage = 'User not found';
+            }
+          },
+          error: (err) => {
+            this.errorMessage = 'User not found';
+          }
+        });
         this.currentStep = 'password';
       }
     } else {
@@ -104,7 +118,8 @@ export class LoginComponent implements OnInit {
   }
 
   onIdentifierChange(): void {
-    this.identifierType = this.authService.getIdentifierType(this.identifier);
+    const identifier = this.loginForm.get('identifier')?.value;
+    this.identifierType = this.authService.getIdentifierType(identifier);
   }
 
   onQRLogin(): void {
@@ -136,17 +151,18 @@ export class LoginComponent implements OnInit {
     if (this.loginForm.valid) {
       this.isLoading = true;
       this.errorMessage = '';
-
       const loginData: InternalLoginRequest = {
         identifier: this.loginForm.get('identifier')?.value,
         password: this.loginForm.get('password')?.value
       };
-
       this.authService.login(loginData).subscribe({
         next: (result) => {
           this.isLoading = false;
           if (result.success) {
-            // Navigate to dashboard or intended page
+            // Save userProfile in localStorage if not already
+            if (this.userProfile) {
+              localStorage.setItem('userProfile', JSON.stringify(this.userProfile));
+            }
             this.router.navigate(['/dashboard']);
           } else {
             this.errorMessage = result.message || 'Login failed';

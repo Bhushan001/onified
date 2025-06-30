@@ -131,17 +131,21 @@ export class AuthService {
     // Create the appropriate request payload based on identifier type
     const loginPayload = this.createLoginPayload(credentials.identifier, credentials.password, identifierType);
 
-    return this.http.post<LoginResponse>(`${this.API_URL}/auth/login`, loginPayload)
+    return this.http.post<LoginResponse>(`${this.API_URL}/auth/auth/login`, loginPayload)
       .pipe(
         map(response => {
-          // Check if response is successful based on your backend format
           if (response.statusCode === 200 && response.status === 'SUCCESS' && response.body) {
-            // Extract user data from OAuth2 token and response
-            const user = this.createUserFromResponse(response.body);
-            
-            // Handle successful authentication
-            this.handleAuthSuccess(response.body.jwtToken, user, response.body.refreshToken);
-            
+            // Save userProfile in localStorage if present
+            if (response.body.userProfile) {
+              localStorage.setItem('userProfile', JSON.stringify(response.body.userProfile));
+            }
+            // Use accessToken if present, else fallback to jwtToken
+            const token = response.body.accessToken || response.body.jwtToken;
+            if (!token) {
+              throw new Error('No access token found in login response');
+            }
+            const user = this.createUserFromResponse({ ...response.body, jwtToken: token });
+            this.handleAuthSuccess(token, user, response.body.refreshToken);
             return { success: true };
           } else {
             return { 
@@ -163,8 +167,9 @@ export class AuthService {
    * @private
    */
   private createUserFromResponse(responseBody: any): User {
-    // Extract user data from OAuth2 token
-    const tokenData = this.extractDataFromToken(responseBody.jwtToken);
+    // Use accessToken if present, else fallback to jwtToken
+    const token = responseBody.accessToken || responseBody.jwtToken;
+    const tokenData = this.extractDataFromToken(token);
     
     // Create user object combining response data and token data
     const user: User = {
@@ -196,8 +201,14 @@ export class AuthService {
    */
   private extractDataFromToken(token: string): any {
     try {
-      const payload = JSON.parse(atob(token.split('.')[1]));
-      return payload;
+      if (!token || typeof token !== 'string' || token.split('.').length < 2) {
+        throw new Error('Invalid or missing JWT token');
+      }
+      const payload = token.split('.')[1];
+      // Add padding if needed for base64 decoding
+      const base64 = payload.replace(/-/g, '+').replace(/_/g, '/');
+      const padded = base64.padEnd(base64.length + (4 - base64.length % 4) % 4, '=');
+      return JSON.parse(atob(padded));
     } catch (error) {
       console.error('Error extracting data from token:', error);
       return {};
@@ -226,29 +237,6 @@ export class AuthService {
   }
 
   /**
-   * Registers a new user account
-   * 
-   * @param registrationData - User registration information
-   * @returns Observable with success status and optional error message
-   */
-  public register(registrationData: RegisterRequest): Observable<{ success: boolean; message?: string }> {
-    return this.http.post<RegisterResponse>(`${this.API_URL}/auth/authentication/register`, registrationData)
-      .pipe(
-        map(response => {
-          if (response.statusCode === 201 && response.status === 'SUCCESS') {
-            return { success: true };
-          } else {
-            return { 
-              success: false, 
-              message: response.message || response.error || 'Registration failed' 
-            };
-          }
-        }),
-        catchError(this.handleError.bind(this))
-      );
-  }
-
-  /**
    * Authenticates user using QR code
    * 
    * @param qrData - QR code authentication data
@@ -257,12 +245,13 @@ export class AuthService {
   public loginWithQR(qrData?: QRLoginRequest): Observable<{ success: boolean; message?: string }> {
     const payload = qrData || { deviceId: this.generateDeviceId() };
 
-    return this.http.post<QRLoginResponse>(`${this.API_URL}/auth/qr-login`, payload)
+    return this.http.post<QRLoginResponse>(`${this.API_URL}/auth/auth/qr-login`, payload)
       .pipe(
         map(response => {
           if (response.statusCode === 200 && response.status === 'SUCCESS' && response.body) {
             const user = this.createUserFromResponse(response.body);
-            this.handleAuthSuccess(response.body.jwtToken, user, response.body.refreshToken);
+            const token = response.body.accessToken || response.body.jwtToken;
+            this.handleAuthSuccess(token, user, response.body.refreshToken);
             return { success: true };
           } else {
             return { 
@@ -284,7 +273,7 @@ export class AuthService {
   public resetPassword(identifier: string): Observable<{ success: boolean; message?: string }> {
     const payload: PasswordResetRequest = { identifier };
 
-    return this.http.post<PasswordResetResponse>(`${this.API_URL}/auth/reset-password`, payload)
+    return this.http.post<PasswordResetResponse>(`${this.API_URL}/auth/auth/reset-password`, payload)
       .pipe(
         map(response => {
           if (response.statusCode === 200 && response.status === 'SUCCESS') {
@@ -307,7 +296,7 @@ export class AuthService {
    * @returns Observable with success status, optional error message, and updated user
    */
   public updateProfile(profileData: UpdateProfileRequest): Observable<{ success: boolean; message?: string; user?: User }> {
-    return this.http.put<UpdateProfileResponse>(`${this.API_URL}/auth/profile`, profileData)
+    return this.http.put<UpdateProfileResponse>(`${this.API_URL}/auth/auth/profile`, profileData)
       .pipe(
         map(response => {
           if (response.statusCode === 200 && response.status === 'SUCCESS' && response.body) {
@@ -338,24 +327,24 @@ export class AuthService {
       return throwError(() => new Error('No refresh token available'));
     }
 
-    return this.http.post<RefreshTokenResponse>(`${this.API_URL}/auth/refresh?refreshToken=${refreshToken}`, {})
+    return this.http.post<RefreshTokenResponse>(`${this.API_URL}/auth/auth/refresh?refreshToken=${refreshToken}`, {})
       .pipe(
         map(response => {
           if (response.statusCode === 200 && response.status === 'SUCCESS' && response.body) {
-            // Update stored tokens
-            localStorage.setItem(this.TOKEN_KEY, response.body.jwtToken);
+            const token = response.body.accessToken || response.body.jwtToken;
+            if (!token) {
+              throw new Error('No access token found in refresh token response');
+            }
+            localStorage.setItem(this.TOKEN_KEY, token);
             if (response.body.refreshToken) {
               localStorage.setItem(this.REFRESH_TOKEN_KEY, response.body.refreshToken);
             }
-            
-            // Set new expiration timer
             if (response.body.expiresIn) {
-              this.setTokenExpirationTimer(response.body.jwtToken);
+              this.setTokenExpirationTimer(token);
             }
-            
             return true;
           } else {
-            throw new Error(response.message || 'Token refresh failed');
+            return false;
           }
         }),
         catchError(error => {
@@ -371,7 +360,7 @@ export class AuthService {
    * @returns Observable that completes when logout is done
    */
   public logout(): Observable<void> {
-    return this.http.post<LogoutResponse>(`${this.API_URL}/auth/logout`, {})
+    return this.http.post<LogoutResponse>(`${this.API_URL}/auth/auth/logout`, {})
       .pipe(
         tap(() => {
           this.clearAuthData();
@@ -463,7 +452,7 @@ export class AuthService {
    * @returns Observable with availability status
    */
   public checkUsernameAvailability(username: string): Observable<boolean> {
-    return this.http.get<{ available: boolean }>(`${this.API_URL}/auth/check-username?username=${username}`)
+    return this.http.get<{ available: boolean }>(`${this.API_URL}/auth/auth/check-username?username=${username}`)
       .pipe(
         map(response => response.available),
         catchError(() => throwError(() => new Error('Failed to check username availability')))
@@ -479,20 +468,12 @@ export class AuthService {
    * @private
    */
   private handleAuthSuccess(token: string, user: User, refreshToken?: string): void {
-    // Store tokens
     localStorage.setItem(this.TOKEN_KEY, token);
     if (refreshToken) {
       localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
     }
-    
-    // Store user data
-    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
-    
-    // Update reactive state
     this.currentUserSubject.next(user);
     this.isAuthenticatedSubject.next(true);
-    
-    // Set token expiration timer
     this.setTokenExpirationTimer(token);
   }
 
@@ -501,7 +482,7 @@ export class AuthService {
    * 
    * @private
    */
-  private clearAuthData(): void {
+  public clearAuthData(): void {
     // Clear stored data
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
@@ -665,5 +646,12 @@ export class AuthService {
         }),
         catchError(this.handleError.bind(this))
       );
+  }
+
+  /**
+   * Fetch user profile by username
+   */
+  public getUserProfile(username: string) {
+    return this.http.get<any>(`${this.API_URL}/auth/auth/profile/${username}`);
   }
 }

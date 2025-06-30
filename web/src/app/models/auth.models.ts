@@ -75,8 +75,10 @@ export interface LoginResponse {
   status: string;
   /** Response body containing authentication data */
   body?: {
-    /** JWT access token */
-    jwtToken: string;
+    /** JWT access token (Keycloak returns as accessToken) */
+    accessToken?: string;
+    /** JWT access token (legacy/compat) */
+    jwtToken?: string;
     /** Username of the authenticated user */
     username: string;
     /** Optional refresh token */
@@ -85,6 +87,8 @@ export interface LoginResponse {
     expiresIn?: number;
     /** Additional user data */
     user?: User;
+    /** User profile details (roles, etc.) */
+    userProfile?: UserAuthDetailsResponse;
   };
   /** Error message if login failed */
   message?: string;
@@ -149,6 +153,8 @@ export interface QRLoginResponse {
   /** Response body containing authentication data */
   body?: {
     /** JWT access token */
+    accessToken: string;
+    /** JWT access token */
     jwtToken: string;
     /** Username of the authenticated user */
     username: string;
@@ -185,8 +191,10 @@ export interface RefreshTokenResponse {
   status: string;
   /** Response body containing new tokens */
   body?: {
-    /** New JWT access token */
-    jwtToken: string;
+    /** New JWT access token (Keycloak returns as accessToken) */
+    accessToken?: string;
+    /** New JWT access token (legacy/compat) */
+    jwtToken?: string;
     /** New refresh token (if rotation is enabled) */
     refreshToken?: string;
     /** New token expiration time in seconds */
@@ -321,4 +329,11 @@ export interface UpdateProfileResponse {
   message?: string;
   /** Additional error details */
   error?: string;
+}
+
+export interface UserAuthDetailsResponse {
+  id: string;
+  username: string;
+  passwordHash: string;
+  roles: string[];
 }

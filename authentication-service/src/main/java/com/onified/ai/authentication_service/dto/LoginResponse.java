@@ -17,5 +17,6 @@ public class LoginResponse {
     private String username;
     private String message;
     private String status;
+    private com.onified.ai.authentication_service.dto.UserAuthDetailsResponse userProfile;
     // You might add userId, roles, expiration date here as well
 }

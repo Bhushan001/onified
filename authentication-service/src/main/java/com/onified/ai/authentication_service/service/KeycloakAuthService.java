@@ -2,6 +2,9 @@ package com.onified.ai.authentication_service.service;
 
 import com.onified.ai.authentication_service.dto.LoginRequest;
 import com.onified.ai.authentication_service.dto.LoginResponse;
+import com.onified.ai.authentication_service.auth.client.UserManagementFeignClient;
+import com.onified.ai.authentication_service.dto.UserAuthDetailsResponse;
+import com.onified.ai.authentication_service.model.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +24,7 @@ import java.util.Map;
 public class KeycloakAuthService {
 
     private final RestTemplate restTemplate;
+    private final UserManagementFeignClient userManagementFeignClient;
 
     @Value("${keycloak.auth-server-url}")
     private String keycloakUrl;
@@ -56,12 +60,16 @@ public class KeycloakAuthService {
             Map<String, Object> response = restTemplate.postForObject(tokenUrl, request, Map.class);
 
             if (response != null && response.containsKey("access_token")) {
+                // Fetch user profile from UMS
+                ApiResponse<UserAuthDetailsResponse> umsResponse = userManagementFeignClient.getUserAuthDetailsByUsername(loginRequest.getUsername());
+                UserAuthDetailsResponse userProfile = umsResponse != null ? umsResponse.getBody() : null;
                 return LoginResponse.builder()
                         .accessToken((String) response.get("access_token"))
                         .refreshToken((String) response.get("refresh_token"))
                         .tokenType((String) response.get("token_type"))
                         .expiresIn((Integer) response.get("expires_in"))
                         .username(loginRequest.getUsername())
+                        .userProfile(userProfile)
                         .build();
             } else {
                 throw new RuntimeException("Authentication failed: Invalid credentials");
