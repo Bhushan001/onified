@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
-import { SignupComponent } from './components/login/signup.component';
+import { SignupPlatformAdminComponent } from './components/signup/signup-platform-admin.component';
+import { SignupTenantAdminComponent } from './components/signup/signup-tenant-admin.component';
 
 // Foundation Components
 import { DashboardAnalyticsComponent } from './components/foundation/dashboard-analytics/dashboard-analytics.component';
@@ -31,7 +32,6 @@ import { FeedbackSettingsComponent } from './components/users/feedback-settings/
 export const routes: Routes = [
   { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
-  { path: 'signup', component: SignupComponent },
   { 
     path: 'dashboard', 
     component: DashboardComponent,
@@ -65,5 +65,8 @@ export const routes: Routes = [
       { path: 'users/feedback-settings', component: FeedbackSettingsComponent },
     ]
   },
+  { path: 'create-platform-admin', loadComponent: () => import('./components/signup/signup-platform-admin.component').then(m => m.SignupPlatformAdminComponent) },
+  { path: 'create-tenant-admin', loadComponent: () => import('./components/signup/signup-tenant-admin.component').then(m => m.SignupTenantAdminComponent) },
+  { path: 'create-user', loadComponent: () => import('./components/signup/signup-platform-user.component').then(m => m.SignupPlatformUserComponent) },
   { path: '**', redirectTo: '/dashboard' }
 ];

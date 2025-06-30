@@ -1,0 +1,227 @@
+<div class="login-page">
+  <main class="login-main">
+    <div class="container">
+      <div class="login-content">
+        <!-- Left side - Brand and Testimonial (reuse from login) -->
+        <div class="brand-testimonial-section">
+          <h1 class="brand-title">
+            ONIFIED<span class="brand-accent">.AI</span>
+          </h1>
+          <div class="brand-section">
+            <p class="brand-subtitle">
+              Power Up Your Business with Onified.ai's Product Suite
+            </p>
+            <p class="brand-description">
+              All in one solution for your business needs. Embrace the future of business with ONIFIED.AI and unlock your full potential.
+            </p>
+          </div>
+          <div class="testimonial-container">
+            <app-testimonial [testimonial]="testimonial"></app-testimonial>
+          </div>
+        </div>
+        <!-- Right side - Signup Form -->
+        <div class="login-form-section">
+          <div class="login-form-container">
+            <div class="login-form-card">
+              <div class="form-header">
+                <p class="form-subtitle">Create your tenant admin account</p>
+              </div>
+              <form class="login-form" [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+                <!-- First Name -->
+                <div class="form-group">
+                  <label for="firstName" class="form-label">First Name</label>
+                  <input id="firstName" formControlName="firstName" type="text" class="form-control" />
+                  <div *ngIf="submitted && signupForm.controls['firstName'].errors">
+                    <small *ngIf="signupForm.controls['firstName'].errors['required']">First name is required.</small>
+                  </div>
+                </div>
+                <!-- Last Name -->
+                <div class="form-group">
+                  <label for="lastName" class="form-label">Last Name</label>
+                  <input id="lastName" formControlName="lastName" type="text" class="form-control" />
+                  <div *ngIf="submitted && signupForm.controls['lastName'].errors">
+                    <small *ngIf="signupForm.controls['lastName'].errors['required']">Last name is required.</small>
+                  </div>
+                </div>
+                <!-- Date of Birth -->
+                <div class="form-group">
+                  <label for="dateOfBirth" class="form-label">Date of Birth</label>
+                  <input id="dateOfBirth" formControlName="dateOfBirth" type="date" class="form-control" />
+                  <div *ngIf="submitted && signupForm.controls['dateOfBirth'].errors">
+                    <small *ngIf="signupForm.controls['dateOfBirth'].errors['required']">Date of birth is required.</small>
+                  </div>
+                </div>
+                <!-- Country -->
+                <div class="form-group">
+                  <label for="country" class="form-label">Country</label>
+                  <input id="country" formControlName="country" type="text" class="form-control" />
+                  <div *ngIf="submitted && signupForm.controls['country'].errors">
+                    <small *ngIf="signupForm.controls['country'].errors['required']">Country is required.</small>
+                  </div>
+                </div>
+                <!-- Username -->
+                <div class="form-group full-width">
+                  <label for="username" class="form-label">Username</label>
+                  <input id="username" formControlName="username" type="text" class="form-control" />
+                  <div *ngIf="submitted && signupForm.controls['username'].errors">
+                    <small *ngIf="signupForm.controls['username'].errors['required']">Username is required.</small>
+                  </div>
+                </div>
+                <!-- Email -->
+                <div class="form-group full-width">
+                  <label for="email" class="form-label">Email</label>
+                  <input id="email" formControlName="email" type="email" class="form-control" />
+                  <div *ngIf="submitted && signupForm.controls['email'].errors">
+                    <small *ngIf="signupForm.controls['email'].errors['required']">Email is required.</small>
+                    <small *ngIf="signupForm.controls['email'].errors['email']">Invalid email format.</small>
+                  </div>
+                </div>
+                <!-- Password and Confirm Password -->
+                <div class="password-row form-group full-width">
+                  <div>
+                    <label for="password" class="form-label">Password</label>
+                    <div class="input-wrapper">
+                      <input 
+                        id="password" 
+                        formControlName="password" 
+                        [type]="showPassword ? 'text' : 'password'" 
+                        class="form-control" 
+                        [class.error]="passwordValidation && !passwordValidation.isValid"
+                      />
+                      <button type="button" class="toggle-password" (click)="togglePasswordVisibility()" tabindex="-1" aria-label="Toggle password visibility">
+                        <i *ngIf="!showPassword" class="fa fa-eye"></i>
+                        <i *ngIf="showPassword" class="fa fa-eye-slash"></i>
+                      </button>
+                    </div>
+                    <!-- Password Strength Indicator -->
+                    <div *ngIf="passwordValidation && signupForm.get('password')?.value" class="password-strength">
+                      <div class="strength-bar">
+                        <div class="strength-fill" [style.width]="getPasswordStrengthWidth()" [style.background-color]="getPasswordStrengthColor()"></div>
+                      </div>
+                      <div class="strength-text" [style.color]="getPasswordStrengthColor()">
+                        {{ getPasswordStrengthText() }}
+                      </div>
+                    </div>
+                    <!-- Password Policy Requirements -->
+                    <div *ngIf="isPasswordPolicyLoaded" class="password-requirements">
+                      <div class="requirements-title">Password Requirements:</div>
+                      <ul class="requirements-list">
+                        <li *ngIf="passwordPolicy?.minLength">Minimum length: {{ passwordPolicy?.minLength }}</li>
+                        <li *ngIf="passwordPolicy?.maxLength">Maximum length: {{ passwordPolicy?.maxLength }}</li>
+                        <li *ngIf="passwordPolicy?.requireUppercase">At least one uppercase letter</li>
+                        <li *ngIf="passwordPolicy?.requireLowercase">At least one lowercase letter</li>
+                        <li *ngIf="passwordPolicy?.requireNumbers">At least one number</li>
+                        <li *ngIf="passwordPolicy?.requireSpecialCharacters">At least one special character</li>
+                        <li *ngIf="passwordPolicy?.preventCommonPasswords">Cannot be a common password</li>
+                        <li *ngIf="passwordPolicy?.preventUsernameInPassword">Cannot contain your username</li>
+                        <li *ngIf="passwordPolicy?.preventSequentialCharacters">Avoid sequential characters (e.g., 123, abc)</li>
+                        <li *ngIf="passwordPolicy?.preventRepeatedCharacters">Avoid repeated characters (e.g., aaa, 111)</li>
+                        <li *ngIf="passwordPolicy?.passwordHistoryCount">Cannot reuse last {{ passwordPolicy?.passwordHistoryCount }} passwords</li>
+                        <li *ngIf="passwordPolicy?.passwordExpiryDays">Password expires every {{ passwordPolicy?.passwordExpiryDays }} days</li>
+                      </ul>
+                    </div>
+                    <!-- Existing validation feedback below -->
+                    <div *ngIf="isPasswordPolicyLoaded && signupForm.get('password')?.value" class="password-requirements">
+                      <div class="requirements-title">Password Validation:</div>
+                      <div class="requirement-item" *ngFor="let error of passwordValidation?.errors" [class.error]="true">
+                        <span class="requirement-icon">✗</span>
+                        <span class="requirement-text">{{ error }}</span>
+                      </div>
+                      <div class="requirement-item" *ngFor="let warning of passwordValidation?.warnings" [class.warning]="true">
+                        <span class="requirement-icon">⚠</span>
+                        <span class="requirement-text">{{ warning }}</span>
+                      </div>
+                      <div class="requirement-item" *ngIf="passwordValidation?.isValid" [class.success]="true">
+                        <span class="requirement-icon">✓</span>
+                        <span class="requirement-text">Password meets all requirements</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+                    <div class="input-wrapper">
+                      <input 
+                        id="confirmPassword" 
+                        formControlName="confirmPassword" 
+                        [type]="showConfirmPassword ? 'text' : 'password'" 
+                        class="form-control"
+                        [class.error]="submitted && signupForm.controls['confirmPassword'].errors || signupForm.controls['confirmPassword'].errors?.['mismatch']"
+                      />
+                      <button type="button" class="toggle-password" (click)="toggleConfirmPasswordVisibility()" tabindex="-1" aria-label="Toggle confirm password visibility">
+                        <i *ngIf="!showConfirmPassword" class="fa fa-eye"></i>
+                        <i *ngIf="showConfirmPassword" class="fa fa-eye-slash"></i>
+                      </button>
+                    </div>
+                    <div *ngIf="(submitted && signupForm.controls['confirmPassword'].errors) || (signupForm.controls['confirmPassword'].touched && signupForm.controls['confirmPassword'].errors?.['mismatch']) || (signupForm.controls['confirmPassword'].value && signupForm.controls['confirmPassword'].errors?.['mismatch'])" class="error-message">
+                      <small *ngIf="signupForm.controls['confirmPassword'].errors?.['mismatch']">Passwords do not match.</small>
+                      <small *ngIf="signupForm.controls['confirmPassword'].errors?.['required']">Confirm password is required.</small>
+                    </div>
+                  </div>
+                </div>
+                <!-- Consent -->
+                <div class="form-group full-width">
+                  <div class="consent-container">
+                    <input type="checkbox" formControlName="consent" id="consent" />
+                    <label for="consent" class="consent-label">
+                      I agree to the <a href="#" (click)="openTerms($event, 'terms')">Terms of Service</a> and <a href="#" (click)="openTerms($event, 'privacy')">Privacy Policy</a>. I understand that my information will be used to create a tenant admin account and that I am responsible for managing tenant and user data securely.
+                    </label>
+                  </div>
+                  <div *ngIf="submitted && signupForm.controls['consent'].errors">
+                    <small *ngIf="signupForm.controls['consent'].errors['required'] || signupForm.controls['consent'].errors['requiredTrue']">You must agree before signing up.</small>
+                  </div>
+                </div>
+                <!-- Terms Modal -->
+                <div *ngIf="showTermsModal" class="terms-modal-backdrop">
+                  <div class="terms-modal">
+                    <div class="terms-modal-header">
+                      {{ termsModalType === 'terms' ? 'Terms of Service' : 'Privacy Policy' }}
+                    </div>
+                    <div class="terms-modal-content" #modalContent (scroll)="onModalScroll($event)">
+                      <ng-container *ngIf="termsModalType === 'terms'">
+                        <h3>Welcome to Onified Terms of Service</h3>
+                        <p>By creating a tenant admin account, you agree to the following terms:</p>
+                        <ul>
+                          <li>You are responsible for all activity conducted under your account and for managing tenant and user data securely.</li>
+                          <li>You will not use Onified for any unlawful, harmful, or abusive purposes.</li>
+                          <li>Onified reserves the right to suspend or terminate accounts found in violation of these terms.</li>
+                          <li>All data is subject to our Privacy Policy and applicable laws.</li>
+                          <li>We may update these terms from time to time. Continued use of the platform constitutes acceptance of the revised terms.</li>
+                        </ul>
+                        <p>For the full legal version, please contact support or visit our website.</p>
+                        <h4>Additional Details</h4>
+                        <p>1. Account Security: You must keep your password secure and not share your account credentials with others. If you suspect unauthorized use, notify us immediately.</p>
+                        <p>2. Data Ownership: You retain ownership of your data but grant Onified a license to use, store, and process it as necessary to provide the service.</p>
+                        <p>3. Service Availability: We strive for 99.9% uptime but do not guarantee uninterrupted service. Scheduled maintenance and unforeseen outages may occur.</p>
+                        <p>4. Support: Tenant admins are entitled to standard support as described in our documentation. Premium support may be available for an additional fee.</p>
+                        <p>5. Limitation of Liability: Onified is not liable for indirect, incidental, or consequential damages arising from your use of the platform.</p>
+                        <p>6. Termination: We may suspend or terminate your account for violations of these terms or for activities that harm the platform or other users.</p>
+                        <p>7. Governing Law: These terms are governed by the laws of your jurisdiction unless otherwise specified in a separate agreement.</p>
+                        <p>8. Feedback: Any feedback you provide may be used by Onified to improve the service without obligation to you.</p>
+                        <p>9. Changes to Terms: We may update these terms at any time. We will notify you of significant changes, but it is your responsibility to review the terms periodically.</p>
+                        <p>10. Contact: For questions about these terms, please contact our support team.</p>
+                        <p style="margin-bottom: 0;">End of Terms of Service.</p>
+                      </ng-container>
+                      <ng-container *ngIf="termsModalType === 'privacy'">
+                        <p>Privacy Policy: We value your privacy. Your data will be handled securely and never shared with third parties except as required by law. (Repeat for demo...)</p>
+                        <p style="margin-bottom: 0;">End of Privacy Policy.</p>
+                      </ng-container>
+                    </div>
+                    <div class="terms-modal-footer">
+                      <button class="btn btn-primary" [disabled]="!modalScrolledToEnd" (click)="closeTermsModal()">Close</button>
+                    </div>
+                  </div>
+                </div>
+                <!-- Error Message -->
+                <div *ngIf="error" class="error-message">{{ error }}</div>
+                <button type="submit" class="btn btn-primary btn-lg w-100 continue-btn" [disabled]="signupForm.invalid || (passwordValidation && !passwordValidation.isValid) || signupForm.controls['confirmPassword'].errors?.['mismatch']">Sign Up</button>
+                <!-- Temporary debug button - remove in production -->
+                <button type="button" class="btn btn-secondary btn-sm w-100 mt-2" (click)="debugPasswordValidation()">Debug Password Validation</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <app-footer></app-footer>
+</div> 

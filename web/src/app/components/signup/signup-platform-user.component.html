@@ -24,9 +24,10 @@
           <div class="login-form-container">
             <div class="login-form-card">
               <div class="form-header">
-                <p class="form-subtitle">Create your platform admin account</p>
+                <p class="form-subtitle">Create your platform user account</p>
               </div>
               <form class="login-form" [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+                <!-- First Name -->
                 <div class="form-group">
                   <label for="firstName" class="form-label">First Name</label>
                   <input id="firstName" formControlName="firstName" type="text" class="form-control" />
@@ -34,6 +35,7 @@
                     <small *ngIf="signupForm.controls['firstName'].errors['required']">First name is required.</small>
                   </div>
                 </div>
+                <!-- Last Name -->
                 <div class="form-group">
                   <label for="lastName" class="form-label">Last Name</label>
                   <input id="lastName" formControlName="lastName" type="text" class="form-control" />
@@ -41,6 +43,7 @@
                     <small *ngIf="signupForm.controls['lastName'].errors['required']">Last name is required.</small>
                   </div>
                 </div>
+                <!-- Date of Birth -->
                 <div class="form-group">
                   <label for="dateOfBirth" class="form-label">Date of Birth</label>
                   <input id="dateOfBirth" formControlName="dateOfBirth" type="date" class="form-control" />
@@ -48,6 +51,7 @@
                     <small *ngIf="signupForm.controls['dateOfBirth'].errors['required']">Date of birth is required.</small>
                   </div>
                 </div>
+                <!-- Country -->
                 <div class="form-group">
                   <label for="country" class="form-label">Country</label>
                   <input id="country" formControlName="country" type="text" class="form-control" />
@@ -55,6 +59,7 @@
                     <small *ngIf="signupForm.controls['country'].errors['required']">Country is required.</small>
                   </div>
                 </div>
+                <!-- Username -->
                 <div class="form-group full-width">
                   <label for="username" class="form-label">Username</label>
                   <input id="username" formControlName="username" type="text" class="form-control" />
@@ -62,6 +67,7 @@
                     <small *ngIf="signupForm.controls['username'].errors['required']">Username is required.</small>
                   </div>
                 </div>
+                <!-- Email -->
                 <div class="form-group full-width">
                   <label for="email" class="form-label">Email</label>
                   <input id="email" formControlName="email" type="email" class="form-control" />
@@ -70,6 +76,7 @@
                     <small *ngIf="signupForm.controls['email'].errors['email']">Invalid email format.</small>
                   </div>
                 </div>
+                <!-- Password and Confirm Password -->
                 <div class="password-row form-group full-width">
                   <div>
                     <label for="password" class="form-label">Password</label>
@@ -86,7 +93,6 @@
                         <i *ngIf="showPassword" class="fa fa-eye-slash"></i>
                       </button>
                     </div>
-                    
                     <!-- Password Strength Indicator -->
                     <div *ngIf="passwordValidation && signupForm.get('password')?.value" class="password-strength">
                       <div class="strength-bar">
@@ -96,7 +102,6 @@
                         {{ getPasswordStrengthText() }}
                       </div>
                     </div>
-
                     <!-- Password Policy Requirements -->
                     <div *ngIf="isPasswordPolicyLoaded" class="password-requirements">
                       <div class="requirements-title">Password Requirements:</div>
@@ -153,17 +158,19 @@
                     </div>
                   </div>
                 </div>
+                <!-- Consent -->
                 <div class="form-group full-width">
                   <div class="consent-container">
                     <input type="checkbox" formControlName="consent" id="consent" />
                     <label for="consent" class="consent-label">
-                      I agree to the <a href="#" (click)="openTerms($event, 'terms')">Terms of Service</a> and <a href="#" (click)="openTerms($event, 'privacy')">Privacy Policy</a>. I understand that my information will be used to create a platform admin account and that I am responsible for managing tenant and user data securely.
+                      I agree to the <a href="#" (click)="openTerms($event, 'terms')">Terms of Service</a> and <a href="#" (click)="openTerms($event, 'privacy')">Privacy Policy</a>. I understand that my information will be used to create a platform user account and that I am responsible for managing tenant and user data securely.
                     </label>
                   </div>
                   <div *ngIf="submitted && signupForm.controls['consent'].errors">
                     <small *ngIf="signupForm.controls['consent'].errors['required'] || signupForm.controls['consent'].errors['requiredTrue']">You must agree before signing up.</small>
                   </div>
                 </div>
+                <!-- Terms Modal -->
                 <div *ngIf="showTermsModal" class="terms-modal-backdrop">
                   <div class="terms-modal">
                     <div class="terms-modal-header">
@@ -172,7 +179,7 @@
                     <div class="terms-modal-content" #modalContent (scroll)="onModalScroll($event)">
                       <ng-container *ngIf="termsModalType === 'terms'">
                         <h3>Welcome to Onified Terms of Service</h3>
-                        <p>By creating a platform admin account, you agree to the following terms:</p>
+                        <p>By creating a platform user account, you agree to the following terms:</p>
                         <ul>
                           <li>You are responsible for all activity conducted under your account and for managing tenant and user data securely.</li>
                           <li>You will not use Onified for any unlawful, harmful, or abusive purposes.</li>
@@ -185,7 +192,7 @@
                         <p>1. Account Security: You must keep your password secure and not share your account credentials with others. If you suspect unauthorized use, notify us immediately.</p>
                         <p>2. Data Ownership: You retain ownership of your data but grant Onified a license to use, store, and process it as necessary to provide the service.</p>
                         <p>3. Service Availability: We strive for 99.9% uptime but do not guarantee uninterrupted service. Scheduled maintenance and unforeseen outages may occur.</p>
-                        <p>4. Support: Platform admins are entitled to standard support as described in our documentation. Premium support may be available for an additional fee.</p>
+                        <p>4. Support: Platform users are entitled to standard support as described in our documentation. Premium support may be available for an additional fee.</p>
                         <p>5. Limitation of Liability: Onified is not liable for indirect, incidental, or consequential damages arising from your use of the platform.</p>
                         <p>6. Termination: We may suspend or terminate your account for violations of these terms or for activities that harm the platform or other users.</p>
                         <p>7. Governing Law: These terms are governed by the laws of your jurisdiction unless otherwise specified in a separate agreement.</p>
@@ -204,6 +211,7 @@
                     </div>
                   </div>
                 </div>
+                <!-- Error Message -->
                 <div *ngIf="error" class="error-message">{{ error }}</div>
                 <button type="submit" class="btn btn-primary btn-lg w-100 continue-btn" [disabled]="signupForm.invalid || (passwordValidation && !passwordValidation.isValid) || signupForm.controls['confirmPassword'].errors?.['mismatch']">Sign Up</button>
                 <!-- Temporary debug button - remove in production -->

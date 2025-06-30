@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { InternalLoginRequest } from '../../models/auth.models';
 import { TestimonialComponent } from '../shared/testimonial/testimonial.component';
@@ -35,7 +35,7 @@ import { ThemeService } from '../../services/theme.service';
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, TestimonialComponent, FooterComponent],
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, TestimonialComponent, FooterComponent, RouterModule],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })

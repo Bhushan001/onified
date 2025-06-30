@@ -18,7 +18,7 @@ import feign.FeignException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @RestController
-@RequestMapping("/api/authentication")
+@RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
@@ -84,6 +84,39 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserCreateRequest request) {
         UserResponse userResponse = registrationService.registerUser(request);
+        ApiResponse<UserResponse> response = new ApiResponse<>(
+                HttpStatus.CREATED.value(),
+                MessageConstants.STATUS_SUCCESS,
+                userResponse
+        );
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/create-platform-admin")
+    public ResponseEntity<?> createPlatformAdmin(@Valid @RequestBody UserCreateRequest request) {
+        UserResponse userResponse = registrationService.registerUserWithRole(request, "PLATFORM.Management.Admin");
+        ApiResponse<UserResponse> response = new ApiResponse<>(
+                HttpStatus.CREATED.value(),
+                MessageConstants.STATUS_SUCCESS,
+                userResponse
+        );
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/create-tenant-admin")
+    public ResponseEntity<?> createTenantAdmin(@Valid @RequestBody UserCreateRequest request) {
+        UserResponse userResponse = registrationService.registerUserWithRole(request, "PLATFORM.Management.TenantAdmin");
+        ApiResponse<UserResponse> response = new ApiResponse<>(
+                HttpStatus.CREATED.value(),
+                MessageConstants.STATUS_SUCCESS,
+                userResponse
+        );
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/create-platform-user")
+    public ResponseEntity<?> createPlatformUser(@Valid @RequestBody UserCreateRequest request) {
+        UserResponse userResponse = registrationService.registerUserWithRole(request, "PLATFORM.Management.User");
         ApiResponse<UserResponse> response = new ApiResponse<>(
                 HttpStatus.CREATED.value(),
                 MessageConstants.STATUS_SUCCESS,

@@ -23,8 +23,6 @@ export class TestimonialComponent implements OnInit {
   };
 
   ngOnInit() {
-    // Debug log to check if testimonial is properly received
-    console.log('Testimonial data:', this.testimonial);
   }
 
   // Getter methods to ensure we always return strings

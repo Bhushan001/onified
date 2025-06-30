@@ -7,6 +7,8 @@ import com.onified.ai.authentication_service.model.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Set;
+
 @Service
 @RequiredArgsConstructor
 public class RegistrationService {
@@ -21,5 +23,11 @@ public class RegistrationService {
         // Create user in Keycloak
         keycloakUserService.createUserInKeycloak(request);
         return response.getBody();
+    }
+
+    public UserResponse registerUserWithRole(UserCreateRequest request, String role) {
+        // Override roles with the provided role
+        request.setRoles(Set.of(role));
+        return registerUser(request);
     }
 } 

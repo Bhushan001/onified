@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FooterComponent } from '../shared/footer/footer.component';
 import { TestimonialComponent } from '../shared/testimonial/testimonial.component';
 import { PasswordPolicyService, PasswordValidationResult, PasswordPolicy } from '../../services/password-policy.service';
@@ -10,13 +10,13 @@ import { AuthService } from '../../services/auth.service';
 import { RegisterRequest } from '../../models/auth.models';
 
 @Component({
-  selector: 'app-signup',
+  selector: 'app-signup-platform-admin',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, FooterComponent, TestimonialComponent],
-  templateUrl: './signup.component.html',
-  styleUrls: ['./signup.component.scss']
+  imports: [CommonModule, ReactiveFormsModule, FormsModule, FooterComponent, TestimonialComponent, RouterModule],
+  templateUrl: './signup-platform-admin.component.html',
+  styleUrls: ['./signup-platform-admin.component.scss']
 })
-export class SignupComponent implements OnInit, OnDestroy {
+export class SignupPlatformAdminComponent implements OnInit, OnDestroy {
   signupForm: FormGroup;
   submitted = false;
   error: string | null = null;
@@ -25,8 +25,6 @@ export class SignupComponent implements OnInit, OnDestroy {
   modalScrolledToEnd = false;
   showPassword = false;
   showConfirmPassword = false;
-  
-  // Password validation properties
   passwordValidation: PasswordValidationResult | null = null;
   isPasswordPolicyLoaded = false;
   private policySubscription: Subscription | null = null;
@@ -40,7 +38,7 @@ export class SignupComponent implements OnInit, OnDestroy {
   };
 
   constructor(
-    private fb: FormBuilder, 
+    private fb: FormBuilder,
     private router: Router,
     private passwordPolicyService: PasswordPolicyService,
     private authService: AuthService
@@ -59,53 +57,37 @@ export class SignupComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    // Subscribe to password policy changes
     this.policySubscription = this.passwordPolicyService.policy$.subscribe(policy => {
       this.isPasswordPolicyLoaded = !!policy;
       this.passwordPolicy = policy;
       if (policy) {
-        // Update password validation when policy is loaded
         this.validatePassword();
       }
     });
-
-    // Load password policy from backend
     this.passwordPolicyService.loadPasswordPolicy().subscribe({
       next: (policy) => {
-        console.log('Password policy loaded:', policy);
+        // Password policy loaded
       },
       error: (error) => {
-        console.error('Failed to load password policy:', error);
         this.error = 'Failed to load password requirements. Please try again.';
       }
     });
-
-    // Add password change listener
     this.signupForm.get('password')?.valueChanges.subscribe(() => {
       this.validatePassword();
       this.validatePasswordMatch();
     });
-
     this.signupForm.get('username')?.valueChanges.subscribe(() => {
       this.validatePassword();
     });
-
-    // Add confirm password change listener
     this.signupForm.get('confirmPassword')?.valueChanges.subscribe(() => {
       this.validatePasswordMatch();
     });
-
-    // Restore form from localStorage if present
     const saved = localStorage.getItem('signupForm');
     if (saved) {
       try {
         this.signupForm.patchValue(JSON.parse(saved));
-      } catch (e) {
-        // ignore parse errors
-      }
+      } catch (e) {}
     }
-
-    // Save form to localStorage on change
     this.signupForm.valueChanges.subscribe(val => {
       localStorage.setItem('signupForm', JSON.stringify(val));
     });
@@ -122,7 +104,6 @@ export class SignupComponent implements OnInit, OnDestroy {
   validatePassword(): void {
     const password = this.signupForm.get('password')?.value;
     const username = this.signupForm.get('username')?.value;
-    
     if (password) {
       this.passwordValidation = this.passwordPolicyService.validatePassword(password, username);
     } else {
@@ -133,7 +114,6 @@ export class SignupComponent implements OnInit, OnDestroy {
   validatePasswordMatch(): void {
     const password = this.signupForm.get('password')?.value;
     const confirmPassword = this.signupForm.get('confirmPassword')?.value;
-    
     if (confirmPassword && password !== confirmPassword) {
       this.signupForm.get('confirmPassword')?.setErrors({ mismatch: true });
     } else if (confirmPassword && password === confirmPassword) {
@@ -152,29 +132,22 @@ export class SignupComponent implements OnInit, OnDestroy {
   passwordMatchValidator(form: FormGroup) {
     const password = form.get('password')?.value;
     const confirmPassword = form.get('confirmPassword')?.value;
-    
     if (!password || !confirmPassword) {
       return null;
     }
-    
     return password === confirmPassword ? null : { mismatch: true };
   }
 
   onSubmit() {
     this.submitted = true;
     this.error = null;
-    
-    // Validate password against policy
     if (this.passwordValidation && !this.passwordValidation.isValid) {
       this.error = 'Please fix password requirements before submitting.';
       return;
     }
-    
     if (this.signupForm.invalid) {
       return;
     }
-    
-    // Prepare registration data
     const formValue = this.signupForm.value;
     const registerData: RegisterRequest = {
       username: formValue.username,
@@ -184,9 +157,8 @@ export class SignupComponent implements OnInit, OnDestroy {
       name: `${formValue.firstName} ${formValue.lastName}`,
       firstName: formValue.firstName,
       lastName: formValue.lastName,
-      // Optionally add more fields if backend supports them
     };
-    this.authService.register(registerData).subscribe({
+    this.authService.registerPlatformAdmin(registerData).subscribe({
       next: (result) => {
         if (result.success) {
           this.router.navigate(['/login']);
@@ -247,22 +219,13 @@ export class SignupComponent implements OnInit, OnDestroy {
   }
 
   getPasswordStrengthWidth(): string {
-    return this.passwordValidation 
-      ? `${this.passwordValidation.score}%`
+    return this.passwordValidation && typeof this.passwordValidation.strength === 'number'
+      ? `${this.passwordValidation.strength * 20}%`
       : '0%';
   }
 
-  // Debug method to test password validation
   debugPasswordValidation(): void {
-    const password = this.signupForm.get('password')?.value;
-    const confirmPassword = this.signupForm.get('confirmPassword')?.value;
-    const confirmPasswordErrors = this.signupForm.get('confirmPassword')?.errors;
-    
-    console.log('Password:', password);
-    console.log('Confirm Password:', confirmPassword);
-    console.log('Passwords match:', password === confirmPassword);
-    console.log('Confirm Password Errors:', confirmPasswordErrors);
-    console.log('Form Valid:', this.signupForm.valid);
-    console.log('Form Invalid:', this.signupForm.invalid);
+    // For debugging password validation in the UI
+    console.log(this.passwordValidation);
   }
 } 

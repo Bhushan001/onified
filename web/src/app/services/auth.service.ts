@@ -624,4 +624,46 @@ export class AuthService {
     
     return throwError(() => ({ success: false, message: errorMessage }));
   }
+
+  public registerPlatformAdmin(registrationData: RegisterRequest): Observable<{ success: boolean; message?: string }> {
+    return this.http.post<any>(`${this.API_URL}/auth/auth/create-platform-admin`, registrationData)
+      .pipe(
+        map(response => {
+          if (response.statusCode === 201 && response.status === 'SUCCESS' && response.body) {
+            return { success: true };
+          } else {
+            return { success: false, message: response.message || response.error || 'Signup failed' };
+          }
+        }),
+        catchError(this.handleError.bind(this))
+      );
+  }
+
+  public registerTenantAdmin(registrationData: RegisterRequest): Observable<{ success: boolean; message?: string }> {
+    return this.http.post<any>(`${this.API_URL}/auth/auth/create-tenant-admin`, registrationData)
+      .pipe(
+        map(response => {
+          if (response.statusCode === 201 && response.status === 'SUCCESS' && response.body) {
+            return { success: true };
+          } else {
+            return { success: false, message: response.message || response.error || 'Signup failed' };
+          }
+        }),
+        catchError(this.handleError.bind(this))
+      );
+  }
+
+  public registerPlatformUser(registrationData: RegisterRequest): Observable<{ success: boolean; message?: string }> {
+    return this.http.post<any>(`${this.API_URL}/auth/auth/create-platform-user`, registrationData)
+      .pipe(
+        map(response => {
+          if (response.statusCode === 201 && response.status === 'SUCCESS' && response.body) {
+            return { success: true };
+          } else {
+            return { success: false, message: response.message || response.error || 'Signup failed' };
+          }
+        }),
+        catchError(this.handleError.bind(this))
+      );
+  }
 }
