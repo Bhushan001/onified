@@ -1,0 +1,163 @@
+{
+	"info": {
+		"_postman_id": "keycloak-user-deletion-test",
+		"name": "Keycloak User Deletion Test",
+		"description": "Test collection to verify that user deletion from User Management Service also deletes the user from Keycloak",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Create User (via Auth Service)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"username\": \"testuser.deletion\",\n  \"email\": \"testuser.deletion@example.com\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\",\n  \"password\": \"TestPass123!\"\n}"
+				},
+				"url": {
+					"raw": "{{auth_service_url}}/api/auth/register",
+					"host": [
+						"{{auth_service_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"register"
+					]
+				},
+				"description": "Create a user through the authentication service (this will create user in both database and Keycloak)"
+			},
+			"response": []
+		},
+		{
+			"name": "2. Verify User in Database",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{user_mgmt_url}}/api/users/username/testuser.deletion",
+					"host": [
+						"{{user_mgmt_url}}"
+					],
+					"path": [
+						"api",
+						"users",
+						"username",
+						"testuser.deletion"
+					]
+				},
+				"description": "Verify that the user exists in the User Management Service database"
+			},
+			"response": []
+		},
+		{
+			"name": "3. Verify User in Keycloak (via Auth Service)",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{auth_service_url}}/api/auth/keycloak/user/testuser.deletion",
+					"host": [
+						"{{auth_service_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"keycloak",
+						"user",
+						"testuser.deletion"
+					]
+				},
+				"description": "This should return 200 if user exists in Keycloak, 404 if not found"
+			},
+			"response": []
+		},
+		{
+			"name": "4. Delete User from Database",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{user_mgmt_url}}/api/users/{{user_id}}",
+					"host": [
+						"{{user_mgmt_url}}"
+					],
+					"path": [
+						"api",
+						"users",
+						"{{user_id}}"
+					]
+				},
+				"description": "Delete the user from User Management Service (this should also delete from Keycloak)"
+			},
+			"response": []
+		},
+		{
+			"name": "5. Verify User Deleted from Database",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{user_mgmt_url}}/api/users/username/testuser.deletion",
+					"host": [
+						"{{user_mgmt_url}}"
+					],
+					"path": [
+						"api",
+						"users",
+						"username",
+						"testuser.deletion"
+					]
+				},
+				"description": "Verify that the user no longer exists in the database (should return 404)"
+			},
+			"response": []
+		},
+		{
+			"name": "6. Verify User Deleted from Keycloak",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{auth_service_url}}/api/auth/keycloak/user/testuser.deletion",
+					"host": [
+						"{{auth_service_url}}"
+					],
+					"path": [
+						"api",
+						"auth",
+						"keycloak",
+						"user",
+						"testuser.deletion"
+					]
+				},
+				"description": "Verify that the user no longer exists in Keycloak (should return 404)"
+			},
+			"response": []
+		}
+	],
+	"variable": [
+		{
+			"key": "auth_service_url",
+			"value": "http://localhost:9083",
+			"type": "string"
+		},
+		{
+			"key": "user_mgmt_url",
+			"value": "http://localhost:9085",
+			"type": "string"
+		},
+		{
+			"key": "user_id",
+			"value": "",
+			"type": "string",
+			"description": "This will be set from the response of step 1"
+		}
+	]
+} 

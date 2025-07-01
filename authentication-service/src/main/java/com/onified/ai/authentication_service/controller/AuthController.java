@@ -8,6 +8,7 @@ import com.onified.ai.authentication_service.dto.UserResponse;
 import com.onified.ai.authentication_service.model.ApiResponse;
 import com.onified.ai.authentication_service.service.KeycloakAuthService;
 import com.onified.ai.authentication_service.service.RegistrationService;
+import com.onified.ai.authentication_service.service.KeycloakUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -29,55 +30,105 @@ public class AuthController {
     private final KeycloakAuthService keycloakAuthService;
     private final RegistrationService registrationService;
     private final UserManagementFeignClient userManagementFeignClient;
+    private final KeycloakUserService keycloakUserService;
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(@Valid @RequestBody LoginRequest request) {
+    public ResponseEntity<ApiResponse<Object>> login(@Valid @RequestBody LoginRequest loginRequest) {
         try {
-            LoginResponse loginResponse = keycloakAuthService.authenticateUser(request);
-            loginResponse.setStatus("SUCCESS");
-            loginResponse.setMessage("Login successful");
-            
-            ApiResponse<LoginResponse> response = new ApiResponse<>(
+            LoginResponse loginResponse = keycloakAuthService.authenticateUser(loginRequest);
+            ApiResponse<Object> response = new ApiResponse<>(
                     HttpStatus.OK.value(),
                     MessageConstants.STATUS_SUCCESS,
                     loginResponse
             );
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            LoginResponse errorResponse = LoginResponse.builder()
-                    .status("ERROR")
-                    .message(e.getMessage())
-                    .build();
-            
-            ApiResponse<LoginResponse> response = new ApiResponse<>(
+            CustomErrorResponse errorResponse = new CustomErrorResponse("AUTHENTICATION_FAILED", e.getMessage());
+            ApiResponse<Object> response = new ApiResponse<>(
                     HttpStatus.UNAUTHORIZED.value(),
                     "ERROR",
                     errorResponse
             );
             return new ResponseEntity<>(response, HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    @PostMapping("/create-platform-admin")
+    public ResponseEntity<ApiResponse<Object>> createPlatformAdmin(@Valid @RequestBody UserCreateRequest request) {
+        try {
+            UserResponse userResponse = registrationService.registerUserWithRole(request, "PLATFORM.Management.Admin");
+            ApiResponse<Object> response = new ApiResponse<>(
+                    HttpStatus.CREATED.value(),
+                    MessageConstants.STATUS_SUCCESS,
+                    userResponse
+            );
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            CustomErrorResponse errorResponse = new CustomErrorResponse("REGISTRATION_FAILED", e.getMessage());
+            ApiResponse<Object> response = new ApiResponse<>(
+                    HttpStatus.BAD_REQUEST.value(),
+                    "ERROR",
+                    errorResponse
+            );
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/create-tenant-admin")
+    public ResponseEntity<ApiResponse<Object>> createTenantAdmin(@Valid @RequestBody UserCreateRequest request) {
+        try {
+            UserResponse userResponse = registrationService.registerUserWithRole(request, "PLATFORM.Management.TenantAdmin");
+            ApiResponse<Object> response = new ApiResponse<>(
+                    HttpStatus.CREATED.value(),
+                    MessageConstants.STATUS_SUCCESS,
+                    userResponse
+            );
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            CustomErrorResponse errorResponse = new CustomErrorResponse("REGISTRATION_FAILED", e.getMessage());
+            ApiResponse<Object> response = new ApiResponse<>(
+                    HttpStatus.BAD_REQUEST.value(),
+                    "ERROR",
+                    errorResponse
+            );
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/create-platform-user")
+    public ResponseEntity<ApiResponse<Object>> createPlatformUser(@Valid @RequestBody UserCreateRequest request) {
+        try {
+            UserResponse userResponse = registrationService.registerUserWithRole(request, "PLATFORM.Management.User");
+            ApiResponse<Object> response = new ApiResponse<>(
+                    HttpStatus.CREATED.value(),
+                    MessageConstants.STATUS_SUCCESS,
+                    userResponse
+            );
+            return new ResponseEntity<>(response, HttpStatus.CREATED);
+        } catch (Exception e) {
+            CustomErrorResponse errorResponse = new CustomErrorResponse("REGISTRATION_FAILED", e.getMessage());
+            ApiResponse<Object> response = new ApiResponse<>(
+                    HttpStatus.BAD_REQUEST.value(),
+                    "ERROR",
+                    errorResponse
+            );
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<ApiResponse<LoginResponse>> refreshToken(@RequestParam String refreshToken) {
+    public ResponseEntity<ApiResponse<Object>> refreshToken(@RequestParam String refreshToken) {
         try {
             LoginResponse loginResponse = keycloakAuthService.refreshToken(refreshToken);
-            loginResponse.setStatus("SUCCESS");
-            loginResponse.setMessage("Token refreshed successfully");
-            
-            ApiResponse<LoginResponse> response = new ApiResponse<>(
+            ApiResponse<Object> response = new ApiResponse<>(
                     HttpStatus.OK.value(),
                     MessageConstants.STATUS_SUCCESS,
                     loginResponse
             );
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (Exception e) {
-            LoginResponse errorResponse = LoginResponse.builder()
-                    .status("ERROR")
-                    .message(e.getMessage())
-                    .build();
-            
-            ApiResponse<LoginResponse> response = new ApiResponse<>(
+            CustomErrorResponse errorResponse = new CustomErrorResponse("TOKEN_REFRESH_FAILED", e.getMessage());
+            ApiResponse<Object> response = new ApiResponse<>(
                     HttpStatus.UNAUTHORIZED.value(),
                     "ERROR",
                     errorResponse
@@ -86,48 +137,84 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@Valid @RequestBody UserCreateRequest request) {
-        UserResponse userResponse = registrationService.registerUser(request);
-        ApiResponse<UserResponse> response = new ApiResponse<>(
-                HttpStatus.CREATED.value(),
-                MessageConstants.STATUS_SUCCESS,
-                userResponse
-        );
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    @GetMapping("/user/{username}")
+    public ResponseEntity<ApiResponse<Object>> getUserAuthDetails(@PathVariable String username) {
+        try {
+            ApiResponse<UserAuthDetailsResponse> response = userManagementFeignClient.getUserAuthDetailsByUsername(username);
+            if (response != null && response.getStatusCode() == HttpStatus.OK.value()) {
+                return new ResponseEntity<>(new ApiResponse<>(
+                    response.getStatusCode(),
+                    response.getStatus(),
+                    response.getBody()
+                ), HttpStatus.OK);
+            } else {
+                throw new UserNotFoundException(String.format(ErrorConstants.USER_NOT_FOUND_USERNAME, username));
+            }
+        } catch (FeignException fe) {
+            String errorBody = fe.contentUTF8();
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                CustomErrorResponse customError = mapper.readValue(errorBody, CustomErrorResponse.class);
+                ApiResponse<Object> response = new ApiResponse<>(
+                        fe.status(),
+                        "ERROR",
+                        customError
+                );
+                return new ResponseEntity<>(response, HttpStatus.valueOf(fe.status()));
+            } catch (Exception ex) {
+                CustomErrorResponse errorResponse = new CustomErrorResponse(String.valueOf(fe.status()), errorBody);
+                ApiResponse<Object> response = new ApiResponse<>(
+                        fe.status(),
+                        "ERROR",
+                        errorResponse
+                );
+                return new ResponseEntity<>(response, HttpStatus.valueOf(fe.status()));
+            }
+        } catch (Exception e) {
+            CustomErrorResponse errorResponse = new CustomErrorResponse("USER_NOT_FOUND", e.getMessage());
+            ApiResponse<Object> response = new ApiResponse<>(
+                    HttpStatus.NOT_FOUND.value(),
+                    "ERROR",
+                    errorResponse
+            );
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+        }
     }
 
-    @PostMapping("/create-platform-admin")
-    public ResponseEntity<?> createPlatformAdmin(@Valid @RequestBody UserCreateRequest request) {
-        UserResponse userResponse = registrationService.registerUserWithRole(request, "PLATFORM.Management.Admin");
-        ApiResponse<UserResponse> response = new ApiResponse<>(
-                HttpStatus.CREATED.value(),
-                MessageConstants.STATUS_SUCCESS,
-                userResponse
-        );
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
-
-    @PostMapping("/create-tenant-admin")
-    public ResponseEntity<?> createTenantAdmin(@Valid @RequestBody UserCreateRequest request) {
-        UserResponse userResponse = registrationService.registerUserWithRole(request, "PLATFORM.Management.TenantAdmin");
-        ApiResponse<UserResponse> response = new ApiResponse<>(
-                HttpStatus.CREATED.value(),
-                MessageConstants.STATUS_SUCCESS,
-                userResponse
-        );
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
-
-    @PostMapping("/create-platform-user")
-    public ResponseEntity<?> createPlatformUser(@Valid @RequestBody UserCreateRequest request) {
-        UserResponse userResponse = registrationService.registerUserWithRole(request, "PLATFORM.Management.User");
-        ApiResponse<UserResponse> response = new ApiResponse<>(
-                HttpStatus.CREATED.value(),
-                MessageConstants.STATUS_SUCCESS,
-                userResponse
-        );
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    /**
+     * Delete a user from Keycloak
+     * This endpoint is called by the User Management Service when a user is deleted
+     */
+    @DeleteMapping("/keycloak/user/{username}")
+    public ResponseEntity<ApiResponse<Object>> deleteUserFromKeycloak(@PathVariable String username) {
+        try {
+            boolean deleted = keycloakUserService.deleteUserFromKeycloak(username);
+            
+            if (deleted) {
+                ApiResponse<Object> response = new ApiResponse<>(
+                        HttpStatus.OK.value(),
+                        MessageConstants.STATUS_SUCCESS,
+                        "User '" + username + "' deleted from Keycloak successfully"
+                );
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            } else {
+                CustomErrorResponse errorResponse = new CustomErrorResponse("USER_NOT_FOUND", "User '" + username + "' not found in Keycloak");
+                ApiResponse<Object> response = new ApiResponse<>(
+                        HttpStatus.NOT_FOUND.value(),
+                        "ERROR",
+                        errorResponse
+                );
+                return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+            }
+        } catch (Exception e) {
+            CustomErrorResponse errorResponse = new CustomErrorResponse("DELETION_FAILED", "Failed to delete user from Keycloak: " + e.getMessage());
+            ApiResponse<Object> response = new ApiResponse<>(
+                    HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                    "ERROR",
+                    errorResponse
+            );
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
     @PostMapping("/logout")
@@ -136,16 +223,6 @@ public class AuthController {
                 HttpStatus.OK.value(),
                 MessageConstants.STATUS_SUCCESS,
                 "Logout successful"
-        );
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @GetMapping("/health")
-    public ResponseEntity<ApiResponse<String>> health() {
-        ApiResponse<String> response = new ApiResponse<>(
-                HttpStatus.OK.value(),
-                MessageConstants.STATUS_SUCCESS,
-                "Authentication Service is running"
         );
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -160,9 +237,9 @@ public class AuthController {
             return new ResponseEntity<>(umsResponse, HttpStatus.OK);
         } catch (Exception e) {
             ApiResponse<UserAuthDetailsResponse> response = new ApiResponse<>(
-                HttpStatus.NOT_FOUND.value(),
-                "ERROR",
-                null
+                    HttpStatus.NOT_FOUND.value(),
+                    "ERROR",
+                    null
             );
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }

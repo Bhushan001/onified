@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import jakarta.ws.rs.core.Response;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -61,6 +62,82 @@ public class KeycloakUserService {
         }
 
         return keycloakUserId;
+    }
+
+    /**
+     * Delete a user from Keycloak by username
+     * @param username The username of the user to delete
+     * @return true if user was deleted, false if user was not found
+     */
+    public boolean deleteUserFromKeycloak(String username) {
+        try {
+            RealmResource realmResource = keycloak.realm(realm);
+            UsersResource usersResource = realmResource.users();
+
+            // Search for user by username
+            List<UserRepresentation> users = usersResource.search(username, true);
+            
+            if (users.isEmpty()) {
+                System.out.println("User '" + username + "' not found in Keycloak");
+                return false;
+            }
+
+            // Find the exact match
+            UserRepresentation userToDelete = users.stream()
+                .filter(user -> username.equals(user.getUsername()))
+                .findFirst()
+                .orElse(null);
+
+            if (userToDelete == null) {
+                System.out.println("User '" + username + "' not found in Keycloak");
+                return false;
+            }
+
+            // Delete the user - this method returns void, not Response
+            usersResource.delete(userToDelete.getId());
+            
+            System.out.println("Successfully deleted user '" + username + "' from Keycloak");
+            return true;
+
+        } catch (Exception e) {
+            System.err.println("Error deleting user '" + username + "' from Keycloak: " + e.getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Delete a user from Keycloak by Keycloak user ID
+     * @param keycloakUserId The Keycloak user ID
+     * @return true if user was deleted, false if user was not found
+     */
+    public boolean deleteUserFromKeycloakById(String keycloakUserId) {
+        try {
+            RealmResource realmResource = keycloak.realm(realm);
+            UsersResource usersResource = realmResource.users();
+            UserResource userResource = usersResource.get(keycloakUserId);
+
+            // Check if user exists
+            try {
+                UserRepresentation user = userResource.toRepresentation();
+                if (user == null) {
+                    System.out.println("User with ID '" + keycloakUserId + "' not found in Keycloak");
+                    return false;
+                }
+            } catch (Exception e) {
+                System.out.println("User with ID '" + keycloakUserId + "' not found in Keycloak");
+                return false;
+            }
+
+            // Delete the user - this method returns void, not Response
+            userResource.remove();
+            
+            System.out.println("Successfully deleted user with ID '" + keycloakUserId + "' from Keycloak");
+            return true;
+
+        } catch (Exception e) {
+            System.err.println("Error deleting user with ID '" + keycloakUserId + "' from Keycloak: " + e.getMessage());
+            return false;
+        }
     }
 
     private void assignRolesToUser(String userId, Set<String> roles) {

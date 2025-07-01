@@ -31,6 +31,8 @@ feign:
     config:
       permission-registry-service:
         url: ${PERMISSION_REGISTRY_URL:http://localhost:9084}
+      authentication-service:
+        url: ${AUTHENTICATION_SERVICE_URL:http://localhost:9083}
 
 logging:
   level:
@@ -40,6 +42,7 @@ logging:
     org.hibernate.orm.jdbc.bind: TRACE # Show parameter binding
     com.onified.ai.ums: DEBUG # Set your application's logging level
     com.onified.ai.ums.client.PermissionRegistryFeignClient: DEBUG # To see Feign client request/response
+    com.onified.ai.ums.client.AuthenticationFeignClient: DEBUG # To see Authentication Feign client request/response
     org.springframework.cloud.openfeign: DEBUG # For more detailed Feign logging
   file:
     name: ${LOG_DIR:-/app/logs}/user-management-service.log

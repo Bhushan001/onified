@@ -2,6 +2,7 @@ package com.onified.ai.ums.service;
 
 import com.onified.ai.ums.constants.ErrorConstants;
 import com.onified.ai.ums.client.PermissionRegistryFeignClient;
+import com.onified.ai.ums.client.AuthenticationFeignClient;
 import com.onified.ai.ums.dto.*;
 import com.onified.ai.ums.entity.User;
 import com.onified.ai.ums.entity.UserAttribute;
@@ -31,6 +32,7 @@ public class UserService {
     private final UserRepository userRepository;
     private final UserAttributeRepository userAttributeRepository;
     private final PermissionRegistryFeignClient permissionRegistryFeignClient;
+    private final AuthenticationFeignClient authenticationFeignClient;
     private final PasswordEncoder passwordEncoder; // Inject PasswordEncoder
 
 
@@ -112,10 +114,27 @@ public class UserService {
 
     @Transactional
     public void deleteUser(UUID id) {
-        if (!userRepository.existsById(id)) {
-            throw new UserNotFoundException(String.format(ErrorConstants.USER_NOT_FOUND, id));
-        }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException(String.format(ErrorConstants.USER_NOT_FOUND, id)));
+        
+        String username = user.getUsername();
+        
+        // Delete from database first
         userRepository.deleteById(id);
+        
+        // Delete from Keycloak (non-blocking)
+        try {
+            ApiResponse<String> response = authenticationFeignClient.deleteUserFromKeycloak(username);
+            if (response != null && response.getStatusCode() == HttpStatus.OK.value()) {
+                System.out.println("Successfully deleted user '" + username + "' from Keycloak");
+            } else {
+                System.err.println("Failed to delete user '" + username + "' from Keycloak. Response: " + response);
+            }
+        } catch (Exception e) {
+            System.err.println("Warning: Failed to delete user '" + username + "' from Keycloak: " + e.getMessage());
+            // Don't throw exception here - user is already deleted from database
+            // This ensures database consistency even if Keycloak deletion fails
+        }
     }
 
     @Transactional

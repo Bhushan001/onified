@@ -1,4 +1,4 @@
-version: '3.8'
+
 
 services:
   postgres:
@@ -168,12 +168,15 @@ services:
       USER_MGMT_DB_URL: ${USER_MGMT_DB_URL}
       USER_MGMT_DB_USERNAME: ${USER_MGMT_DB_USERNAME}
       USER_MGMT_DB_PASSWORD: ${USER_MGMT_DB_PASSWORD}
+      AUTHENTICATION_SERVICE_URL: http://authentication-service:9083
     volumes:
       - ./logs/user-management-service:/app/logs
     depends_on:
       eureka-server:
         condition: service_healthy
       postgres:
+        condition: service_healthy
+      authentication-service:
         condition: service_healthy
 
   permission-registry-service:
