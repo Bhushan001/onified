@@ -28,45 +28,47 @@ import { UserManagementComponent } from './components/users/user-management/user
 import { NotificationsAlertsComponent } from './components/users/notifications-alerts/notifications-alerts.component';
 import { HelpSupportComponent } from './components/users/help-support/help-support.component';
 import { FeedbackSettingsComponent } from './components/users/feedback-settings/feedback-settings.component';
+import { PortalHostComponent } from './components/portal-host/portal-host.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: '/dashboard', pathMatch: 'full' },
+  { path: '', redirectTo: '/login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
-  { 
-    path: 'dashboard', 
-    component: DashboardComponent,
-    children: [
-      { path: '', redirectTo: 'foundation/dashboard-analytics', pathMatch: 'full' },
+  { path: 'host/:remote', component: PortalHostComponent},
+  // { 
+  //   path: 'dashboard', 
+  //   component: DashboardComponent,
+  //   children: [
+  //     { path: '', redirectTo: 'foundation/dashboard-analytics', pathMatch: 'full' },
       
-      // Foundation Routes
-      { path: 'foundation/core-settings', redirectTo: 'foundation/dashboard-analytics', pathMatch: 'full' },
-      { path: 'foundation/dashboard-analytics', component: DashboardAnalyticsComponent },
-      { path: 'foundation/tenant-initialization', component: TenantInitializationComponent },
-      { path: 'foundation/branding', component: BrandingComponent },
-      { path: 'foundation/localization', component: LocalizationComponent },
-      { path: 'foundation/deployment', component: DeploymentComponent },
-      { path: 'foundation/naming-conventions', component: NamingConventionsComponent },
-      { path: 'foundation/templates', component: TemplatesComponent },
-      { path: 'foundation/setup-wizard', component: SetupWizardComponent },
-      { path: 'foundation/compliance', component: ComplianceComponent },
+  //     // Foundation Routes
+  //     { path: 'foundation/core-settings', redirectTo: 'foundation/dashboard-analytics', pathMatch: 'full' },
+  //     { path: 'foundation/dashboard-analytics', component: DashboardAnalyticsComponent },
+  //     { path: 'foundation/tenant-initialization', component: TenantInitializationComponent },
+  //     { path: 'foundation/branding', component: BrandingComponent },
+  //     { path: 'foundation/localization', component: LocalizationComponent },
+  //     { path: 'foundation/deployment', component: DeploymentComponent },
+  //     { path: 'foundation/naming-conventions', component: NamingConventionsComponent },
+  //     { path: 'foundation/templates', component: TemplatesComponent },
+  //     { path: 'foundation/setup-wizard', component: SetupWizardComponent },
+  //     { path: 'foundation/compliance', component: ComplianceComponent },
       
-      // Security Routes
-      { path: 'security/identity-access', component: IdentityAccessComponent },
-      { path: 'security/org-structure', component: OrgStructureComponent },
-      { path: 'security/roles-permissions', component: RolesPermissionsComponent },
+  //     // Security Routes
+  //     { path: 'security/identity-access', component: IdentityAccessComponent },
+  //     { path: 'security/org-structure', component: OrgStructureComponent },
+  //     { path: 'security/roles-permissions', component: RolesPermissionsComponent },
       
-      // Finance Routes
-      { path: 'finance/licensing-billing', component: LicensingBillingComponent },
+  //     // Finance Routes
+  //     { path: 'finance/licensing-billing', component: LicensingBillingComponent },
       
-      // Users Routes
-      { path: 'users/user-management', component: UserManagementComponent },
-      { path: 'users/notifications-alerts', component: NotificationsAlertsComponent },
-      { path: 'users/help-support', component: HelpSupportComponent },
-      { path: 'users/feedback-settings', component: FeedbackSettingsComponent },
-    ]
-  },
+  //     // Users Routes
+  //     { path: 'users/user-management', component: UserManagementComponent },
+  //     { path: 'users/notifications-alerts', component: NotificationsAlertsComponent },
+  //     { path: 'users/help-support', component: HelpSupportComponent },
+  //     { path: 'users/feedback-settings', component: FeedbackSettingsComponent },
+  //   ]
+  // },
   { path: 'create-platform-admin', loadComponent: () => import('./components/signup/signup-platform-admin.component').then(m => m.SignupPlatformAdminComponent) },
   { path: 'create-tenant-admin', loadComponent: () => import('./components/signup/signup-tenant-admin.component').then(m => m.SignupTenantAdminComponent) },
   { path: 'create-user', loadComponent: () => import('./components/signup/signup-platform-user.component').then(m => m.SignupPlatformUserComponent) },
-  { path: '**', redirectTo: '/dashboard' }
+  { path: '**', redirectTo: '/login' }
 ];

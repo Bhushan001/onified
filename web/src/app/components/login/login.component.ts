@@ -159,11 +159,13 @@ export class LoginComponent implements OnInit {
         next: (result) => {
           this.isLoading = false;
           if (result.success) {
+            console.log(this.userProfile);
+            
             // Save userProfile in localStorage if not already
             if (this.userProfile) {
               localStorage.setItem('userProfile', JSON.stringify(this.userProfile));
             }
-            this.router.navigate(['/dashboard']);
+            this.onLoginSuccess(this.userProfile.roles);
           } else {
             this.errorMessage = result.message || 'Login failed';
           }
@@ -176,6 +178,19 @@ export class LoginComponent implements OnInit {
     } else {
       this.markFormGroupTouched();
     }
+  }
+
+  onLoginSuccess(roles: string[]) {
+    let remote = '';
+    if (roles && roles.includes('PLATFORM.Management.Admin')) {
+      remote = 'hub';
+    } else if (roles && roles.includes('PLATFORM.Management.TenantAdmin')) {
+      remote = 'console';
+    } else if (roles && roles.includes('PLATFORM.Management.User')) {
+      remote = 'workspace';
+    }
+    console.log('Navigating to', `/host/${remote}`);
+    this.router.navigate(['/host', remote]);
   }
 
   togglePasswordVisibility(): void {
