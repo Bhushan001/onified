@@ -9,8 +9,8 @@ export class PortalLoaderService {
     return from(
       loadRemoteModule({
         remoteEntry: this.getRemoteEntry(remoteName),
-        remoteName,
-        exposedModule: './Component'
+        type: 'module',
+        exposedModule: './Component',
       }).then(m => m.App)
     );
   }
