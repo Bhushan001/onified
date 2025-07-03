@@ -71,12 +71,6 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    console.log('Login component initialized');
-    
-    if (this.authService.isAuthenticated()) {
-      this.router.navigate(['/dashboard']);
-    }
-
     // Subscribe to theme changes
     this.themeService.theme$.subscribe(theme => {
       this.currentTheme = theme;
@@ -96,7 +90,6 @@ export class LoginComponent implements OnInit {
         this.authService.getUserProfile(identifier).subscribe({
           next: (res) => {
             if (res.statusCode === 200 && res.body) {
-              console.log('User profile:', res.body);
               this.userProfile = res.body;
             } else {
               this.errorMessage = 'User not found';
@@ -159,13 +152,14 @@ export class LoginComponent implements OnInit {
         next: (result) => {
           this.isLoading = false;
           if (result.success) {
-            console.log(this.userProfile);
-            
-            // Save userProfile in localStorage if not already
-            if (this.userProfile) {
-              localStorage.setItem('userProfile', JSON.stringify(this.userProfile));
+            // Get the authenticated user from the auth service
+            const currentUser = this.authService.getCurrentUser();
+            if (currentUser && currentUser.roles) {
+              this.onLoginSuccess(currentUser.roles);
+            } else {
+              // Fallback to userProfile if available
+              this.onLoginSuccess(this.userProfile?.roles || []);
             }
-            this.onLoginSuccess(this.userProfile.roles);
           } else {
             this.errorMessage = result.message || 'Login failed';
           }
@@ -189,7 +183,6 @@ export class LoginComponent implements OnInit {
     } else if (roles && roles.includes('PLATFORM.Management.User')) {
       remote = 'workspace';
     }
-    console.log('Navigating to', `/host/${remote}`);
     this.router.navigate(['/host', remote]);
   }
 

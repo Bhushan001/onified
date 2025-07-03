@@ -364,14 +364,21 @@ export class AuthService {
       .pipe(
         tap(() => {
           this.clearAuthData();
+          this.redirectAfterLogout();
         }),
         map(() => void 0),
         catchError(() => {
           // Even if logout API fails, clear local data
           this.clearAuthData();
+          this.redirectAfterLogout();
           return throwError(() => new Error('Logout failed'));
         })
       );
+  }
+
+  private redirectAfterLogout(): void {
+    // Shell app always redirects to login page
+    window.location.href = window.location.origin + '/login';
   }
 
   /**
@@ -469,6 +476,7 @@ export class AuthService {
    */
   private handleAuthSuccess(token: string, user: User, refreshToken?: string): void {
     localStorage.setItem(this.TOKEN_KEY, token);
+    localStorage.setItem(this.USER_KEY, JSON.stringify(user));
     if (refreshToken) {
       localStorage.setItem(this.REFRESH_TOKEN_KEY, refreshToken);
     }
