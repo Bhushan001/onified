@@ -6,8 +6,7 @@ module.exports = withModuleFederationPlugin({
 
   exposes: {
     './Component': './projects/hub/src/app/hub.component.ts',
-    './Dashboard': './projects/hub/src/app/dashboard-wrapper.component.ts',
-    './Styles': './projects/hub/src/styles.scss',
+    './Dashboard': './projects/hub/src/app/dashboard-wrapper.component.ts'
   },
 
   shared: {

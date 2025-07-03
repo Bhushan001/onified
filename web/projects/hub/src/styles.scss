@@ -1,9 +1,22 @@
 /* You can add global styles to this file, and also import other style files */
 @use 'sass:map';
 @use './styles/themes/variables' as vars;
-@use './styles/fonts' as fonts;
-@import 'font-awesome/css/font-awesome.min.css';
 
+// Font size and weight variables
+$font-size-xs: 0.675rem;
+$font-size-sm: 0.7875rem;
+$font-size-base: 0.9rem;
+$font-size-lg: 1.0125rem;
+$font-size-xl: 1.125rem;
+$font-size-2xl: 1.35rem;
+$font-size-3xl: 1.6875rem;
+$font-size-4xl: 2.025rem;
+$font-size-5xl: 2.7rem;
+$font-weight-bold: 700;
+$font-weight-semibold: 600;
+$font-weight-medium: 500;
+$font-weight-normal: 400;
+$font-weight-light: 300;
 
 .page-container {
   padding: 24px;
@@ -18,15 +31,15 @@
 }
 
 .page-title {
-  font-size: fonts.$font-size-3xl;
-  font-weight: fonts.$font-weight-bold;
+  font-size: $font-size-3xl;
+  font-weight: $font-weight-bold;
   color: map.get(vars.$colors, gray-900);
   margin: 0 0 8px 0;
   line-height: 1.2;
 }
 
 .page-description {
-  font-size: fonts.$font-size-base;
+  font-size: $font-size-base;
   color: map.get(vars.$colors, gray-600);
   margin: 0;
   line-height: 1.5;
@@ -56,14 +69,14 @@
 }
 
 .card-title {
-  font-size: fonts.$font-size-xl;
-  font-weight: fonts.$font-weight-semibold;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
   color: map.get(vars.$colors, gray-900);
   margin: 0 0 8px 0;
 }
 
 .card-description {
-  font-size: fonts.$font-size-sm;
+  font-size: $font-size-sm;
   color: map.get(vars.$colors, gray-600);
   margin: 0 0 20px 0;
 }
@@ -78,8 +91,8 @@
 
 .form-label {
   display: block;
-  font-size: fonts.$font-size-sm;
-  font-weight: fonts.$font-weight-medium;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
   color: map.get(vars.$colors, gray-700);
   margin-bottom: 6px;
 }
@@ -90,7 +103,7 @@
   padding: 10px 12px;
   border: 1px solid map.get(vars.$colors, border);
   border-radius: 8px;
-  font-size: fonts.$font-size-sm;
+  font-size: $font-size-sm;
   background: white;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
@@ -109,7 +122,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: fonts.$font-size-sm;
+  font-size: $font-size-sm;
   color: map.get(vars.$colors, gray-700);
   cursor: pointer;
 }
@@ -141,8 +154,8 @@
   border: 1px solid map.get(vars.$colors, border);
   background: white;
   color: map.get(vars.$colors, gray-700);
-  font-size: fonts.$font-size-sm;
-  font-weight: fonts.$font-weight-medium;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s ease;
@@ -189,7 +202,7 @@
 
   &.btn-sm {
     padding: 6px 12px;
-    font-size: fonts.$font-size-xs;
+    font-size: $font-size-xs;
   }
 }
 
@@ -200,7 +213,7 @@
 }
 
 .file-info {
-  font-size: fonts.$font-size-xs;
+  font-size: $font-size-xs;
   color: map.get(vars.$colors, gray-500);
 }
 
@@ -249,7 +262,7 @@
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: fonts.$font-size-sm;
+  font-size: $font-size-sm;
 
   th,
   td {
@@ -260,7 +273,7 @@
 
   th {
     background: map.get(vars.$colors, gray-50);
-    font-weight: fonts.$font-weight-semibold;
+    font-weight: $font-weight-semibold;
     color: map.get(vars.$colors, gray-700);
   }
 
@@ -282,8 +295,8 @@
   color: #166534;
   padding: 4px 8px;
   border-radius: 4px;
-  font-size: fonts.$font-size-xs;
-  font-weight: fonts.$font-weight-medium;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
 }
 
 .status-pending,
@@ -292,8 +305,8 @@
   color: #92400e;
   padding: 4px 8px;
   border-radius: 4px;
-  font-size: fonts.$font-size-xs;
-  font-weight: fonts.$font-weight-medium;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
 }
 
 .status-resolved {
@@ -301,8 +314,8 @@
   color: #1e40af;
   padding: 4px 8px;
   border-radius: 4px;
-  font-size: fonts.$font-size-xs;
-  font-weight: fonts.$font-weight-medium;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
 }
 
 // Wizard steps
@@ -330,13 +343,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: fonts.$font-size-xs;
-  font-weight: fonts.$font-weight-bold;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-bold;
 }
 
 .step-title {
   flex: 1;
-  font-weight: fonts.$font-weight-medium;
+  font-weight: $font-weight-medium;
 }
 
 // License info
@@ -360,7 +373,7 @@
 }
 
 .info-label {
-  font-weight: fonts.$font-weight-medium;
+  font-weight: $font-weight-medium;
   color: map.get(vars.$colors, gray-700);
 }
 
@@ -384,14 +397,14 @@
 
 .stat-number {
   display: block;
-  font-size: fonts.$font-size-2xl;
-  font-weight: fonts.$font-weight-bold;
+  font-size: $font-size-2xl;
+  font-weight: $font-weight-bold;
   color: map.get(vars.$colors, primary-600);
   margin-bottom: 4px;
 }
 
 .stat-label {
-  font-size: fonts.$font-size-sm;
+  font-size: $font-size-sm;
   color: map.get(vars.$colors, gray-600);
 }
 
@@ -412,7 +425,7 @@
 }
 
 .permission-name {
-  font-weight: fonts.$font-weight-medium;
+  font-weight: $font-weight-medium;
   color: map.get(vars.$colors, gray-700);
 }
 
@@ -450,7 +463,7 @@
 }
 
 .help-text {
-  font-weight: fonts.$font-weight-medium;
+  font-weight: $font-weight-medium;
 }
 
 // Support options
@@ -468,8 +481,8 @@
 
   h3 {
     margin: 0 0 8px 0;
-    font-size: fonts.$font-size-lg;
-    font-weight: fonts.$font-weight-semibold;
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
     color: map.get(vars.$colors, gray-900);
   }
 
@@ -480,9 +493,9 @@
 }
 
 .phone-number {
-  font-weight: fonts.$font-weight-semibold;
+  font-weight: $font-weight-semibold;
   color: map.get(vars.$colors, primary-600);
-  font-size: fonts.$font-size-lg;
+  font-size: $font-size-lg;
 }
 
 // Status items
@@ -521,12 +534,12 @@
 
 .status-text {
   flex: 1;
-  font-weight: fonts.$font-weight-medium;
+  font-weight: $font-weight-medium;
   color: map.get(vars.$colors, gray-700);
 }
 
 .status-label {
-  font-size: fonts.$font-size-sm;
+  font-size: $font-size-sm;
   color: map.get(vars.$colors, gray-500);
 }
 
@@ -543,8 +556,8 @@
   color: map.get(vars.$colors, primary-700);
   padding: 4px 8px;
   border-radius: 4px;
-  font-size: fonts.$font-size-xs;
-  font-weight: fonts.$font-weight-medium;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
 }
 
 // Responsive design
