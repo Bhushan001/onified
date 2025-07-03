@@ -22,8 +22,9 @@ import { RootRedirectComponent } from './components/root-redirect/root-redirect.
 import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  { path: '', component: RootRedirectComponent },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'auth-config', component: AuthConfigComponent },
+  { path: 'login', component: AuthConfigComponent },
   {
     path: 'dashboard',
     component: DashboardComponent,
@@ -58,4 +59,5 @@ export const routes: Routes = [
       { path: 'users/feedback-settings', component: FeedbackSettingsComponent },
     ]
   },
+  { path: '**', redirectTo: 'login' }
 ];

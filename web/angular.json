@@ -147,12 +147,28 @@
 						"assets": [
 							{
 								"glob": "**/*",
+								"input": "src/assets/",
+								"output": "/assets/"
+							},
+							{
+								"glob": "**/*",
+								"input": "node_modules/font-awesome/fonts",
+								"output": "assets/fonts"
+							},
+							{
+								"glob": "**/*",
+								"input": "projects/hub/src/assets/fonts/Roboto",
+								"output": "assets/fonts/Roboto"
+							},
+							{
+								"glob": "**/*",
 								"input": "projects/hub/public",
 								"output": "."
 							}
 						],
 						"styles": [
-							"projects/hub/src/styles.scss"
+							"projects/hub/src/styles.scss",
+							"node_modules/font-awesome/css/font-awesome.min.css"
 						],
 						"main": "projects/hub/src/main.ts",
 						"index": "projects/hub/src/index.html",
