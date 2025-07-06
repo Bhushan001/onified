@@ -266,12 +266,28 @@
 						"assets": [
 							{
 								"glob": "**/*",
+								"input": "src/assets/",
+								"output": "/assets/"
+							},
+							{
+								"glob": "**/*",
+								"input": "node_modules/font-awesome/fonts",
+								"output": "assets/fonts"
+							},
+							{
+								"glob": "**/*",
+								"input": "projects/console/src/assets/fonts/Roboto",
+								"output": "assets/fonts/Roboto"
+							},
+							{
+								"glob": "**/*",
 								"input": "projects/console/public",
 								"output": "."
 							}
 						],
 						"styles": [
-							"projects/console/src/styles.scss"
+							"projects/console/src/styles.scss",
+							"node_modules/font-awesome/css/font-awesome.min.css"
 						],
 						"main": "projects/console/src/main.ts",
 						"index": "projects/console/src/index.html",
@@ -369,12 +385,28 @@
 						"assets": [
 							{
 								"glob": "**/*",
+								"input": "src/assets/",
+								"output": "/assets/"
+							},
+							{
+								"glob": "**/*",
+								"input": "node_modules/font-awesome/fonts",
+								"output": "assets/fonts"
+							},
+							{
+								"glob": "**/*",
+								"input": "projects/workspace/src/assets/fonts/Roboto",
+								"output": "assets/fonts/Roboto"
+							},
+							{
+								"glob": "**/*",
 								"input": "projects/workspace/public",
 								"output": "."
 							}
 						],
 						"styles": [
-							"projects/workspace/src/styles.scss"
+							"projects/workspace/src/styles.scss",
+							"node_modules/font-awesome/css/font-awesome.min.css"
 						],
 						"main": "projects/workspace/src/main.ts",
 						"index": "projects/workspace/src/index.html",
@@ -419,8 +451,8 @@
 					},
 					"defaultConfiguration": "development",
 					"options": {
-						"port": 4500,
-						"publicHost": "http://localhost:4500",
+						"port": 4400,
+						"publicHost": "http://localhost:4400",
 						"extraWebpackConfig": "projects/workspace/webpack.config.js"
 					}
 				},
@@ -448,6 +480,7 @@
 					}
 				}
 			}
+				
 		}
 	},
 	"cli": {

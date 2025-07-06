@@ -1,0 +1,11 @@
+body {
+  background: #f8f9fa;
+  margin: 0;
+  font-family: 'Roboto', Arial, sans-serif;
+}
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #f8f9fa;
+}

@@ -12,11 +12,11 @@ export class PortalLoaderService {
       loadRemoteModule({
         remoteEntry: this.getRemoteEntry(remoteName),
         type: 'module',
-        exposedModule: remoteName === 'hub' ? './Dashboard' : './Component',
+        exposedModule: './Dashboard',
       }).then(async (m) => {
         // Load styles for the remote module
         await this.loadRemoteStyles(remoteName);
-        return remoteName === 'hub' ? m.DashboardWrapperComponent : m.HubComponent;
+        return m.DashboardWrapperComponent;
       })
     );
   }

@@ -5,7 +5,8 @@ module.exports = withModuleFederationPlugin({
   name: 'console',
 
   exposes: {
-    './Component': './projects/console/src/app/app.ts',
+    './Component': './projects/console/src/app/console.component.ts',
+    './Dashboard': './projects/console/src/app/dashboard-wrapper.component.ts'
   },
 
   shared: {

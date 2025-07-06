@@ -113,8 +113,8 @@ interface DropdownOption {
                      [alt]="currentUser.name">
               </div>
               <div class="user-info">
-                <div class="user-name">{{ currentUser.name }}</div>
-                <div class="user-role">{{ getUserRole() }}</div>
+                <div class="user-name">{{ getUserDisplayName() }}</div>
+                <div class="user-role">{{ getUserPrimaryRole() }} • {{ getUserDepartment() }}</div>
               </div>
               <i class="dropdown-arrow" [class.rotated]="activeDropdown === 'user'">▼</i>
             </button>
@@ -129,8 +129,9 @@ interface DropdownOption {
                        [alt]="currentUser?.name">
                 </div>
                 <div class="user-details">
-                  <div class="user-name-large">{{ currentUser?.name }}</div>
+                  <div class="user-name-large">{{ getUserDisplayName() }}</div>
                   <div class="user-email">{{ currentUser?.email }}</div>
+                  <div class="user-role-large">{{ getUserPrimaryRole() }} • {{ getUserDepartment() }}</div>
                 </div>
               </div>
               <div class="menu-divider"></div>
@@ -190,6 +191,40 @@ export class ModernHeaderComponent {
     { id: 'crm', label: 'CRM System', value: 'crm', selected: false },
     { id: 'inventory', label: 'Inventory Mgmt', value: 'inventory', selected: false }
   ];
+
+  // Get user's primary role for display
+  getUserPrimaryRole(): string {
+    if (!this.currentUser?.roles || this.currentUser.roles.length === 0) {
+      return 'User';
+    }
+    
+    const role = this.currentUser.roles.find(r => 
+      ['admin', 'administrator', 'manager', 'supervisor'].includes(r.toLowerCase())
+    );
+    
+    return role ? this.capitalizeFirst(role) : 'User';
+  }
+
+  // Get user's display name
+  getUserDisplayName(): string {
+    if (!this.currentUser) return 'Guest User';
+    
+    if (this.currentUser.firstName && this.currentUser.lastName) {
+      return `${this.currentUser.firstName} ${this.currentUser.lastName}`;
+    }
+    
+    return this.currentUser.name || this.currentUser.username || 'Unknown User';
+  }
+
+  // Get user's department or default
+  getUserDepartment(): string {
+    return this.currentUser?.department || 'General';
+  }
+
+  // Capitalize first letter
+  private capitalizeFirst(str: string): string {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  }
 
   toggleDropdown(dropdownId: string): void {
     if (this.activeDropdown === dropdownId) {

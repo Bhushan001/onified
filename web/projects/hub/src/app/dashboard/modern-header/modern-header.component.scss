@@ -304,6 +304,9 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
 }
 
 .user-name {
@@ -311,12 +314,20 @@
   font-weight: fonts.$font-weight-medium;
   color: map.get(vars.$colors, gray-900);
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
 }
 
 .user-role {
   font-size: fonts.$font-size-xs;
   color: map.get(vars.$colors, gray-500);
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 120px;
 }
 
 // User Menu Specific Styles
@@ -366,6 +377,13 @@
 .user-email {
   font-size: fonts.$font-size-sm;
   color: map.get(vars.$colors, gray-500);
+}
+
+.user-role-large {
+  font-size: fonts.$font-size-xs;
+  color: map.get(vars.$colors, gray-500);
+  line-height: 1.2;
+  margin-top: 2px;
 }
 
 .menu-divider {

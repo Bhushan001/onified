@@ -18,7 +18,6 @@ import { NotificationsAlertsComponent } from './users/notifications-alerts/notif
 import { HelpSupportComponent } from './users/help-support/help-support.component';
 import { FeedbackSettingsComponent } from './users/feedback-settings/feedback-settings.component';
 import { AuthConfigComponent } from './components/auth-config/auth-config.component';
-import { RootRedirectComponent } from './components/root-redirect/root-redirect.component';
 import { AuthGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
@@ -31,7 +30,6 @@ export const routes: Routes = [
     canActivate: [AuthGuard],
     children: [
       { path: '', redirectTo: 'foundation/dashboard-analytics', pathMatch: 'full' },
-
       // Foundation Routes
       { path: 'foundation/core-settings', redirectTo: 'foundation/dashboard-analytics', pathMatch: 'full' },
       { path: 'foundation/dashboard-analytics', component: DashboardAnalyticsComponent },
@@ -43,15 +41,12 @@ export const routes: Routes = [
       { path: 'foundation/templates', component: TemplatesComponent },
       { path: 'foundation/setup-wizard', component: SetupWizardComponent },
       { path: 'foundation/compliance', component: ComplianceComponent },
-
       // Security Routes
       { path: 'security/identity-access', component: IdentityAccessComponent },
       { path: 'security/org-structure', component: OrgStructureComponent },
       { path: 'security/roles-permissions', component: RolesPermissionsComponent },
-
       // Finance Routes
       { path: 'finance/licensing-billing', component: LicensingBillingComponent },
-
       // Users Routes
       { path: 'users/user-management', component: UserManagementComponent },
       { path: 'users/notifications-alerts', component: NotificationsAlertsComponent },

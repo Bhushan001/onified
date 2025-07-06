@@ -1,16 +1,18 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, ViewChild, ViewContainerRef, Injector } from '@angular/core';
-import { RouterOutlet, Router } from '@angular/router';
+import { Router } from '@angular/router';
+
+import { AuthService } from './services/auth.service';
 import { ModernHeaderComponent } from './dashboard/modern-header/modern-header.component';
 import { SidebarComponent } from './dashboard/sidebar/sidebar.component';
-import { HubRoutingService } from './services/hub-routing.service';
-import { AuthService } from './services/auth.service';
+// If you have a ConsoleRoutingService, import it; otherwise, use the hubRoutingService logic as a placeholder
+// import { ConsoleRoutingService } from './services/console-routing.service';
+
 @Component({
   selector: 'app-dashboard-wrapper',
   standalone: true,
   imports: [
-    CommonModule, 
-    RouterOutlet,
+    CommonModule,
     ModernHeaderComponent,
     SidebarComponent
   ],
@@ -139,13 +141,16 @@ export class DashboardWrapperComponent implements OnInit {
   currentRoute: string = 'dashboard/foundation/dashboard-analytics';
 
   constructor(
-    private hubRoutingService: HubRoutingService,
+    // Replace with ConsoleRoutingService if you have one
+    // private consoleRoutingService: ConsoleRoutingService,
     private injector: Injector,
     private router: Router,
     private authService: AuthService
   ) {}
 
   ngOnInit(): void {
+    console.log(this.authService.isAuthenticated());
+    
     // Check if mobile and collapse sidebar by default
     if (window.innerWidth <= 1024) {
       this.sidebarCollapsed = true;
@@ -158,7 +163,6 @@ export class DashboardWrapperComponent implements OnInit {
     });
 
     // Initialize with default component
-    this.hubRoutingService.navigateToRoute(this.currentRoute);
     this.loadComponent();
   }
 
@@ -180,7 +184,6 @@ export class DashboardWrapperComponent implements OnInit {
 
   onRouteChange(route: string): void {
     this.currentRoute = route;
-    this.hubRoutingService.navigateToRoute(route);
     this.loadComponent();
     
     // Update browser URL without triggering navigation
@@ -195,17 +198,13 @@ export class DashboardWrapperComponent implements OnInit {
   private loadComponent(): void {
     if (this.contentContainer) {
       this.contentContainer.clear();
-      const component = this.hubRoutingService.getCurrentComponent();
-      this.contentContainer.createComponent(component, { injector: this.injector });
+      // Placeholder: load a default component or content
+      // In a real app, you would dynamically load the component for the current route
     }
   }
 
   private isMicroFrontendMode(): boolean {
-    try {
-      return window.location.pathname.includes('/host/hub') || 
-             window.location.href.includes('localhost:4200');
-    } catch {
-      return false;
-    }
+    // Placeholder for micro-frontend detection logic
+    return window.location.pathname.includes('/host/');
   }
 } 
