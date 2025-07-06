@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { AuthService } from '../services/auth.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -14,8 +15,8 @@ export class AuthGuard implements CanActivate {
   canActivate(): boolean {
     const isIndependent = !this.isMicroFrontendMode();
     if (isIndependent) {
-      const token = localStorage.getItem('onified-token');
-      const user = localStorage.getItem('onified-user');
+      const token = localStorage.getItem(environment.auth.tokenKey);
+      const user = localStorage.getItem(environment.auth.userKey);
       if (token && user) {
         try {
           const parsedUser = JSON.parse(user);

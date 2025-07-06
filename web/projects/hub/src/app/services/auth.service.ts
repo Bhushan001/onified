@@ -28,23 +28,17 @@ export class AuthService {
   }
 
   private checkAuthStatus(): void {
-    if (this.isMicroFrontendMode()) {
-      const mockUser = this.getMockUserForMicroFrontend();
-      if (mockUser) {
-        this.currentUserSubject.next(mockUser);
-        this.isAuthenticatedSubject.next(true);
-        return;
-      }
-    }
-    const token = localStorage.getItem('onified-token');
-    const user = localStorage.getItem('onified-user');
-    if (token && user) {
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    const userProfile = localStorage.getItem('userProfile');
+    
+    if (token && userProfile) {
       try {
-        const parsedUser = JSON.parse(user);
+        const parsedUserProfile = JSON.parse(userProfile);
         if (this.isTokenExpired(token)) {
           this.refreshToken().subscribe({
             next: () => {
-              this.currentUserSubject.next(parsedUser);
+              const user = this.createUserFromUserProfile(parsedUserProfile);
+              this.currentUserSubject.next(user);
               this.isAuthenticatedSubject.next(true);
             },
             error: () => {
@@ -52,7 +46,8 @@ export class AuthService {
             }
           });
         } else {
-          this.currentUserSubject.next(parsedUser);
+          const user = this.createUserFromUserProfile(parsedUserProfile);
+          this.currentUserSubject.next(user);
           this.isAuthenticatedSubject.next(true);
           this.setTokenExpirationTimer(token);
         }
@@ -107,6 +102,24 @@ export class AuthService {
       avatar: responseBody.avatar,
       department: responseBody.department,
       status: responseBody.status || 'active'
+    };
+    return user;
+  }
+
+  private createUserFromUserProfile(userProfile: any): User {
+    const user: User = {
+      id: userProfile.id || '',
+      username: userProfile.username || '',
+      name: userProfile.username || '',
+      roles: userProfile.roles || [],
+      lastLogin: new Date().toISOString(),
+      firstName: userProfile.firstName || '',
+      lastName: userProfile.lastName || '',
+      phone: userProfile.phone || '',
+      tenant: userProfile.tenant || '',
+      avatar: userProfile.avatar || '',
+      department: userProfile.department || '',
+      status: userProfile.status || 'active'
     };
     return user;
   }
@@ -288,25 +301,7 @@ export class AuthService {
     }
   }
 
-  private getMockUserForMicroFrontend(): User | null {
-    // Provide mock user data for micro-frontend development
-    const mockUser: User = {
-      id: 'mock-user-001',
-      username: 'admin',
-      name: 'John Doe',
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john.doe@onified.ai',
-      roles: ['admin', 'user'],
-      lastLogin: new Date().toISOString(),
-      phone: '+1 (555) 123-4567',
-      tenant: 'onified',
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-      department: 'Engineering',
-      status: 'active'
-    };
-    return mockUser;
-  }
+
 
   private handleError(error: HttpErrorResponse): Observable<{ success: boolean; message: string }> {
     let errorMessage = 'An unknown error occurred';

@@ -1,0 +1,138 @@
+<header class="modern-header">
+    <div class="header-container">
+      <!-- Left side - Sidebar Toggle and Logo -->
+      <div class="header-left">
+        <!-- Sidebar Toggle Button (All devices) -->
+        <button class="sidebar-toggle-btn" (click)="onSidebarToggle()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="3" x2="21" y1="6" y2="6"></line>
+            <line x1="3" x2="21" y1="12" y2="12"></line>
+            <line x1="3" x2="21" y1="18" y2="18"></line>
+          </svg>
+        </button>
+
+        <div class="logo">
+          <div class="logo-icon">O</div>
+          <span class="logo-text">Onified</span>
+        </div>
+      </div>
+
+      <!-- Right side - Search, Dropdowns, Notifications, User -->
+      <div class="header-right">
+        <!-- Search -->
+        <div class="search-container">
+          <input type="text" placeholder="Search..." class="search-input">
+          <i class="search-icon">🔍</i>
+        </div>
+        
+        <!-- View As Dropdown -->
+        <div class="dropdown-container">
+          <button class="dropdown-trigger" (click)="toggleDropdown('viewAs')">
+            <span class="dropdown-label">View as:</span>
+            <span class="dropdown-value">{{ getSelectedOption('viewAs') }}</span>
+            <i class="dropdown-arrow" [class.rotated]="activeDropdown === 'viewAs'">▼</i>
+          </button>
+          <div class="dropdown-menu" *ngIf="activeDropdown === 'viewAs'">
+            <button 
+              *ngFor="let option of viewAsOptions" 
+              class="dropdown-item"
+              [class.selected]="option.selected"
+              (click)="selectOption('viewAs', option)">
+              {{ option.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Tenant Dropdown -->
+        <div class="dropdown-container">
+          <button class="dropdown-trigger" (click)="toggleDropdown('tenant')">
+            <span class="dropdown-label">Tenant:</span>
+            <span class="dropdown-value">{{ getSelectedOption('tenant') }}</span>
+            <i class="dropdown-arrow" [class.rotated]="activeDropdown === 'tenant'">▼</i>
+          </button>
+          <div class="dropdown-menu" *ngIf="activeDropdown === 'tenant'">
+            <button 
+              *ngFor="let option of tenantOptions" 
+              class="dropdown-item"
+              [class.selected]="option.selected"
+              (click)="selectOption('tenant', option)">
+              {{ option.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Application Dropdown -->
+        <div class="dropdown-container">
+          <button class="dropdown-trigger" (click)="toggleDropdown('application')">
+            <span class="dropdown-label">App:</span>
+            <span class="dropdown-value">{{ getSelectedOption('application') }}</span>
+            <i class="dropdown-arrow" [class.rotated]="activeDropdown === 'application'">▼</i>
+          </button>
+          <div class="dropdown-menu" *ngIf="activeDropdown === 'application'">
+            <button 
+              *ngFor="let option of applicationOptions" 
+              class="dropdown-item"
+              [class.selected]="option.selected"
+              (click)="selectOption('application', option)">
+              {{ option.label }}
+            </button>
+          </div>
+        </div>
+        
+        <!-- Notification Bell -->
+        <button class="notification-btn" (click)="toggleNotifications()">
+          <i class="notification-icon">🔔</i>
+          <span class="notification-badge" *ngIf="notificationCount > 0">{{ notificationCount }}</span>
+        </button>
+        
+        <!-- User Dropdown -->
+        <div class="dropdown-container user-dropdown">
+          <button class="dropdown-trigger user-trigger" (click)="toggleDropdown('user')" *ngIf="currentUser">
+            <div class="user-avatar">
+              <div class="avatar-placeholder" *ngIf="!currentUser.avatar">
+                {{ getInitials(currentUser.name) }}
+              </div>
+              <img *ngIf="currentUser.avatar && currentUser.name" 
+                   [src]="currentUser.avatar" 
+                   [alt]="currentUser.name">
+            </div>
+            <div class="user-info">
+              <div class="user-name">{{ getUserDisplayName() }}</div>
+              <div class="user-role">{{ getUserPrimaryRole() }} • {{ getUserDepartment() }}</div>
+            </div>
+            <i class="dropdown-arrow" [class.rotated]="activeDropdown === 'user'">▼</i>
+          </button>
+          <div class="dropdown-menu user-menu" *ngIf="activeDropdown === 'user'">
+            <div class="user-menu-header">
+              <div class="user-avatar-large">
+                <div class="avatar-placeholder" *ngIf="!currentUser?.avatar">
+                  {{ getInitials(currentUser?.name || '') }}
+                </div>
+                <img *ngIf="currentUser?.avatar && currentUser?.name" 
+                     [src]="currentUser?.avatar" 
+                     [alt]="currentUser?.name">
+              </div>
+              <div class="user-details">
+                <div class="user-name-large">{{ getUserDisplayName() }}</div>
+                <div class="user-username">{{ '@' + (currentUser?.username || '') }}</div>
+                <div class="user-role-large">{{ getUserPrimaryRole() }} • {{ getUserDepartment() }}</div>
+              </div>
+            </div>
+            <div class="menu-divider"></div>
+            <button class="dropdown-item" (click)="onMenuAction('profile')">
+              <i class="menu-icon">👤</i>
+              Profile Settings
+            </button>
+            <div class="menu-divider"></div>
+            <button class="dropdown-item logout-item" (click)="onMenuAction('logout')">
+              <i class="menu-icon">🚪</i>
+              Sign Out
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dropdown Backdrop -->
+    <div class="dropdown-backdrop" *ngIf="activeDropdown" (click)="closeDropdowns()"></div>
+  </header>

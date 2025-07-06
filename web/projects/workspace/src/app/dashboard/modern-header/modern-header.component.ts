@@ -130,7 +130,7 @@ interface DropdownOption {
                 </div>
                 <div class="user-details">
                   <div class="user-name-large">{{ getUserDisplayName() }}</div>
-                  <div class="user-email">{{ currentUser?.email }}</div>
+                  <div class="user-username">{{ '@' + (currentUser?.username || '') }}</div>
                   <div class="user-role-large">{{ getUserPrimaryRole() }} • {{ getUserDepartment() }}</div>
                 </div>
               </div>
@@ -138,14 +138,6 @@ interface DropdownOption {
               <button class="dropdown-item" (click)="onMenuAction('profile')">
                 <i class="menu-icon">👤</i>
                 Profile Settings
-              </button>
-              <button class="dropdown-item" (click)="onMenuAction('preferences')">
-                <i class="menu-icon">⚙️</i>
-                Preferences
-              </button>
-              <button class="dropdown-item" (click)="onMenuAction('help')">
-                <i class="menu-icon">❓</i>
-                Help & Support
               </button>
               <div class="menu-divider"></div>
               <button class="dropdown-item logout-item" (click)="onMenuAction('logout')">
@@ -164,19 +156,25 @@ interface DropdownOption {
   styleUrls: ['./modern-header.component.scss']
 })
 export class ModernHeaderComponent {
-  @Input() currentUser: User | null = null;
+  private _currentUser: User | null = null;
+  
+  @Input() 
+  set currentUser(user: User | null) {
+    this._currentUser = user;
+    this.populateViewAsOptions();
+  }
+  
+  get currentUser(): User | null {
+    return this._currentUser;
+  }
+  
   @Output() logout = new EventEmitter<void>();
   @Output() toggleSidebar = new EventEmitter<void>();
 
   activeDropdown: string | null = null;
   notificationCount: number = 3;
 
-  viewAsOptions: DropdownOption[] = [
-    { id: 'admin', label: 'Administrator', value: 'admin', selected: true },
-    { id: 'user', label: 'End User', value: 'user', selected: false },
-    { id: 'manager', label: 'Manager', value: 'manager', selected: false },
-    { id: 'viewer', label: 'Viewer', value: 'viewer', selected: false }
-  ];
+  viewAsOptions: DropdownOption[] = [];
 
   tenantOptions: DropdownOption[] = [
     { id: 'onified', label: 'Onified Corp', value: 'onified', selected: true },
@@ -226,6 +224,23 @@ export class ModernHeaderComponent {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
   }
 
+  // Populate viewAsOptions from user roles
+  private populateViewAsOptions(): void {
+    if (!this.currentUser?.roles || this.currentUser.roles.length === 0) {
+      this.viewAsOptions = [
+        { id: 'user', label: 'User', value: 'user', selected: true }
+      ];
+      return;
+    }
+
+    this.viewAsOptions = this.currentUser.roles.map((role, index) => ({
+      id: role.toLowerCase(),
+      label: this.capitalizeFirst(role),
+      value: role.toLowerCase(),
+      selected: index === 0 // First role is selected by default
+    }));
+  }
+
   toggleDropdown(dropdownId: string): void {
     if (this.activeDropdown === dropdownId) {
       this.activeDropdown = null;
@@ -239,8 +254,7 @@ export class ModernHeaderComponent {
   }
 
   toggleNotifications(): void {
-    // Placeholder for notification logic
-    this.notificationCount = 0;
+    // Handle notification click
   }
 
   onSidebarToggle(): void {
@@ -248,66 +262,64 @@ export class ModernHeaderComponent {
   }
 
   selectOption(dropdownType: string, option: DropdownOption): void {
-    let options;
     switch (dropdownType) {
       case 'viewAs':
-        options = this.viewAsOptions;
+        this.viewAsOptions.forEach(opt => opt.selected = false);
+        option.selected = true;
         break;
       case 'tenant':
-        options = this.tenantOptions;
+        this.tenantOptions.forEach(opt => opt.selected = false);
+        option.selected = true;
         break;
       case 'application':
-        options = this.applicationOptions;
+        this.applicationOptions.forEach(opt => opt.selected = false);
+        option.selected = true;
         break;
-      default:
-        return;
     }
-    options.forEach(opt => (opt.selected = false));
-    option.selected = true;
     this.closeDropdowns();
   }
 
   getSelectedOption(dropdownType: string): string {
-    let options;
     switch (dropdownType) {
       case 'viewAs':
-        options = this.viewAsOptions;
-        break;
+        return this.viewAsOptions.find(opt => opt.selected)?.label || '';
       case 'tenant':
-        options = this.tenantOptions;
-        break;
+        return this.tenantOptions.find(opt => opt.selected)?.label || '';
       case 'application':
-        options = this.applicationOptions;
-        break;
+        return this.applicationOptions.find(opt => opt.selected)?.label || '';
       default:
         return '';
     }
-    const selected = options.find(opt => opt.selected);
-    return selected ? selected.label : '';
   }
 
   onMenuAction(action: string): void {
     switch (action) {
+      case 'profile':
+        break;
       case 'logout':
         this.logout.emit();
         break;
-      // Add more actions as needed
     }
     this.closeDropdowns();
   }
 
   getUserRole(): string {
-    if (!this.currentUser) return '';
-    // Use 'roles' array if present, else fallback to 'User'
-    if (Array.isArray(this.currentUser.roles) && this.currentUser.roles.length > 0) {
-      return this.currentUser.roles[0];
+    if (!this.currentUser?.roles || this.currentUser.roles.length === 0) {
+      return 'User';
     }
-    return 'User';
+    
+    const role = this.currentUser.roles[0];
+    const roleParts = role.split('.');
+    return roleParts[roleParts.length - 1] || 'User';
   }
 
   getInitials(name: string | undefined): string {
-    if (!name) return '';
-    const parts = name.split(' ');
-    return parts.map(p => p[0]).join('').toUpperCase();
+    if (!name) return 'U';
+    
+    const names = name.split(' ');
+    if (names.length >= 2) {
+      return (names[0][0] + names[1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
   }
 } 

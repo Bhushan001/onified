@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-auth-config',
@@ -126,8 +127,8 @@ export class AuthConfigComponent {
   private checkAuthStatus(): void {
     const isIndependent = !this.isMicroFrontendMode();
     if (isIndependent) {
-      const token = localStorage.getItem('onified-token');
-      const user = localStorage.getItem('onified-user');
+      const token = localStorage.getItem(environment.auth.tokenKey);
+      const user = localStorage.getItem(environment.auth.userKey);
       this.hasToken = !!token;
       this.hasUserData = !!user;
       if (token && user) {
@@ -226,8 +227,8 @@ export class AuthConfigComponent {
   }
 
   clearAuth(): void {
-    localStorage.removeItem('onified-token');
-    localStorage.removeItem('onified-user');
+    localStorage.removeItem(environment.auth.tokenKey);
+    localStorage.removeItem(environment.auth.userKey);
     this.checkAuthStatus();
   }
 } 

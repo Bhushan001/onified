@@ -12,8 +12,7 @@
 }
 
 .header-container {
-  max-width: 1600px;
-  margin: 0 auto;
+  width: 100%;
   padding: 0 24px;
   display: flex;
   align-items: center;
@@ -192,12 +191,15 @@
   align-items: center;
   gap: 8px;
   width: 100%;
-  padding: 10px 12px;
+  padding: 6px 12px;
   border: none;
   background: none;
   text-align: left;
   font-size: fonts.$font-size-sm;
   color: map.get(vars.$colors, gray-700);
+  cursor: pointer;
+  transition: background 0.2s ease;
+  min-height: 32px;
 
   &:hover {
     background: map.get(vars.$colors, gray-50);
@@ -206,6 +208,7 @@
   &.selected {
     background: map.get(vars.$colors, primary-50);
     color: map.get(vars.$colors, primary-700);
+    font-weight: fonts.$font-weight-medium;
   }
 }
 
@@ -296,7 +299,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 16px;
+  padding: 12px 16px;
   background: map.get(vars.$colors, gray-50);
 }
 
@@ -329,7 +332,7 @@
   margin-bottom: 2px;
 }
 
-.user-email {
+.user-username {
   font-size: fonts.$font-size-sm;
   color: map.get(vars.$colors, gray-500);
 }
