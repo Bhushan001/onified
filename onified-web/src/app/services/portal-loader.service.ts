@@ -20,6 +20,30 @@ export class PortalLoaderService {
           return m.DashboardWrapperComponent;
         })
       );
+    } else if (remoteName === 'console') {
+      return from(
+        loadRemoteModule({
+          remoteEntry: this.getRemoteEntry(remoteName),
+          type: 'module',
+          exposedModule: './Dashboard',
+        }).then(async (m) => {
+          // Optionally load styles if you expose them in the future
+          // await this.loadRemoteStyles(remoteName);
+          return m.DashboardWrapperComponent;
+        })
+      );
+    } else if (remoteName === 'workspace') {
+      return from(
+        loadRemoteModule({
+          remoteEntry: this.getRemoteEntry(remoteName),
+          type: 'module',
+          exposedModule: './Dashboard',
+        }).then(async (m) => {
+          // Optionally load styles if you expose them in the future
+          // await this.loadRemoteStyles(remoteName);
+          return m.DashboardWrapperComponent;
+        })
+      );
     }
     // Add logic for other remotes as needed
     throw new Error('Unknown remote or not implemented');
@@ -47,6 +71,8 @@ export class PortalLoaderService {
   private getRemoteEntry(remoteName: string): string {
     switch (remoteName) {
       case 'hub': return 'http://localhost:4300/remoteEntry.js';
+      case 'console': return 'http://localhost:4400/remoteEntry.js';
+      case 'workspace': return 'http://localhost:4500/remoteEntry.js';
       // Add other remotes as needed
       default: throw new Error('Unknown remote');
     }

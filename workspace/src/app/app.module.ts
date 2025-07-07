@@ -7,6 +7,7 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
 import { routes } from './app.routes';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { DashboardWrapperComponent } from './dashboard-wrapper.component';
 import { AuthConfigComponent } from './components/auth-config/auth-config.component';
 import { SidebarComponent } from './dashboard/sidebar/sidebar.component';
 import { ModernHeaderComponent } from './dashboard/modern-header/modern-header.component';
@@ -35,6 +36,7 @@ import { UserManagementComponent } from './users/user-management/user-management
   declarations: [
     AppComponent,
     DashboardComponent,
+    DashboardWrapperComponent,
     AuthConfigComponent,
     SidebarComponent,
     ModernHeaderComponent,
