@@ -1,0 +1,69 @@
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+
+@Component({
+  selector: 'app-dashboard-analytics',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <div class="page-container">
+      <div class="page-header">
+        <h1 class="page-title">Dashboard & Analytics</h1>
+        <p class="page-description">Configure dashboard settings and analytics preferences</p>
+      </div>
+      
+      <div class="content-section">
+        <div class="card">
+          <h2 class="card-title">Dashboard Configuration</h2>
+          <p class="card-description">Customize your dashboard layout and widgets</p>
+          
+          <div class="form-group">
+            <label class="form-label">Default Dashboard View</label>
+            <select class="form-select">
+              <option>Executive Summary</option>
+              <option>Detailed Analytics</option>
+              <option>Custom View</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Refresh Interval</label>
+            <select class="form-select">
+              <option>Real-time</option>
+              <option>Every 5 minutes</option>
+              <option>Every 15 minutes</option>
+              <option>Every hour</option>
+            </select>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h2 class="card-title">Analytics Settings</h2>
+          <p class="card-description">Configure data collection and reporting</p>
+          
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" class="checkbox" checked>
+              <span>Enable user behavior tracking</span>
+            </label>
+          </div>
+          
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" class="checkbox" checked>
+              <span>Collect performance metrics</span>
+            </label>
+          </div>
+          
+          <div class="form-group">
+            <label class="checkbox-label">
+              <input type="checkbox" class="checkbox">
+              <span>Enable advanced analytics</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  `,
+})
+export class DashboardAnalyticsComponent {}

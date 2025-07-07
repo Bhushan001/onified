@@ -1,0 +1,21 @@
+<div class="modern-dashboard">
+  <!-- Modern Header -->
+  <app-modern-header 
+    [currentUser]="currentUser"
+    (logout)="onLogout()"
+    (toggleSidebar)="onToggleSidebar()">
+  </app-modern-header>
+
+  <!-- Sidebar -->
+  <app-sidebar 
+    [currentUser]="currentUser"
+    [isCollapsed]="sidebarCollapsed"
+    [isMobileOpen]="mobileSidebarOpen"
+    (toggleSidebar)="onToggleSidebar()">
+  </app-sidebar>
+
+  <!-- Main Content -->
+  <main class="dashboard-main" [class.sidebar-collapsed]="sidebarCollapsed">
+    <router-outlet></router-outlet>
+  </main>
+</div> 
