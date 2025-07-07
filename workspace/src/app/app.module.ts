@@ -9,22 +9,6 @@ import { routes } from './app.routes';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { DashboardWrapperComponent } from './dashboard-wrapper.component';
 import { AuthConfigComponent } from './components/auth-config/auth-config.component';
-import { SidebarComponent } from './dashboard/sidebar/sidebar.component';
-import { ModernHeaderComponent } from './dashboard/modern-header/modern-header.component';
-// Dashboard subcomponents
-import { OrgStructureComponent } from './dashboard/security/org-structure/org-structure.component';
-import { RolesPermissionsComponent } from './dashboard/security/roles-permissions/roles-permissions.component';
-import { IdentityAccessComponent } from './dashboard/security/identity-access/identity-access.component';
-import { BrandingComponent } from './dashboard/foundation/branding/branding.component';
-import { DashboardAnalyticsComponent } from './dashboard/foundation/dashboard-analytics/dashboard-analytics.component';
-import { NamingConventionsComponent } from './dashboard/foundation/naming-conventions/naming-conventions.component';
-import { ComplianceComponent } from './dashboard/foundation/compliance/compliance.component';
-import { TenantInitializationComponent } from './dashboard/foundation/tenant-initialization/tenant-initialization.component';
-import { DeploymentComponent } from './dashboard/foundation/deployment/deployment.component';
-import { TemplatesComponent } from './dashboard/foundation/templates/templates.component';
-import { SetupWizardComponent } from './dashboard/foundation/setup-wizard/setup-wizard.component';
-import { LocalizationComponent } from './dashboard/foundation/localization/localization.component';
-import { LicensingBillingComponent } from './dashboard/finance/licensing-billing/licensing-billing.component';
 // User subcomponents
 import { NotificationsAlertsComponent } from './users/notifications-alerts/notifications-alerts.component';
 import { FeedbackSettingsComponent } from './users/feedback-settings/feedback-settings.component';
@@ -38,21 +22,6 @@ import { UserManagementComponent } from './users/user-management/user-management
     DashboardComponent,
     DashboardWrapperComponent,
     AuthConfigComponent,
-    SidebarComponent,
-    ModernHeaderComponent,
-    OrgStructureComponent,
-    RolesPermissionsComponent,
-    IdentityAccessComponent,
-    BrandingComponent,
-    DashboardAnalyticsComponent,
-    NamingConventionsComponent,
-    ComplianceComponent,
-    TenantInitializationComponent,
-    DeploymentComponent,
-    TemplatesComponent,
-    SetupWizardComponent,
-    LocalizationComponent,
-    LicensingBillingComponent,
     NotificationsAlertsComponent,
     FeedbackSettingsComponent,
     HelpSupportComponent,
