@@ -294,8 +294,8 @@ export class AuthService {
 
   private isMicroFrontendMode(): boolean {
     try {
-      return window.location.pathname.includes('/host/console') || 
-             window.location.href.includes('localhost:4202');
+      return window.location.pathname.includes('/host/hub') || 
+             window.location.href.includes('localhost:4300');
     } catch {
       return false;
     }

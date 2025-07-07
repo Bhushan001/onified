@@ -4,9 +4,9 @@ module.exports = withModuleFederationPlugin({
   name: 'hub',
   filename: 'remoteEntry.js',
   exposes: {
-    './Module': './src/app/app.module.ts',
+    './Dashboard': './src/app/dashboard-wrapper.component.ts',
   },
   shared: {
     ...shareAll({ singleton: true, strictVersion: true, requiredVersion: 'auto' })
-  },
+  }
 }); 

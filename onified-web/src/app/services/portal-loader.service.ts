@@ -8,45 +8,46 @@ export class PortalLoaderService {
 
   loadPortalComponent(remoteName: string): Observable<Type<any>> {
     console.log('Loading remote module', remoteName);
-    return from(
-      loadRemoteModule({
-        remoteEntry: this.getRemoteEntry(remoteName),
-        type: 'module',
-        exposedModule: './Dashboard',
-      }).then(async (m) => {
-        // Load styles for the remote module
-        await this.loadRemoteStyles(remoteName);
-        return m.DashboardWrapperComponent;
-      })
-    );
-  }
-
-  private async loadRemoteStyles(remoteName: string): Promise<void> {
-    if (this.loadedStyles.has(remoteName)) {
-      return; // Styles already loaded
-    }
-
-    try {
-      if (remoteName === 'hub') {
-        // Load hub styles
-        await loadRemoteModule({
+    if (remoteName === 'hub') {
+      return from(
+        loadRemoteModule({
           remoteEntry: this.getRemoteEntry(remoteName),
           type: 'module',
-          exposedModule: './Styles',
-        });
-        this.loadedStyles.add(remoteName);
-      }
-      // Add other remotes as needed
-    } catch (error) {
-      console.warn(`Failed to load styles for ${remoteName}:`, error);
+          exposedModule: './Dashboard',
+        }).then(async (m) => {
+          // Optionally load styles if you expose them in the future
+          // await this.loadRemoteStyles(remoteName);
+          return m.DashboardWrapperComponent;
+        })
+      );
     }
+    // Add logic for other remotes as needed
+    throw new Error('Unknown remote or not implemented');
   }
+
+  // Optionally keep this for future style loading
+  // private async loadRemoteStyles(remoteName: string): Promise<void> {
+  //   if (this.loadedStyles.has(remoteName)) {
+  //     return; // Styles already loaded
+  //   }
+  //   try {
+  //     if (remoteName === 'hub') {
+  //       await loadRemoteModule({
+  //         remoteEntry: this.getRemoteEntry(remoteName),
+  //         type: 'module',
+  //         exposedModule: './Styles',
+  //       });
+  //       this.loadedStyles.add(remoteName);
+  //     }
+  //   } catch (error) {
+  //     console.warn(`Failed to load styles for ${remoteName}:`, error);
+  //   }
+  // }
 
   private getRemoteEntry(remoteName: string): string {
     switch (remoteName) {
       case 'hub': return 'http://localhost:4300/remoteEntry.js';
-      case 'console': return 'http://localhost:4400/remoteEntry.js';
-      case 'workspace': return 'http://localhost:4500/remoteEntry.js';
+      // Add other remotes as needed
       default: throw new Error('Unknown remote');
     }
   }

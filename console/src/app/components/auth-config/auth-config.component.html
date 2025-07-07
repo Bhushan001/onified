@@ -1,0 +1,60 @@
+<div class="auth-config-container">
+  <div class="auth-config-card">
+    <div class="header">
+      <h1>Console Configuration Required</h1>
+      <p>This application requires valid authentication credentials to run independently.</p>
+    </div>
+    <div class="content">
+      <div class="info-section">
+        <h3>Authentication Status</h3>
+        <div class="status-item">
+          <span class="label">Token:</span>
+          <span class="value" [class.valid]="hasToken" [class.invalid]="!hasToken">
+            {{ hasToken ? 'Present' : 'Missing' }}
+          </span>
+        </div>
+        <div class="status-item">
+          <span class="label">User Data:</span>
+          <span class="value" [class.valid]="hasUserData" [class.invalid]="!hasUserData">
+            {{ hasUserData ? 'Present' : 'Missing' }}
+          </span>
+        </div>
+        <div class="status-item">
+          <span class="label">Token Valid:</span>
+          <span class="value" [class.valid]="isTokenValid" [class.invalid]="!isTokenValid">
+            {{ isTokenValid ? 'Valid' : 'Invalid/Expired' }}
+          </span>
+        </div>
+      </div>
+      <div class="login-section" *ngIf="!isAuthenticated">
+        <h3>Login to Continue</h3>
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+          <div class="form-group">
+            <label for="identifier">Username/Email/Phone</label>
+            <input type="text" id="identifier" formControlName="identifier" placeholder="Enter your username, email, or phone number" class="form-control">
+            <div class="error" *ngIf="loginForm.get('identifier')?.invalid && loginForm.get('identifier')?.touched">
+              Username/Email/Phone is required
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" formControlName="password" placeholder="Enter your password" class="form-control">
+            <div class="error" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+              Password is required
+            </div>
+          </div>
+          <button type="submit" class="btn-primary" [disabled]="loginForm.invalid || isLoading">
+            {{ isLoading ? 'Signing in...' : 'Sign In' }}
+          </button>
+        </form>
+        <div class="error-message" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn-secondary" (click)="refreshAuth()">Refresh Authentication</button>
+        <button class="btn-secondary" (click)="clearAuth()">Clear Authentication</button>
+      </div>
+    </div>
+  </div>
+</div> 
