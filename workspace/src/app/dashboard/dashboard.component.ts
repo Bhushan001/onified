@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet } from '@angular/router';
 import { AuthService } from '../services/auth.service';
@@ -32,19 +32,21 @@ export class DashboardComponent implements OnInit {
   currentUser: User | null = null;
   sidebarCollapsed: boolean = false;
   mobileSidebarOpen: boolean = false;
+  userDropdownOpen: boolean = false;
 
   activeTab: string = 'overview';
+  currentApplication: string = 'E-Verification'; // Default current application
 
   // Mock data
   applications = [
     { title: 'E-Verification', desc: 'Verify identities and business credentials', icon: 'fa-id-card', badge: 'Current' },
     { title: 'Track & Trace', desc: 'Verify identities and business credentials', icon: 'fa-search', badge: 'Default' },
-    { title: 'Market Maps', desc: 'Verify identities and business credentials', icon: 'fa-map' },
-    { title: 'Asset Management', desc: 'Monitor performance and insights', icon: 'fa-line-chart' },
-    { title: 'SOP Management', desc: 'Create, review and manage procedures', icon: 'fa-file-text' },
-    { title: 'Compliance', desc: 'Compliance management and reporting', icon: 'fa-shield' },
-    { title: 'User Directory', desc: 'Manage users and permissions', icon: 'fa-users' },
-    { title: 'Billing', desc: 'View and manage billing', icon: 'fa-credit-card' }
+    { title: 'Market Maps', desc: 'Verify identities and business credentials', icon: 'fa-map', badge: undefined },
+    { title: 'Asset Management', desc: 'Monitor performance and insights', icon: 'fa-line-chart', badge: undefined },
+    { title: 'SOP Management', desc: 'Create, review and manage procedures', icon: 'fa-file-text', badge: undefined },
+    { title: 'Compliance', desc: 'Compliance management and reporting', icon: 'fa-shield', badge: undefined },
+    { title: 'User Directory', desc: 'Manage users and permissions', icon: 'fa-users', badge: undefined },
+    { title: 'Billing', desc: 'View and manage billing', icon: 'fa-credit-card', badge: undefined }
   ];
 
   notifications = [
@@ -107,6 +109,42 @@ export class DashboardComponent implements OnInit {
     this.authService.clearAuthData();
     this.router.navigate(['/login']);
     this.authService.logout().subscribe({ error: () => {} });
+  }
+
+  // Application selection functionality
+  selectApplication(app: any): void {
+    // Update current application
+    this.currentApplication = app.title;
+    
+    // Update badges - remove 'Current' from all apps and add to selected app
+    this.applications.forEach(application => {
+      if (application.badge === 'Current') {
+        application.badge = '';
+      }
+    });
+    app.badge = 'Current';
+  }
+
+  // User dropdown functionality
+  toggleUserDropdown(): void {
+    this.userDropdownOpen = !this.userDropdownOpen;
+  }
+
+  closeUserDropdown(): void {
+    this.userDropdownOpen = false;
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: Event): void {
+    // Close dropdown if clicking outside
+    const target = event.target as HTMLElement;
+    if (!target.closest('.user-profile') && !target.closest('.user-dropdown')) {
+      this.userDropdownOpen = false;
+    }
+  }
+
+  getUserName(): string {
+    return this.currentUser?.name || 'Anushka';
   }
 
   getTabLabel(tab: string): string {

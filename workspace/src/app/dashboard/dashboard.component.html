@@ -3,12 +3,36 @@
   <div class="navbar-left">
     <span class="dashboard-app-icon"> <i class="fa fa-th-large"></i> </span>
     <span class="dashboard-app-name">Workspace</span>
-    <span class="dashboard-app-module">E-Verification</span>
+    <span class="dashboard-app-module">{{ currentApplication }}</span>
   </div>
   <div class="navbar-right">
-    <div class="user-profile">
+    <div class="user-profile" (click)="toggleUserDropdown()">
       <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" class="user-avatar" />
-      <span class="user-name">Anushka</span>
+      <span class="user-name">{{ getUserName() }}</span>
+      <i class="fa fa-chevron-down dropdown-arrow" [class.rotated]="userDropdownOpen"></i>
+    </div>
+    <div class="user-dropdown" *ngIf="userDropdownOpen" (click)="$event.stopPropagation()">
+      <div class="dropdown-header">
+        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" class="dropdown-avatar" />
+        <div class="dropdown-user-info">
+          <span class="dropdown-user-name">{{ getUserName() }}</span>
+          <span class="dropdown-user-role">Administrator</span>
+        </div>
+      </div>
+      <div class="dropdown-divider"></div>
+      <button class="dropdown-item" (click)="closeUserDropdown()">
+        <i class="fa fa-user"></i>
+        <span>Profile</span>
+      </button>
+      <button class="dropdown-item" (click)="closeUserDropdown()">
+        <i class="fa fa-cog"></i>
+        <span>Settings</span>
+      </button>
+      <div class="dropdown-divider"></div>
+      <button class="dropdown-item logout" (click)="onLogout()">
+        <i class="fa fa-sign-out"></i>
+        <span>Logout</span>
+      </button>
     </div>
     <span class="org-icon"><i class="fa fa-building"></i></span>
   </div>
@@ -59,7 +83,7 @@
     <div class="dashboard-main-content">
       <!-- Greeting -->
       <div class="dashboard-greeting">
-        <span class="greeting">Good Morning, Anushka 👋</span>
+        <span class="greeting">Good Morning, {{ getUserName() }} 👋</span>
         <span class="summary">You have 3 pending tasks and 2 important notifications today.</span>
       </div>
       <!-- Tabs and User Preferences -->
@@ -80,10 +104,10 @@
         <div class="your-applications-section">
           <div class="section-header">
             <span>Your Applications</span>
-            <a href="#" class="view-all-link">View all</a>
+            <button class="view-all-link" (click)="activeTab = 'applications'">View all</button>
           </div>
           <div class="application-cards">
-            <div *ngFor="let app of applications" class="app-card" [ngClass]="{'current': app.badge === 'Current', 'default': app.badge === 'Default'}">
+            <div *ngFor="let app of applications" class="app-card" [ngClass]="{'current': app.badge === 'Current', 'default': app.badge === 'Default'}" (click)="selectApplication(app)">
               <div class="app-icon"><i class="fa" [ngClass]="app.icon"></i></div>
               <div class="app-title">{{ app.title }}</div>
               <div class="app-desc">{{ app.desc }}</div>
@@ -96,7 +120,7 @@
           <div class="my-tasks-section">
             <div class="section-header">
               <span>My Tasks</span>
-              <a href="#" class="view-all-link">View all</a>
+              <button class="view-all-link" (click)="activeTab = 'tasks'">View all</button>
             </div>
             <div class="task-list">
               <div *ngFor="let task of overviewTasks" class="task-item">
@@ -117,7 +141,7 @@
           <div class="notifications-section">
             <div class="section-header">
               <span>Notifications</span>
-              <a href="#" class="view-all-link">View all</a>
+              <button class="view-all-link" (click)="activeTab = 'notifications'">View all</button>
             </div>
             <div class="notification-list">
               <div *ngFor="let notif of overviewNotifications" class="notification-item" [ngClass]="notif.type">
@@ -140,7 +164,7 @@
             <span>Your Applications</span>
           </div>
           <div class="application-cards">
-            <div *ngFor="let app of applications" class="app-card" [ngClass]="{'current': app.badge === 'Current', 'default': app.badge === 'Default'}">
+            <div *ngFor="let app of applications" class="app-card" [ngClass]="{'current': app.badge === 'Current', 'default': app.badge === 'Default'}" (click)="selectApplication(app)">
               <div class="app-icon"><i class="fa" [ngClass]="app.icon"></i></div>
               <div class="app-title">{{ app.title }}</div>
               <div class="app-desc">{{ app.desc }}</div>
