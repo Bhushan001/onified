@@ -1,0 +1,117 @@
+.task-section {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px 0 rgba(44, 62, 80, 0.03);
+  padding: 28px 32px 24px 32px;
+  flex: 1 1 0;
+  min-width: 340px;
+}
+
+// Section header styles
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 18px;
+}
+
+.view-all-link {
+  color: #5b4efc;
+  font-size: 0.98rem;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+
+.view-all-link:hover {
+  color: #4a3efc;
+  text-decoration: underline;
+}
+
+.task-list {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.task-item {
+  background: #f7f8fa;
+  border-radius: 10px;
+  padding: 16px 18px;
+  box-shadow: 0 1px 4px 0 rgba(44, 62, 80, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.task-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.task-meta {
+  display: flex;
+  gap: 10px;
+  font-size: 0.95rem;
+  color: #7a7a8c;
+  flex-wrap: wrap;
+}
+
+.task-tag {
+  background: #ecebfc;
+  color: #5b4efc;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+.task-priority {
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 0.92rem;
+  font-weight: 500;
+  &.high { background: #ffeaea; color: #e74c3c; }
+  &.medium { background: #fff7e6; color: #f39c12; }
+  &.low { background: #eafaf1; color: #27ae60; }
+}
+
+.task-due, .task-assigned {
+  color: #b0b0c3;
+}
+
+.task-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.task-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-size: 0.98rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.task-btn.primary {
+  background: #5b4efc;
+  color: #fff;
+}
+
+.task-btn.secondary {
+  background: #f3f3fa;
+  color: #5b4efc;
+} 

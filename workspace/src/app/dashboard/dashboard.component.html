@@ -1,236 +1,46 @@
-<!-- Top Navbar/Header (full width, compact) -->
-<div class="dashboard-header compact">
-  <div class="navbar-left">
-    <span class="dashboard-app-icon"> <i class="fa fa-th-large"></i> </span>
-    <span class="dashboard-app-name">Workspace</span>
-    <span class="dashboard-app-module">{{ currentApplication }}</span>
-  </div>
-  <div class="navbar-right">
-    <div class="user-profile" (click)="toggleUserDropdown()">
-      <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" class="user-avatar" />
-      <span class="user-name">{{ getUserName() }}</span>
-      <i class="fa fa-chevron-down dropdown-arrow" [class.rotated]="userDropdownOpen"></i>
-    </div>
-    <div class="user-dropdown" *ngIf="userDropdownOpen" (click)="$event.stopPropagation()">
-      <div class="dropdown-header">
-        <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="User" class="dropdown-avatar" />
-        <div class="dropdown-user-info">
-          <span class="dropdown-user-name">{{ getUserName() }}</span>
-          <span class="dropdown-user-role">Administrator</span>
-        </div>
+<!-- Dashboard Container -->
+<div class="dashboard-container">
+  <!-- Top Navbar/Header -->
+  <app-dashboard-header
+    [currentApplication]="currentApplication"
+    [currentUser]="currentUser"
+    [userDropdownOpen]="userDropdownOpen"
+    (toggleUserDropdown)="onToggleUserDropdown()"
+    (closeUserDropdown)="onCloseUserDropdown()"
+    (logout)="onLogout()">
+  </app-dashboard-header>
+
+  <!-- Main Dashboard Layout -->
+  <div class="dashboard-layout">
+    <!-- Custom Sidebar -->
+    <app-dashboard-sidebar></app-dashboard-sidebar>
+
+    <!-- Main Content Area -->
+    <div class="dashboard-main">
+      <!-- Dashboard Content -->
+      <div class="dashboard-main-content">
+        <!-- Greeting and Tabs -->
+        <app-dashboard-tabs
+          [activeTab]="activeTab"
+          [currentUser]="currentUser"
+          (tabChange)="onTabChange($event)"
+          (userPreferences)="onUserPreferences()">
+        </app-dashboard-tabs>
+
+        <!-- Tab Content -->
+        <app-tab-content
+          [activeTab]="activeTab"
+          [applications]="applications"
+          [tasks]="tasks"
+          [notifications]="notifications"
+          (applicationSelect)="onApplicationSelect($event)"
+          (viewAllApplications)="onViewAllApplications()"
+          (viewAllTasks)="onViewAllTasks()"
+          (viewAllNotifications)="onViewAllNotifications()"
+          (taskAction)="onTaskAction($event)"
+          (notificationAction)="onNotificationAction($event)">
+        </app-tab-content>
       </div>
-      <div class="dropdown-divider"></div>
-      <button class="dropdown-item" (click)="closeUserDropdown()">
-        <i class="fa fa-user"></i>
-        <span>Profile</span>
-      </button>
-      <button class="dropdown-item" (click)="closeUserDropdown()">
-        <i class="fa fa-cog"></i>
-        <span>Settings</span>
-      </button>
-      <div class="dropdown-divider"></div>
-      <button class="dropdown-item logout" (click)="onLogout()">
-        <i class="fa fa-sign-out"></i>
-        <span>Logout</span>
-      </button>
-    </div>
-    <span class="org-icon"><i class="fa fa-building"></i></span>
-  </div>
-</div>
-
-<!-- Main layout: sidebar + main content -->
-<div class="workspace-dashboard-layout">
-  <!-- Custom Sidebar (starts below header) -->
-  <nav class="custom-sidebar">
-    <div class="sidebar-top">
-      <div class="sidebar-logo">
-        <span class="logo-icon"><i class="fa fa-th-large"></i></span>
-        <span class="logo-label">Workspace</span>
-      </div>
-      <ul class="sidebar-nav">
-        <li class="nav-item active">
-          <i class="fa fa-home nav-icon"></i>
-          <span class="nav-label">Dashboard</span>
-        </li>
-        <li class="nav-item">
-          <i class="fa fa-id-card nav-icon"></i>
-          <span class="nav-label">E-Verification</span>
-        </li>
-        <li class="nav-item">
-          <i class="fa fa-user-plus nav-icon"></i>
-          <span class="nav-label">Onboarding</span>
-        </li>
-        <li class="nav-item">
-          <i class="fa fa-database nav-icon"></i>
-          <span class="nav-label">DB Verification</span>
-        </li>
-        <li class="nav-item">
-          <i class="fa fa-cog nav-icon"></i>
-          <span class="nav-label">Settings</span>
-        </li>
-      </ul>
-    </div>
-    <div class="sidebar-bottom">
-      <div class="powered-by">
-        <span class="powered-label">Powered by</span>
-        <span class="onified-logo">Onifi<span class="onified-dot">e</span>d</span>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Main Content Area -->
-  <div class="workspace-dashboard-main">
-    <div class="dashboard-main-content">
-      <!-- Greeting -->
-      <div class="dashboard-greeting">
-        <span class="greeting">Good Morning, {{ getUserName() }} 👋</span>
-        <span class="summary">You have 3 pending tasks and 2 important notifications today.</span>
-      </div>
-      <!-- Tabs and User Preferences -->
-      <div class="dashboard-tabs-container">
-        <div class="dashboard-tabs white-rounded">
-          <button class="tab" [class.active]="activeTab === 'overview'" (click)="activeTab = 'overview'">Overview</button>
-          <button class="tab" [class.active]="activeTab === 'applications'" (click)="activeTab = 'applications'">Your Applications</button>
-          <button class="tab" [class.active]="activeTab === 'notifications'" (click)="activeTab = 'notifications'">Notifications</button>
-          <button class="tab" [class.active]="activeTab === 'tasks'" (click)="activeTab = 'tasks'">My Tasks</button>
-          <button class="tab" [class.active]="activeTab === 'activity'" (click)="activeTab = 'activity'">Recent Activity</button>
-          <button class="tab" [class.active]="activeTab === 'help'" (click)="activeTab = 'help'">Help & Resources</button>
-        </div>
-        <button class="user-preferences-btn"> <i class="fa fa-cog"></i> User Preferences </button>
-      </div>
-
-      <!-- Overview Tab: summary of all tabs -->
-      <ng-container *ngIf="activeTab === 'overview'">
-        <div class="your-applications-section">
-          <div class="section-header">
-            <span>Your Applications</span>
-            <button class="view-all-link" (click)="activeTab = 'applications'">View all</button>
-          </div>
-          <div class="application-cards">
-            <div *ngFor="let app of applications" class="app-card" [ngClass]="{'current': app.badge === 'Current', 'default': app.badge === 'Default'}" (click)="selectApplication(app)">
-              <div class="app-icon"><i class="fa" [ngClass]="app.icon"></i></div>
-              <div class="app-title">{{ app.title }}</div>
-              <div class="app-desc">{{ app.desc }}</div>
-              <span *ngIf="app.badge" class="app-badge">{{ app.badge }}</span>
-            </div>
-          </div>
-        </div>
-        <div class="dashboard-bottom-row">
-          <!-- My Tasks (summary) -->
-          <div class="my-tasks-section">
-            <div class="section-header">
-              <span>My Tasks</span>
-              <button class="view-all-link" (click)="activeTab = 'tasks'">View all</button>
-            </div>
-            <div class="task-list">
-              <div *ngFor="let task of overviewTasks" class="task-item">
-                <div class="task-title">{{ task.title }}</div>
-                <div class="task-meta">
-                  <span class="task-tag">{{ task.tag }}</span>
-                  <span class="task-priority" [ngClass]="task.priority">{{ task.priority | titlecase }}</span>
-                  <span class="task-due">{{ task.due }}</span>
-                  <span class="task-assigned">{{ task.assigned }}</span>
-                </div>
-                <div class="task-actions">
-                  <button *ngFor="let action of task.actions" class="task-btn" [ngClass]="{'primary': action === 'Review' || action === 'Approve' || action === 'Complete' || action === 'Pay', 'secondary': action !== 'Review' && action !== 'Approve' && action !== 'Complete' && action !== 'Pay'}">{{ action }}</button>
-                </div>
-              </div>
-            </div>
-          </div>
-          <!-- Notifications (summary) -->
-          <div class="notifications-section">
-            <div class="section-header">
-              <span>Notifications</span>
-              <button class="view-all-link" (click)="activeTab = 'notifications'">View all</button>
-            </div>
-            <div class="notification-list">
-              <div *ngFor="let notif of overviewNotifications" class="notification-item" [ngClass]="notif.type">
-                <div class="notification-title">{{ notif.title }}</div>
-                <div class="notification-desc">{{ notif.desc }}</div>
-                <div class="notification-meta">{{ notif.meta }}</div>
-                <div class="notification-actions">
-                  <button *ngFor="let action of notif.actions" class="notif-btn" [ngClass]="{'primary': action === 'View' || action === 'Learn' || action === 'Learn More', 'secondary': action !== 'View' && action !== 'Learn' && action !== 'Learn More'}">{{ action }}</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ng-container>
-
-      <!-- Your Applications Tab -->
-      <ng-container *ngIf="activeTab === 'applications'">
-        <div class="your-applications-section">
-          <div class="section-header">
-            <span>Your Applications</span>
-          </div>
-          <div class="application-cards">
-            <div *ngFor="let app of applications" class="app-card" [ngClass]="{'current': app.badge === 'Current', 'default': app.badge === 'Default'}" (click)="selectApplication(app)">
-              <div class="app-icon"><i class="fa" [ngClass]="app.icon"></i></div>
-              <div class="app-title">{{ app.title }}</div>
-              <div class="app-desc">{{ app.desc }}</div>
-              <span *ngIf="app.badge" class="app-badge">{{ app.badge }}</span>
-            </div>
-          </div>
-        </div>
-      </ng-container>
-
-      <!-- Notifications Tab -->
-      <ng-container *ngIf="activeTab === 'notifications'">
-        <div class="notifications-section">
-          <div class="section-header">
-            <span>Notifications</span>
-          </div>
-          <div class="notification-list">
-            <div *ngFor="let notif of notifications" class="notification-item" [ngClass]="notif.type">
-              <div class="notification-title">{{ notif.title }}</div>
-              <div class="notification-desc">{{ notif.desc }}</div>
-              <div class="notification-meta">{{ notif.meta }}</div>
-              <div class="notification-actions">
-                <button *ngFor="let action of notif.actions" class="notif-btn" [ngClass]="{'primary': action === 'View' || action === 'Learn' || action === 'Learn More', 'secondary': action !== 'View' && action !== 'Learn' && action !== 'Learn More'}">{{ action }}</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ng-container>
-
-      <!-- My Tasks Tab -->
-      <ng-container *ngIf="activeTab === 'tasks'">
-        <div class="my-tasks-section">
-          <div class="section-header">
-            <span>My Tasks</span>
-          </div>
-          <div class="task-list">
-            <div *ngFor="let task of tasks" class="task-item">
-              <div class="task-title">{{ task.title }}</div>
-              <div class="task-meta">
-                <span class="task-tag">{{ task.tag }}</span>
-                <span class="task-priority" [ngClass]="task.priority">{{ task.priority | titlecase }}</span>
-                <span class="task-due">{{ task.due }}</span>
-                <span class="task-assigned">{{ task.assigned }}</span>
-              </div>
-              <div class="task-actions">
-                <button *ngFor="let action of task.actions" class="task-btn" [ngClass]="{'primary': action === 'Review' || action === 'Approve' || action === 'Complete' || action === 'Pay', 'secondary': action !== 'Review' && action !== 'Approve' && action !== 'Complete' && action !== 'Pay'}">{{ action }}</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ng-container>
-
-      <!-- Recent Activity Tab -->
-      <ng-container *ngIf="activeTab === 'activity'">
-        <div class="tab-placeholder">
-          <h2>Recent Activity</h2>
-          <p>Recent activity and audit logs will appear here.</p>
-        </div>
-      </ng-container>
-
-      <!-- Help & Resources Tab -->
-      <ng-container *ngIf="activeTab === 'help'">
-        <div class="tab-placeholder">
-          <h2>Help & Resources</h2>
-          <p>Help articles, documentation, and support links will appear here.</p>
-        </div>
-      </ng-container>
     </div>
   </div>
 </div> 

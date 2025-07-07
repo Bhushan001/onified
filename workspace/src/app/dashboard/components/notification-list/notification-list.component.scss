@@ -1,0 +1,117 @@
+.notification-section {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px 0 rgba(44, 62, 80, 0.03);
+  padding: 28px 32px 24px 32px;
+  flex: 1 1 0;
+  min-width: 340px;
+}
+
+// Section header styles
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 18px;
+}
+
+.view-all-link {
+  color: #5b4efc;
+  font-size: 0.98rem;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+
+.view-all-link:hover {
+  color: #4a3efc;
+  text-decoration: underline;
+}
+
+.notification-list {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.notification-item {
+  background: #f7f8fa;
+  border-radius: 10px;
+  padding: 16px 18px;
+  box-shadow: 0 1px 4px 0 rgba(44, 62, 80, 0.04);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-left: 4px solid #5b4efc;
+}
+
+.notification-item.error {
+  border-left-color: #e74c3c;
+  background: #fff5f5;
+}
+
+.notification-item.warning {
+  border-left-color: #f39c12;
+  background: #fffbf0;
+}
+
+.notification-item.info {
+  border-left-color: #3498db;
+  background: #f0f8ff;
+}
+
+.notification-item.success {
+  border-left-color: #27ae60;
+  background: #f0fff4;
+}
+
+.notification-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.notification-desc {
+  font-size: 0.98rem;
+  color: #7a7a8c;
+}
+
+.notification-meta {
+  font-size: 0.92rem;
+  color: #b0b0c3;
+}
+
+.notification-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.notification-btn {
+  border: none;
+  border-radius: 6px;
+  padding: 6px 16px;
+  font-size: 0.98rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.notification-btn.primary {
+  background: #5b4efc;
+  color: #fff;
+}
+
+.notification-btn.secondary {
+  background: #f3f3fa;
+  color: #5b4efc;
+} 

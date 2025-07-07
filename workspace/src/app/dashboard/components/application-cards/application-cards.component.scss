@@ -1,0 +1,126 @@
+// Your applications section
+.your-applications-section {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px 0 rgba(44, 62, 80, 0.03);
+  padding: 28px 32px 34px 32px;
+  margin-bottom: 32px;
+}
+
+// Section header styles
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 18px;
+}
+
+.view-all-link {
+  color: #5b4efc;
+  font-size: 0.98rem;
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+}
+
+.view-all-link:hover {
+  color: #4a3efc;
+  text-decoration: underline;
+}
+
+// Fix application cards layout
+.application-cards {
+  display: flex;
+  padding: 10px;
+  gap: 18px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scrollbar-width: thin;
+  scrollbar-color: #a084e8 #e9f0fa;
+}
+
+.application-cards::-webkit-scrollbar {
+  height: 8px;
+}
+
+.application-cards::-webkit-scrollbar-thumb {
+  background: #a084e8;
+  border-radius: 4px;
+}
+
+.application-cards::-webkit-scrollbar-track {
+  background: #e9f0fa;
+}
+
+// Make application cards clickable
+.app-card {
+  background: #f7f8fa;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px 0 rgba(44, 62, 80, 0.04);
+  padding: 22px 20px 18px 20px;
+  min-width: 180px;
+  flex: 0 0 200px;
+  max-width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  border: 2px solid transparent;
+  transition: border 0.2s, box-shadow 0.2s, transform 0.2s;
+  cursor: pointer;
+}
+
+.app-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px 0 rgba(44, 62, 80, 0.08);
+}
+
+.app-card.current {
+  border-color: #5b4efc;
+  background: #ecebfc;
+}
+
+.app-card.default {
+  border-color: #b3b3e6;
+}
+
+.app-icon {
+  font-size: 1.6rem;
+  color: #5b4efc;
+  margin-bottom: 10px;
+}
+
+.app-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 2px;
+}
+
+.app-desc {
+  font-size: 0.98rem;
+  color: #7a7a8c;
+  margin-bottom: 8px;
+}
+
+.app-badge {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: #fff;
+  color: #5b4efc;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 2px 10px;
+  box-shadow: 0 1px 4px 0 rgba(44, 62, 80, 0.04);
+} 

@@ -1,0 +1,18 @@
+<div class="your-applications-section">
+  <div class="section-header">
+    <span>Your Applications</span>
+    <button *ngIf="showViewAll" class="view-all-link" (click)="onViewAll()">View all</button>
+  </div>
+  <div class="application-cards">
+    <div 
+      *ngFor="let app of applications" 
+      class="app-card" 
+      [ngClass]="{'current': app.badge === 'Current', 'default': app.badge === 'Default'}" 
+      (click)="onApplicationClick(app)">
+      <div class="app-icon"><i class="fa" [ngClass]="app.icon"></i></div>
+      <div class="app-title">{{ app.title }}</div>
+      <div class="app-desc">{{ app.desc }}</div>
+      <span *ngIf="app.badge" class="app-badge">{{ app.badge }}</span>
+    </div>
+  </div>
+</div> 

@@ -1,0 +1,21 @@
+<!-- Greeting -->
+<div class="dashboard-greeting">
+  <span class="greeting">Good Morning, {{ currentUser?.name || 'Anushka' }} 👋</span>
+  <span class="summary">You have 3 pending tasks and 2 important notifications today.</span>
+</div>
+
+<!-- Tabs and User Preferences -->
+<div class="dashboard-tabs-container">
+  <div class="dashboard-tabs white-rounded">
+    <button 
+      *ngFor="let tab of tabs" 
+      class="tab" 
+      [class.active]="activeTab === tab.id" 
+      (click)="onTabClick(tab.id)">
+      {{ tab.label }}
+    </button>
+  </div>
+  <button class="user-preferences-btn" (click)="onUserPreferences()">
+    <i class="fa fa-cog"></i> User Preferences
+  </button>
+</div> 

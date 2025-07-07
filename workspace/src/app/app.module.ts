@@ -6,7 +6,7 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { AppComponent } from './app.component';
 import { routes } from './app.routes';
-import { DashboardComponent } from './dashboard/dashboard.component';
+import { DashboardModule } from './dashboard/dashboard.module';
 import { DashboardWrapperComponent } from './dashboard-wrapper.component';
 import { AuthConfigComponent } from './components/auth-config/auth-config.component';
 // User subcomponents
@@ -19,7 +19,6 @@ import { UserManagementComponent } from './users/user-management/user-management
 @NgModule({
   declarations: [
     AppComponent,
-    DashboardComponent,
     DashboardWrapperComponent,
     AuthConfigComponent,
     NotificationsAlertsComponent,
@@ -34,7 +33,8 @@ import { UserManagementComponent } from './users/user-management/user-management
     FormsModule,
     ReactiveFormsModule,
     RouterModule.forRoot(routes),
-    HttpClientModule
+    HttpClientModule,
+    DashboardModule
   ],
   bootstrap: [AppComponent],
 })

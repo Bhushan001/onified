@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterOutlet } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 import { User } from '../models/auth.models';
+import { Application } from './components/application-cards/application-cards.component';
+import { Task } from './components/task-list/task-list.component';
+import { Notification } from './components/notification-list/notification-list.component';
 
 /**
  * Main Dashboard Component for Onified.ai Admin Panel
@@ -38,33 +41,64 @@ export class DashboardComponent implements OnInit {
   currentApplication: string = 'E-Verification'; // Default current application
 
   // Mock data
-  applications = [
-    { title: 'E-Verification', desc: 'Verify identities and business credentials', icon: 'fa-id-card', badge: 'Current' },
-    { title: 'Track & Trace', desc: 'Verify identities and business credentials', icon: 'fa-search', badge: 'Default' },
-    { title: 'Market Maps', desc: 'Verify identities and business credentials', icon: 'fa-map', badge: undefined },
-    { title: 'Asset Management', desc: 'Monitor performance and insights', icon: 'fa-line-chart', badge: undefined },
-    { title: 'SOP Management', desc: 'Create, review and manage procedures', icon: 'fa-file-text', badge: undefined },
-    { title: 'Compliance', desc: 'Compliance management and reporting', icon: 'fa-shield', badge: undefined },
-    { title: 'User Directory', desc: 'Manage users and permissions', icon: 'fa-users', badge: undefined },
-    { title: 'Billing', desc: 'View and manage billing', icon: 'fa-credit-card', badge: undefined }
+  applications: Application[] = [
+    { title: 'E-Verification', desc: 'Electronic verification system', icon: 'fa-id-card', badge: 'Current' },
+    { title: 'Onboarding', desc: 'New user onboarding process', icon: 'fa-user-plus', badge: 'Default' },
+    { title: 'DB Verification', desc: 'Database verification tools', icon: 'fa-database' },
+    { title: 'Document Manager', desc: 'Document management system', icon: 'fa-file-text' },
+    { title: 'Analytics', desc: 'Data analytics dashboard', icon: 'fa-bar-chart' },
+    { title: 'Settings', desc: 'System configuration', icon: 'fa-cog' }
   ];
 
-  notifications = [
-    { type: 'error', title: 'Verification Error', desc: 'PAN Verification failed for acb firm', meta: '10 minutes ago', actions: ['Acknowledge', 'View'] },
-    { type: 'warning', title: 'SOP Review Due', desc: '5 SOPs are due for review this month', meta: '1 hour ago', actions: ['Dismiss', 'View'] },
-    { type: 'info', title: 'System Update', desc: 'Onified will be updated to v2.4.0 on April 15th', meta: '10 Minutes ago', actions: ['Dismiss', 'Learn'] },
-    { type: 'info', title: 'New Feature', desc: 'A new dashboard feature is now available', meta: '2 hours ago', actions: ['Learn More'] },
-    { type: 'success', title: 'Verification Complete', desc: 'John Doe was successfully verified', meta: 'Yesterday', actions: ['View'] }
+  tasks: Task[] = [
+    {
+      title: 'Review E-Verification Application',
+      tag: 'E-Verification',
+      priority: 'high',
+      due: 'Due in 2 hours',
+      assigned: 'Assigned to you',
+      actions: ['Review', 'Approve', 'Reject']
+    },
+    {
+      title: 'Complete Onboarding Process',
+      tag: 'Onboarding',
+      priority: 'medium',
+      due: 'Due tomorrow',
+      assigned: 'Assigned to you',
+      actions: ['Complete', 'Request Extension']
+    },
+    {
+      title: 'Verify Database Records',
+      tag: 'DB Verification',
+      priority: 'low',
+      due: 'Due in 3 days',
+      assigned: 'Assigned to you',
+      actions: ['Verify', 'Mark Complete']
+    }
   ];
 
-  tasks = [
-    { title: 'Review SOP 05/2023', tag: 'SOP Management', priority: 'high', due: 'Due tomorrow', assigned: 'Assigned 2 days ago', actions: ['Reassign', 'Review'] },
-    { title: 'Approve verification for John Doe', tag: 'E-Verification', priority: 'medium', due: 'Due tomorrow', assigned: 'Assigned Yesterday', actions: ['View Details', 'Approve'] },
-    { title: 'Update Market Maps', tag: 'Market Maps', priority: 'low', due: 'Due in 3 days', assigned: 'Assigned Today', actions: ['Edit', 'Complete'] },
-    { title: 'Asset report review', tag: 'Asset Management', priority: 'medium', due: 'Due next week', assigned: 'Assigned 3 days ago', actions: ['View', 'Comment'] },
-    { title: 'Compliance check', tag: 'Compliance', priority: 'high', due: 'Due in 2 days', assigned: 'Assigned Today', actions: ['Start', 'Delegate'] },
-    { title: 'User onboarding', tag: 'Onboarding', priority: 'medium', due: 'Due in 5 days', assigned: 'Assigned Yesterday', actions: ['View', 'Approve'] },
-    { title: 'Billing review', tag: 'Billing', priority: 'low', due: 'Due in 1 week', assigned: 'Assigned 4 days ago', actions: ['View', 'Pay'] }
+  notifications: Notification[] = [
+    {
+      type: 'warning',
+      title: 'Document Verification Required',
+      desc: 'Additional documents needed for E-Verification application',
+      meta: '2 hours ago',
+      actions: ['View', 'Resolve']
+    },
+    {
+      type: 'info',
+      title: 'New Application Submitted',
+      desc: 'A new onboarding application has been submitted',
+      meta: '4 hours ago',
+      actions: ['View', 'Approve']
+    },
+    {
+      type: 'success',
+      title: 'Task Completed',
+      desc: 'Database verification task has been completed successfully',
+      meta: '1 day ago',
+      actions: ['View']
+    }
   ];
 
   constructor(
@@ -112,8 +146,7 @@ export class DashboardComponent implements OnInit {
   }
 
   // Application selection functionality
-  selectApplication(app: any): void {
-    // Update current application
+  onApplicationSelect(app: Application): void {
     this.currentApplication = app.title;
     
     // Update badges - remove 'Current' from all apps and add to selected app
@@ -123,44 +156,58 @@ export class DashboardComponent implements OnInit {
       }
     });
     app.badge = 'Current';
+    
+    console.log('Application selected:', app.title);
   }
 
-  // User dropdown functionality
-  toggleUserDropdown(): void {
+  // Header events
+  onToggleUserDropdown(): void {
     this.userDropdownOpen = !this.userDropdownOpen;
   }
 
-  closeUserDropdown(): void {
+  onCloseUserDropdown(): void {
     this.userDropdownOpen = false;
   }
 
   @HostListener('document:click', ['$event'])
   onDocumentClick(event: Event): void {
-    // Close dropdown if clicking outside
-    const target = event.target as HTMLElement;
-    if (!target.closest('.user-profile') && !target.closest('.user-dropdown')) {
+    // Close dropdown when clicking outside
+    if (!(event.target as Element).closest('.user-profile')) {
       this.userDropdownOpen = false;
     }
   }
 
-  getUserName(): string {
-    return this.currentUser?.name || 'Anushka';
+  // Tab events
+  onTabChange(tabId: string): void {
+    this.activeTab = tabId;
   }
 
-  getTabLabel(tab: string): string {
-    switch (tab) {
-      case 'overview': return 'Overview';
-      case 'applications': return 'Your Applications';
-      case 'notifications': return 'Notifications';
-      case 'tasks': return 'My Tasks';
-      case 'activity': return 'Recent Activity';
-      case 'help': return 'Help & Resources';
-      default: return '';
-    }
+  onUserPreferences(): void {
+    console.log('User preferences clicked');
+    // Add user preferences logic here
   }
 
-  // For overview tab: show a summary (first 3 apps, 3 notifications, 3 tasks)
-  get overviewApplications() { return this.applications.slice(0, 3); }
-  get overviewNotifications() { return this.notifications.slice(0, 3); }
-  get overviewTasks() { return this.tasks.slice(0, 3); }
+  onViewAllApplications(): void {
+    this.activeTab = 'applications';
+  }
+
+  // Task events
+  onViewAllTasks(): void {
+    this.activeTab = 'tasks';
+  }
+
+  onTaskAction(event: {task: Task, action: string}): void {
+    console.log('Task action:', event.action, 'for task:', event.task.title);
+    // Add task action logic here
+  }
+
+  // Notification events
+  onViewAllNotifications(): void {
+    this.activeTab = 'notifications';
+  }
+
+  onNotificationAction(event: {notification: Notification, action: string}): void {
+    console.log('Notification action:', event.action, 'for notification:', event.notification.title);
+    // Add notification action logic here
+  }
 }

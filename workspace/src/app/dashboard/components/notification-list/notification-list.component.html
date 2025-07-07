@@ -1,0 +1,22 @@
+<div class="notification-section">
+  <div class="section-header">
+    <span>{{ title }}</span>
+    <button *ngIf="showViewAll" class="view-all-link" (click)="onViewAll()">View all</button>
+  </div>
+  <div class="notification-list">
+    <div *ngFor="let notification of notifications" class="notification-item" [ngClass]="notification.type">
+      <div class="notification-title">{{ notification.title }}</div>
+      <div class="notification-desc">{{ notification.desc }}</div>
+      <div class="notification-meta">{{ notification.meta }}</div>
+      <div class="notification-actions">
+        <button 
+          *ngFor="let action of notification.actions" 
+          class="notification-btn" 
+          [ngClass]="{'primary': action === 'View' || action === 'Approve' || action === 'Resolve', 'secondary': action !== 'View' && action !== 'Approve' && action !== 'Resolve'}"
+          (click)="onNotificationAction(notification, action)">
+          {{ action }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 

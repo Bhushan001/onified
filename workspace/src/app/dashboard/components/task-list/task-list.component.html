@@ -1,0 +1,26 @@
+<div class="task-section">
+  <div class="section-header">
+    <span>{{ title }}</span>
+    <button *ngIf="showViewAll" class="view-all-link" (click)="onViewAll()">View all</button>
+  </div>
+  <div class="task-list">
+    <div *ngFor="let task of tasks" class="task-item">
+      <div class="task-title">{{ task.title }}</div>
+      <div class="task-meta">
+        <span class="task-tag">{{ task.tag }}</span>
+        <span class="task-priority" [ngClass]="task.priority">{{ task.priority | titlecase }}</span>
+        <span class="task-due">{{ task.due }}</span>
+        <span class="task-assigned">{{ task.assigned }}</span>
+      </div>
+      <div class="task-actions">
+        <button 
+          *ngFor="let action of task.actions" 
+          class="task-btn" 
+          [ngClass]="{'primary': action === 'Review' || action === 'Approve' || action === 'Complete' || action === 'Pay', 'secondary': action !== 'Review' && action !== 'Approve' && action !== 'Complete' && action !== 'Pay'}"
+          (click)="onTaskAction(task, action)">
+          {{ action }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div> 

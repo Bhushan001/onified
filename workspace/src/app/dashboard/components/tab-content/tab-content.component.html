@@ -1,0 +1,132 @@
+<div class="tab-content">
+  <!-- Overview Tab -->
+  <div *ngIf="activeTab === 'overview'" class="overview-content">
+    <app-application-cards 
+      [applications]="applications"
+      [showViewAll]="true"
+      (applicationSelect)="onApplicationClick($event)"
+      (viewAll)="onViewAllApplications()">
+    </app-application-cards>
+    
+    <div class="dashboard-bottom-row">
+      <app-task-list 
+        [tasks]="tasks"
+        [showViewAll]="true"
+        [title]="'My Tasks'"
+        (viewAll)="onViewAllTasks()"
+        (taskAction)="onTaskAction($event.task, $event.action)">
+      </app-task-list>
+      
+      <app-notification-list 
+        [notifications]="notifications"
+        [showViewAll]="true"
+        [title]="'Notifications'"
+        (viewAll)="onViewAllNotifications()"
+        (notificationAction)="onNotificationAction($event.notification, $event.action)">
+      </app-notification-list>
+    </div>
+  </div>
+
+  <!-- Applications Tab -->
+  <div *ngIf="activeTab === 'applications'" class="applications-content">
+    <app-application-cards 
+      [applications]="applications"
+      [showViewAll]="false"
+      (applicationSelect)="onApplicationClick($event)">
+    </app-application-cards>
+  </div>
+
+  <!-- Notifications Tab -->
+  <div *ngIf="activeTab === 'notifications'" class="notifications-content">
+    <app-notification-list 
+      [notifications]="notifications"
+      [showViewAll]="false"
+      [title]="'All Notifications'"
+      (notificationAction)="onNotificationAction($event.notification, $event.action)">
+    </app-notification-list>
+  </div>
+
+  <!-- Tasks Tab -->
+  <div *ngIf="activeTab === 'tasks'" class="tasks-content">
+    <app-task-list 
+      [tasks]="tasks"
+      [showViewAll]="false"
+      [title]="'All Tasks'"
+      (taskAction)="onTaskAction($event.task, $event.action)">
+    </app-task-list>
+  </div>
+
+  <!-- Activity Tab -->
+  <div *ngIf="activeTab === 'activity'" class="activity-content">
+    <div class="activity-section">
+      <div class="section-header">
+        <span>Recent Activity</span>
+      </div>
+      <div class="activity-list">
+        <div class="activity-item">
+          <div class="activity-icon"><i class="fa fa-check-circle"></i></div>
+          <div class="activity-content">
+            <div class="activity-title">Task completed</div>
+            <div class="activity-desc">E-Verification application approved</div>
+            <div class="activity-time">2 hours ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon"><i class="fa fa-bell"></i></div>
+          <div class="activity-content">
+            <div class="activity-title">New notification</div>
+            <div class="activity-desc">Document verification required</div>
+            <div class="activity-time">4 hours ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon"><i class="fa fa-plus"></i></div>
+          <div class="activity-content">
+            <div class="activity-title">Application created</div>
+            <div class="activity-desc">New onboarding application started</div>
+            <div class="activity-time">1 day ago</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Help Tab -->
+  <div *ngIf="activeTab === 'help'" class="help-content">
+    <div class="help-section">
+      <div class="section-header">
+        <span>Help & Resources</span>
+      </div>
+      <div class="help-list">
+        <div class="help-item">
+          <div class="help-icon"><i class="fa fa-book"></i></div>
+          <div class="help-content">
+            <div class="help-title">User Guide</div>
+            <div class="help-desc">Complete guide to using the workspace</div>
+          </div>
+        </div>
+        <div class="help-item">
+          <div class="help-icon"><i class="fa fa-video"></i></div>
+          <div class="help-content">
+            <div class="help-title">Video Tutorials</div>
+            <div class="help-desc">Step-by-step video guides</div>
+          </div>
+        </div>
+        <div class="help-item">
+          <div class="help-icon"><i class="fa fa-question-circle"></i></div>
+          <div class="help-content">
+            <div class="help-title">FAQ</div>
+            <div class="help-desc">Frequently asked questions</div>
+          </div>
+        </div>
+        <div class="help-item">
+          <div class="help-icon"><i class="fa fa-headset"></i></div>
+          <div class="help-content">
+            <div class="help-title">Support</div>
+            <div class="help-desc">Contact our support team</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> 

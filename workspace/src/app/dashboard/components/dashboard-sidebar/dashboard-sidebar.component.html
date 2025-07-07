@@ -1,0 +1,21 @@
+<!-- Custom Sidebar (starts below header) -->
+<nav class="custom-sidebar">
+  <div class="sidebar-top">
+    <div class="sidebar-logo">
+      <span class="logo-icon"><i class="fa fa-th-large"></i></span>
+      <span class="logo-label">Workspace</span>
+    </div>
+    <ul class="sidebar-nav">
+      <li *ngFor="let item of navItems" class="nav-item" [class.active]="item.active">
+        <i class="fa nav-icon" [ngClass]="item.icon"></i>
+        <span class="nav-label">{{ item.label }}</span>
+      </li>
+    </ul>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="powered-by">
+      <span class="powered-label">Powered by</span>
+      <span class="onified-logo">Onifi<span class="onified-dot">e</span>d</span>
+    </div>
+  </div>
+</nav> 
