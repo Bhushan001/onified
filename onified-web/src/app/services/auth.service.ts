@@ -21,7 +21,11 @@ import {
   PasswordResetRequest,
   PasswordResetResponse,
   UpdateProfileRequest,
-  UpdateProfileResponse
+  UpdateProfileResponse,
+  SocialLoginRequest,
+  SocialSignupRequest,
+  SocialLoginResponse,
+  SocialProvider
 } from '../models/auth.models';
 
 /**
@@ -262,6 +266,176 @@ export class AuthService {
         }),
         catchError(this.handleError.bind(this))
       );
+  }
+
+  /**
+   * Initiates social login with Google or LinkedIn
+   * 
+   * @param provider - Social provider (google or linkedin)
+   * @returns Observable with success status and optional error message
+   */
+  public initiateSocialLogin(provider: SocialProvider): Observable<{ success: boolean; message?: string }> {
+    const redirectUri = `${window.location.origin}/auth/callback`;
+    const state = this.generateState();
+    
+    // Store state for CSRF protection
+    localStorage.setItem('socialLoginState', state);
+    
+    let authUrl: string;
+    
+    if (provider === 'google') {
+      authUrl = `${this.API_URL}/auth/oauth2/authorize/google?redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
+    } else if (provider === 'linkedin') {
+      authUrl = `${this.API_URL}/auth/oauth2/authorize/linkedin?redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
+    } else {
+      return throwError(() => new Error('Unsupported social provider'));
+    }
+    
+    // Redirect to OAuth provider
+    window.location.href = authUrl;
+    
+    return new Observable(observer => {
+      observer.next({ success: true });
+      observer.complete();
+    });
+  }
+
+  /**
+   * Handles social login callback with authorization code
+   * 
+   * @param code - Authorization code from OAuth provider
+   * @param state - State parameter for CSRF protection
+   * @param provider - Social provider
+   * @returns Observable with success status and optional error message
+   */
+  public handleSocialLoginCallback(code: string, state: string, provider: SocialProvider): Observable<{ success: boolean; message?: string; isNewUser?: boolean }> {
+    const storedState = localStorage.getItem('socialLoginState');
+    
+    // Verify state parameter for CSRF protection
+    if (state !== storedState) {
+      return throwError(() => new Error('Invalid state parameter'));
+    }
+    
+    // Clear stored state
+    localStorage.removeItem('socialLoginState');
+    
+    const redirectUri = `${window.location.origin}/auth/callback`;
+    const payload: SocialLoginRequest = {
+      provider,
+      code,
+      state,
+      redirectUri
+    };
+    
+    return this.http.post<SocialLoginResponse>(`${this.API_URL}/auth/auth/social-login`, payload)
+      .pipe(
+        map(response => {
+          if (response.statusCode === 200 && response.status === 'SUCCESS' && response.body) {
+            // Save userProfile in localStorage if present
+            if (response.body.userProfile) {
+              localStorage.setItem('userProfile', JSON.stringify(response.body.userProfile));
+            }
+            
+            const token = response.body.accessToken || response.body.jwtToken;
+            if (!token) {
+              throw new Error('No access token found in social login response');
+            }
+            
+            const user = this.createUserFromResponse({ ...response.body, jwtToken: token });
+            this.handleAuthSuccess(token, user, response.body.refreshToken);
+            
+            return { 
+              success: true, 
+              isNewUser: response.body.isNewUser || false 
+            };
+          } else {
+            return { 
+              success: false, 
+              message: response.message || response.error || 'Social login failed' 
+            };
+          }
+        }),
+        catchError(this.handleError.bind(this))
+      );
+  }
+
+  /**
+   * Handles social signup for new users
+   * 
+   * @param code - Authorization code from OAuth provider
+   * @param state - State parameter for CSRF protection
+   * @param provider - Social provider
+   * @param signupFlow - Signup flow type (platform-admin, tenant-admin, user)
+   * @param role - Optional explicit user role (overrides signupFlow)
+   * @param userInfo - Additional user information from social profile
+   * @returns Observable with success status and optional error message
+   */
+  public handleSocialSignup(
+    code: string, 
+    state: string, 
+    provider: SocialProvider, 
+    signupFlow: 'platform-admin' | 'tenant-admin' | 'user',
+    role?: 'PLATFORM.Management.Admin' | 'PLATFORM.Management.TenantAdmin' | 'PLATFORM.Management.User',
+    userInfo?: { firstName?: string; lastName?: string; email?: string; avatar?: string }
+  ): Observable<{ success: boolean; message?: string }> {
+    const storedState = localStorage.getItem('socialSignupState');
+    
+    // Verify state parameter for CSRF protection
+    if (state !== storedState) {
+      return throwError(() => new Error('Invalid state parameter'));
+    }
+    
+    // Clear stored state
+    localStorage.removeItem('socialSignupState');
+    
+    const redirectUri = `${window.location.origin}/auth/callback`;
+    const payload: SocialSignupRequest = {
+      provider,
+      code,
+      state,
+      redirectUri,
+      signupFlow,
+      role,
+      userInfo
+    };
+    
+    return this.http.post<SocialLoginResponse>(`${this.API_URL}/auth/auth/social-signup`, payload)
+      .pipe(
+        map(response => {
+          if (response.statusCode === 201 && response.status === 'SUCCESS' && response.body) {
+            // Save userProfile in localStorage if present
+            if (response.body.userProfile) {
+              localStorage.setItem('userProfile', JSON.stringify(response.body.userProfile));
+            }
+            
+            const token = response.body.accessToken || response.body.jwtToken;
+            if (!token) {
+              throw new Error('No access token found in social signup response');
+            }
+            
+            const user = this.createUserFromResponse({ ...response.body, jwtToken: token });
+            this.handleAuthSuccess(token, user, response.body.refreshToken);
+            
+            return { success: true };
+          } else {
+            return { 
+              success: false, 
+              message: response.message || response.error || 'Social signup failed' 
+            };
+          }
+        }),
+        catchError(this.handleError.bind(this))
+      );
+  }
+
+  /**
+   * Generates a random state parameter for CSRF protection
+   * 
+   * @returns Random state string
+   * @private
+   */
+  private generateState(): string {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
   }
 
   /**

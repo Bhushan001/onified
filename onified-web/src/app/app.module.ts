@@ -15,6 +15,7 @@ import { FooterComponent } from './components/shared/footer/footer.component';
 import { TestimonialComponent } from './components/shared/testimonial/testimonial.component';
 import { PortalHostComponent } from './components/portal-host/portal-host.component';
 import { RootRedirectComponent } from './components/root-redirect/root-redirect.component';
+import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
 
 
 @NgModule({
@@ -27,7 +28,8 @@ import { RootRedirectComponent } from './components/root-redirect/root-redirect.
     FooterComponent,
     TestimonialComponent,
     PortalHostComponent,
-    RootRedirectComponent
+    RootRedirectComponent,
+    AuthCallbackComponent
   ],
   imports: [
     BrowserModule,

@@ -5,13 +5,15 @@ import { SignupPlatformAdminComponent } from './components/signup/signup-platfor
 import { SignupTenantAdminComponent } from './components/signup/signup-tenant-admin.component';
 import { PortalHostComponent } from './components/portal-host/portal-host.component';
 import { RootRedirectComponent } from './components/root-redirect/root-redirect.component';
+import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
 
 export const routes: Routes = [
   { path: '', component: RootRedirectComponent },
   { path: 'login', component: LoginComponent },
   { path: 'host/:remote', component: PortalHostComponent},
-  { path: 'create-platform-admin', loadComponent: () => import('./components/signup/signup-platform-admin.component').then(m => m.SignupPlatformAdminComponent) },
-  { path: 'create-tenant-admin', loadComponent: () => import('./components/signup/signup-tenant-admin.component').then(m => m.SignupTenantAdminComponent) },
-  { path: 'create-user', loadComponent: () => import('./components/signup/signup-platform-user.component').then(m => m.SignupPlatformUserComponent) },
+  { path: 'create-platform-admin', component: SignupPlatformAdminComponent },
+  { path: 'create-tenant-admin', component: SignupTenantAdminComponent },
+  { path: 'create-user', component: SignupPlatformUserComponent },
+  { path: 'auth/callback', component: AuthCallbackComponent },
   { path: '**', redirectTo: '/login' }
 ];

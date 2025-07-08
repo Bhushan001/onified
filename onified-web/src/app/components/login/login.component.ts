@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { InternalLoginRequest } from '../../models/auth.models';
+import { InternalLoginRequest, SocialProvider } from '../../models/auth.models';
 import { ThemeService } from '../../services/theme.service';
 
 /**
@@ -39,6 +39,7 @@ export class LoginComponent implements OnInit {
   loginForm: FormGroup;
   isLoading = false;
   isQRLoading = false;
+  isSocialLoading = false;
   errorMessage = '';
   showPassword = false;
   currentStep: 'identifier' | 'password' = 'identifier';
@@ -117,6 +118,23 @@ export class LoginComponent implements OnInit {
     setTimeout(() => {
       this.isQRLoading = false;
     }, 2000);
+  }
+
+  onSocialLogin(provider: SocialProvider): void {
+    this.isSocialLoading = true;
+    this.errorMessage = '';
+    
+    this.authService.initiateSocialLogin(provider).subscribe({
+      next: (result) => {
+        // The initiateSocialLogin method will redirect to OAuth provider
+        // This code won't execute immediately due to redirect
+        this.isSocialLoading = false;
+      },
+      error: (error) => {
+        this.isSocialLoading = false;
+        this.errorMessage = error.message || `Failed to connect with ${provider}`;
+      }
+    });
   }
 
   getIdentifierLabel(): string {

@@ -248,6 +248,58 @@
   }
 }
 
+.social-login-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.btn-social {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--color-border);
+  border-radius: 0.5rem;
+  font-size: fonts.$font-size-base;
+  font-weight: fonts.$font-weight-medium;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  
+  &:hover:not(:disabled) {
+    border-color: var(--color-border-focus);
+    box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .social-icon {
+    flex-shrink: 0;
+  }
+}
+
+.btn-google {
+  &:hover:not(:disabled) {
+    border-color: #ea4335;
+    box-shadow: 0 0 0 3px rgba(234, 67, 53, 0.1);
+  }
+}
+
+.btn-linkedin {
+  &:hover:not(:disabled) {
+    border-color: #0077b5;
+    box-shadow: 0 0 0 3px rgba(0, 119, 181, 0.1);
+  }
+}
+
 .auth-links {
   display: flex;
   justify-content: center;

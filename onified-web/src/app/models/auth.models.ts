@@ -65,6 +65,86 @@ export interface InternalLoginRequest {
 }
 
 /**
+ * Social login provider types
+ */
+export type SocialProvider = 'google' | 'linkedin';
+
+/**
+ * Social login request interface
+ * Used for Google and LinkedIn authentication
+ */
+export interface SocialLoginRequest {
+  /** Social provider (google or linkedin) */
+  provider: SocialProvider;
+  /** Authorization code from OAuth flow */
+  code: string;
+  /** State parameter for CSRF protection */
+  state?: string;
+  /** Redirect URI used in OAuth flow */
+  redirectUri: string;
+}
+
+/**
+ * Social signup request interface
+ * Used for creating new accounts via social login
+ */
+export interface SocialSignupRequest {
+  /** Social provider (google or linkedin) */
+  provider: SocialProvider;
+  /** Authorization code from OAuth flow */
+  code: string;
+  /** State parameter for CSRF protection */
+  state?: string;
+  /** Redirect URI used in OAuth flow */
+  redirectUri: string;
+  /** Signup flow type (platform-admin, tenant-admin, user) */
+  signupFlow: 'platform-admin' | 'tenant-admin' | 'user';
+  /** Optional explicit user role (overrides signupFlow) */
+  role?: 'PLATFORM.Management.Admin' | 'PLATFORM.Management.TenantAdmin' | 'PLATFORM.Management.User';
+  /** Additional user information from social profile */
+  userInfo?: {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    avatar?: string;
+  };
+}
+
+/**
+ * Social login response interface
+ * Response from social authentication endpoints
+ */
+export interface SocialLoginResponse {
+  /** HTTP status code */
+  statusCode: number;
+  /** Status message (SUCCESS, ERROR, etc.) */
+  status: string;
+  /** Response body containing authentication data */
+  body?: {
+    /** JWT access token */
+    accessToken?: string;
+    /** JWT access token (legacy/compat) */
+    jwtToken?: string;
+    /** Username of the authenticated user */
+    username: string;
+    /** Optional refresh token */
+    refreshToken?: string;
+    /** Token expiration time in seconds */
+    expiresIn?: number;
+    /** Additional user data */
+    user?: User;
+    /** User profile details (roles, etc.) */
+    userProfile?: UserAuthDetailsResponse;
+    /** Whether this is a new user (first time login) */
+    isNewUser?: boolean;
+  };
+  /** Error message if social login failed */
+  message?: string;
+  /** Additional error details */
+  error?: string;
+}
+
+/**
  * Response from login API endpoint
  * Updated to match your backend's response format
  */

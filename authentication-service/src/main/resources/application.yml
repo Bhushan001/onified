@@ -1,4 +1,6 @@
 spring:
+  webflux:
+    base-path: /api
   config:
     import: optional:.env[.properties]
   application:
@@ -48,17 +50,15 @@ logging:
     max-history: 30
     total-size-cap: 1GB
 
-# OAuth2 Configuration (temporarily disabled for testing)
-# security:
-#   oauth2:
-#     resourceserver:
-#       jwt:
-#         issuer-uri: ${KEYCLOAK_AUTH_SERVER_URL:http://localhost:9090}/realms/${KEYCLOAK_REALM:onified}
-#     client:
-#       registration:
-#         keycloak:
-#           client-id: ${KEYCLOAK_CLIENT_ID:onified-auth-service}
-#           client-secret: ${KEYCLOAK_CLIENT_SECRET:your-client-secret}
+# Social Login Configuration
+social:
+  google:
+    client-id: ${GOOGLE_CLIENT_ID:1017240346181-t1a36bue2362kccgc2fuf0gtjt79nmc8.apps.googleusercontent.com}
+    client-secret: ${GOOGLE_CLIENT_SECRET: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}
+  linkedin:
+    client-id: ${LINKEDIN_CLIENT_ID:1017240346181-t1a36bue2362kccgc2fuf0gtjt79nmc8.apps.googleusercontent.com}
+    client-secret: ${LINKEDIN_CLIENT_SECRET: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}
+
 
 # Keycloak Configuration
 keycloak:

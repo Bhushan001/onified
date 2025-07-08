@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { PasswordPolicyService, PasswordValidationResult, PasswordPolicy } from '../../services/password-policy.service';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
-import { RegisterRequest } from '../../models/auth.models';
+import { RegisterRequest, SocialProvider } from '../../models/auth.models';
 
 @Component({
   selector: 'app-signup-platform-admin',
@@ -23,6 +23,7 @@ export class SignupPlatformAdminComponent implements OnInit, OnDestroy {
   showConfirmPassword = false;
   passwordValidation: PasswordValidationResult | null = null;
   isPasswordPolicyLoaded = false;
+  isSocialLoading = false;
   private policySubscription: Subscription | null = null;
   public passwordPolicy: PasswordPolicy | null = null;
 
@@ -218,6 +219,26 @@ export class SignupPlatformAdminComponent implements OnInit, OnDestroy {
     return this.passwordValidation && typeof this.passwordValidation.strength === 'number'
       ? `${this.passwordValidation.strength * 20}%`
       : '0%';
+  }
+
+  onSocialSignup(provider: SocialProvider): void {
+    this.isSocialLoading = true;
+    this.error = null;
+    
+    // Store the signup flow for social signup
+    localStorage.setItem('socialSignupFlow', 'platform-admin');
+    
+    this.authService.initiateSocialLogin(provider).subscribe({
+      next: (result) => {
+        // The initiateSocialLogin method will redirect to OAuth provider
+        // This code won't execute immediately due to redirect
+        this.isSocialLoading = false;
+      },
+      error: (error) => {
+        this.isSocialLoading = false;
+        this.error = error.message || `Failed to connect with ${provider}`;
+      }
+    });
   }
 
   debugPasswordValidation(): void {
