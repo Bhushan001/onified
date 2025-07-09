@@ -5,6 +5,7 @@ import { PasswordPolicyService, PasswordValidationResult, PasswordPolicy } from 
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { RegisterRequest } from '../../models/auth.models';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-signup-platform-user',
@@ -25,6 +26,7 @@ export class SignupPlatformUserComponent implements OnInit, OnDestroy {
   isPasswordPolicyLoaded = false;
   private policySubscription: Subscription | null = null;
   public passwordPolicy: PasswordPolicy | null = null;
+  public isSocialLoading = false;
 
   testimonial = {
     quote: "Onified has transformed how we manage our enterprise applications. The seamless integration and powerful features have made our workflow incredibly efficient.",
@@ -223,5 +225,40 @@ export class SignupPlatformUserComponent implements OnInit, OnDestroy {
   debugPasswordValidation(): void {
     // For debugging password validation in the UI
     console.log(this.passwordValidation);
+  }
+
+  onSocialSignup(provider: 'google' | 'linkedin'): void {
+    this.isSocialLoading = true;
+    this.error = null;
+    
+    // Store the signup flow for social signup
+    localStorage.setItem('socialSignupFlow', 'user');
+    
+    // Store the provider for callback identification
+    localStorage.setItem('socialLoginProvider', provider);
+    
+    // Generate a random state parameter for CSRF protection
+    const state = this.generateState();
+    localStorage.setItem('socialLoginState', state);
+    
+    const keycloakUrl = environment.keycloak.issuer;
+    const clientId = environment.keycloak.clientId;
+    const redirectUri = environment.keycloak.redirectUri;
+    const scope = environment.keycloak.scope;
+    const responseType = environment.keycloak.responseType;
+    
+    const authUrl = `${keycloakUrl}/protocol/openid-connect/auth?` +
+      `client_id=${clientId}&` +
+      `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+      `scope=${scope}&` +
+      `response_type=${responseType}&` +
+      `state=${state}&` +
+      `kc_idp_hint=${provider}`;
+    
+    window.location.href = authUrl;
+  }
+
+  private generateState(): string {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
   }
 } 

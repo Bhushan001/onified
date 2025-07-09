@@ -115,6 +115,18 @@ export class AuthConfigComponent {
 
   private isTokenNotExpired(token: string): boolean {
     try {
+      // Handle placeholder tokens (social login)
+      if (token.startsWith('placeholder_')) {
+        const timestampStr = token.replace('placeholder_', '');
+        const timestamp = parseInt(timestampStr, 10);
+        if (isNaN(timestamp)) {
+          return false;
+        }
+        const now = Date.now();
+        const expirationTime = timestamp + (24 * 60 * 60 * 1000); // 24 hours
+        return now < expirationTime;
+      }
+      
       if (!token || typeof token !== 'string' || token.split('.').length < 2) {
         return false;
       }
@@ -139,5 +151,39 @@ export class AuthConfigComponent {
     localStorage.removeItem(environment.auth.tokenKey);
     localStorage.removeItem(environment.auth.userKey);
     this.checkAuthStatus();
+  }
+
+  loginWithGoogle(): void {
+    const keycloakUrl = environment.keycloak.issuer;
+    const clientId = environment.keycloak.clientId;
+    const redirectUri = environment.keycloak.redirectUri;
+    const scope = environment.keycloak.scope;
+    const responseType = environment.keycloak.responseType;
+    
+    const authUrl = `${keycloakUrl}/protocol/openid-connect/auth?` +
+      `client_id=${clientId}&` +
+      `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+      `scope=${scope}&` +
+      `response_type=${responseType}&` +
+      `kc_idp_hint=google`;
+    
+    window.location.href = authUrl;
+  }
+
+  loginWithLinkedIn(): void {
+    const keycloakUrl = environment.keycloak.issuer;
+    const clientId = environment.keycloak.clientId;
+    const redirectUri = environment.keycloak.redirectUri;
+    const scope = environment.keycloak.scope;
+    const responseType = environment.keycloak.responseType;
+    
+    const authUrl = `${keycloakUrl}/protocol/openid-connect/auth?` +
+      `client_id=${clientId}&` +
+      `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+      `scope=${scope}&` +
+      `response_type=${responseType}&` +
+      `kc_idp_hint=linkedin`;
+    
+    window.location.href = authUrl;
   }
 } 

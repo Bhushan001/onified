@@ -140,16 +140,20 @@ public class AuthController {
     @GetMapping("/user/{username}")
     public ResponseEntity<ApiResponse<Object>> getUserAuthDetails(@PathVariable String username) {
         try {
-            ApiResponse<UserAuthDetailsResponse> response = userManagementFeignClient.getUserAuthDetailsByUsername(username);
-            if (response != null && response.getStatusCode() == HttpStatus.OK.value()) {
-                return new ResponseEntity<>(new ApiResponse<>(
-                    response.getStatusCode(),
-                    response.getStatus(),
-                    response.getBody()
-                ), HttpStatus.OK);
-            } else {
-                throw new UserNotFoundException(String.format(ErrorConstants.USER_NOT_FOUND_USERNAME, username));
+            ResponseEntity<Object> response = userManagementFeignClient.getUserAuthDetailsByUsername(username);
+            if (response != null && response.getStatusCode().value() == HttpStatus.OK.value()) {
+                Object responseBody = response.getBody();
+                if (responseBody != null) {
+                    // Extract UserAuthDetailsResponse from response body
+                    UserAuthDetailsResponse userAuthDetails = extractUserAuthDetailsFromResponse(responseBody);
+                    return new ResponseEntity<>(new ApiResponse<>(
+                        response.getStatusCode().value(),
+                        "SUCCESS",
+                        userAuthDetails
+                    ), HttpStatus.OK);
+                }
             }
+            throw new UserNotFoundException(String.format(ErrorConstants.USER_NOT_FOUND_USERNAME, username));
         } catch (FeignException fe) {
             String errorBody = fe.contentUTF8();
             try {
@@ -230,11 +234,20 @@ public class AuthController {
     @GetMapping("/profile/{username}")
     public ResponseEntity<ApiResponse<UserAuthDetailsResponse>> getUserProfile(@PathVariable String username) {
         try {
-            ApiResponse<UserAuthDetailsResponse> umsResponse = userManagementFeignClient.getUserAuthDetailsByUsername(username);
-            if (umsResponse == null || umsResponse.getStatusCode() != HttpStatus.OK.value() || umsResponse.getBody() == null) {
-                throw new UserNotFoundException(String.format(ErrorConstants.USER_NOT_FOUND_USERNAME, username));
+            ResponseEntity<Object> response = userManagementFeignClient.getUserAuthDetailsByUsername(username);
+            if (response != null && response.getStatusCode().value() == HttpStatus.OK.value()) {
+                Object responseBody = response.getBody();
+                if (responseBody != null) {
+                    // Extract UserAuthDetailsResponse from response body
+                    UserAuthDetailsResponse userAuthDetails = extractUserAuthDetailsFromResponse(responseBody);
+                    return new ResponseEntity<>(new ApiResponse<>(
+                        response.getStatusCode().value(),
+                        "SUCCESS",
+                        userAuthDetails
+                    ), HttpStatus.OK);
+                }
             }
-            return new ResponseEntity<>(umsResponse, HttpStatus.OK);
+            throw new UserNotFoundException(String.format(ErrorConstants.USER_NOT_FOUND_USERNAME, username));
         } catch (Exception e) {
             ApiResponse<UserAuthDetailsResponse> response = new ApiResponse<>(
                     HttpStatus.NOT_FOUND.value(),
@@ -243,5 +256,31 @@ public class AuthController {
             );
             return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
+    }
+
+    private UserAuthDetailsResponse extractUserAuthDetailsFromResponse(Object responseBody) {
+        try {
+            if (responseBody instanceof java.util.Map) {
+                @SuppressWarnings("unchecked")
+                java.util.Map<String, Object> responseMap = (java.util.Map<String, Object>) responseBody;
+                Object body = responseMap.get("body");
+                if (body instanceof java.util.Map) {
+                    @SuppressWarnings("unchecked")
+                    java.util.Map<String, Object> userMap = (java.util.Map<String, Object>) body;
+                    
+                    java.util.List<String> roles = (java.util.List<String>) userMap.get("roles");
+                    
+                    return UserAuthDetailsResponse.builder()
+                        .id(java.util.UUID.fromString((String) userMap.get("id")))
+                        .username((String) userMap.get("username"))
+                        .passwordHash((String) userMap.get("passwordHash"))
+                        .roles(roles)
+                        .build();
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to parse UserAuthDetailsResponse from response body: " + e.getMessage());
+        }
+        throw new RuntimeException("Failed to extract user authentication details from response");
     }
 }

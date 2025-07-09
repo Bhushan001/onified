@@ -175,22 +175,25 @@ export class AuthService {
     const token = responseBody.accessToken || responseBody.jwtToken;
     const tokenData = this.extractDataFromToken(token);
     
+    // For social login, prioritize response data over token data
+    const isSocialLogin = token && token.startsWith('social-token-');
+    
     // Create user object combining response data and token data
     const user: User = {
-      id: tokenData.sub || '', // Subject from JWT
+      id: isSocialLogin ? (responseBody.user?.id || tokenData.sub || '') : (tokenData.sub || ''),
       username: responseBody.username || tokenData.preferred_username || '',
       name: responseBody.username || tokenData.preferred_username || '', // Use username as display name for now
-      roles: tokenData.realm_access?.roles || [],
+      roles: isSocialLogin ? (responseBody.user?.roles || tokenData.realm_access?.roles || []) : (tokenData.realm_access?.roles || []),
       lastLogin: new Date().toISOString(),
       // Add any additional fields from response if available
-      email: responseBody.email || tokenData.email,
-      firstName: responseBody.firstName || tokenData.given_name,
-      lastName: responseBody.lastName || tokenData.family_name,
+      email: isSocialLogin ? (responseBody.user?.email || responseBody.email || tokenData.email) : (responseBody.email || tokenData.email),
+      firstName: isSocialLogin ? (responseBody.user?.firstName || responseBody.firstName || tokenData.given_name) : (responseBody.firstName || tokenData.given_name),
+      lastName: isSocialLogin ? (responseBody.user?.lastName || responseBody.lastName || tokenData.family_name) : (responseBody.lastName || tokenData.family_name),
       phone: responseBody.phone,
       tenant: responseBody.tenant,
       avatar: responseBody.avatar,
       department: responseBody.department,
-      status: responseBody.status || 'active'
+      status: isSocialLogin ? (responseBody.user?.status || responseBody.status || 'active') : (responseBody.status || 'active')
     };
 
     return user;
@@ -205,6 +208,19 @@ export class AuthService {
    */
   private extractDataFromToken(token: string): any {
     try {
+      // Check if this is a placeholder token (social login)
+      if (token && token.startsWith('social-token-')) {
+        // For placeholder tokens, return basic data structure
+        const username = token.split('-')[2]; // Extract username from token
+        return {
+          sub: username,
+          preferred_username: username,
+          realm_access: {
+            roles: ['PLATFORM.Management.User'] // Default role for social users
+          }
+        };
+      }
+      
       if (!token || typeof token !== 'string' || token.split('.').length < 2) {
         throw new Error('Invalid or missing JWT token');
       }
@@ -280,13 +296,15 @@ export class AuthService {
     
     // Store state for CSRF protection
     localStorage.setItem('socialLoginState', state);
+    // Store provider for callback identification
+    localStorage.setItem('socialLoginProvider', provider);
     
     let authUrl: string;
     
     if (provider === 'google') {
-      authUrl = `${this.API_URL}/auth/oauth2/authorize/google?redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
+      authUrl = `${this.API_URL}/auth/auth/social/oauth2/authorize/google?redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
     } else if (provider === 'linkedin') {
-      authUrl = `${this.API_URL}/auth/oauth2/authorize/linkedin?redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
+      authUrl = `${this.API_URL}/auth/auth/social/oauth2/authorize/linkedin?redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`;
     } else {
       return throwError(() => new Error('Unsupported social provider'));
     }
@@ -327,7 +345,7 @@ export class AuthService {
       redirectUri
     };
     
-    return this.http.post<SocialLoginResponse>(`${this.API_URL}/auth/auth/social-login`, payload)
+    return this.http.post<SocialLoginResponse>(`${this.API_URL}/auth/auth/social/login`, payload)
       .pipe(
         map(response => {
           if (response.statusCode === 200 && response.status === 'SUCCESS' && response.body) {
@@ -378,7 +396,7 @@ export class AuthService {
     role?: 'PLATFORM.Management.Admin' | 'PLATFORM.Management.TenantAdmin' | 'PLATFORM.Management.User',
     userInfo?: { firstName?: string; lastName?: string; email?: string; avatar?: string }
   ): Observable<{ success: boolean; message?: string }> {
-    const storedState = localStorage.getItem('socialSignupState');
+    const storedState = localStorage.getItem('socialLoginState');
     
     // Verify state parameter for CSRF protection
     if (state !== storedState) {
@@ -386,20 +404,18 @@ export class AuthService {
     }
     
     // Clear stored state
-    localStorage.removeItem('socialSignupState');
+    localStorage.removeItem('socialLoginState');
     
-    const redirectUri = `${window.location.origin}/auth/callback`;
+    // Since the backend now uses Keycloak admin API to find the user,
+    // we don't need to send the authorization code anymore
     const payload: SocialSignupRequest = {
       provider,
-      code,
-      state,
-      redirectUri,
       signupFlow,
       role,
       userInfo
     };
     
-    return this.http.post<SocialLoginResponse>(`${this.API_URL}/auth/auth/social-signup`, payload)
+    return this.http.post<SocialLoginResponse>(`${this.API_URL}/auth/auth/social/signup`, payload)
       .pipe(
         map(response => {
           if (response.statusCode === 201 && response.status === 'SUCCESS' && response.body) {
@@ -690,6 +706,21 @@ export class AuthService {
    */
   private isTokenExpired(token: string): boolean {
     try {
+      // Check if this is a placeholder token (social login)
+      if (token && token.startsWith('social-token-')) {
+        // For placeholder tokens, we consider them valid for 24 hours
+        // Extract timestamp from token (format: social-token-username-timestamp)
+        const parts = token.split('-');
+        if (parts.length >= 4) {
+          const timestamp = parseInt(parts[3]);
+          const now = Date.now();
+          const tokenAge = now - timestamp;
+          const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+          return tokenAge > maxAge;
+        }
+        return false; // If we can't parse the timestamp, assume it's valid
+      }
+      
       const payload = this.extractDataFromToken(token);
       const exp = payload.exp;
       
@@ -713,6 +744,24 @@ export class AuthService {
    */
   private setTokenExpirationTimer(token: string): void {
     try {
+      // Check if this is a placeholder token (social login)
+      if (token && token.startsWith('social-token-')) {
+        // For placeholder tokens, set a timer for 24 hours
+        const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+        
+        // Clear existing timer
+        if (this.tokenExpirationTimer) {
+          clearTimeout(this.tokenExpirationTimer);
+        }
+        
+        // Set new timer
+        this.tokenExpirationTimer = setTimeout(() => {
+          // For social login tokens, we don't refresh them, just logout
+          this.logout();
+        }, maxAge);
+        return;
+      }
+      
       const payload = this.extractDataFromToken(token);
       const exp = payload.exp;
       

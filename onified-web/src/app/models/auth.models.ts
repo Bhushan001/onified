@@ -91,12 +91,12 @@ export interface SocialLoginRequest {
 export interface SocialSignupRequest {
   /** Social provider (google or linkedin) */
   provider: SocialProvider;
-  /** Authorization code from OAuth flow */
-  code: string;
-  /** State parameter for CSRF protection */
+  /** Authorization code from OAuth flow (optional - backend uses admin API) */
+  code?: string;
+  /** State parameter for CSRF protection (optional - backend uses admin API) */
   state?: string;
-  /** Redirect URI used in OAuth flow */
-  redirectUri: string;
+  /** Redirect URI used in OAuth flow (optional - backend uses admin API) */
+  redirectUri?: string;
   /** Signup flow type (platform-admin, tenant-admin, user) */
   signupFlow: 'platform-admin' | 'tenant-admin' | 'user';
   /** Optional explicit user role (overrides signupFlow) */

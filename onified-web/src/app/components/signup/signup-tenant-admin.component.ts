@@ -4,7 +4,8 @@ import { Router } from '@angular/router';
 import { PasswordPolicyService, PasswordValidationResult, PasswordPolicy } from '../../services/password-policy.service';
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
-import { RegisterRequest } from '../../models/auth.models';
+import { RegisterRequest, SocialProvider } from '../../models/auth.models';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-signup-tenant-admin',
@@ -32,6 +33,9 @@ export class SignupTenantAdminComponent implements OnInit, OnDestroy {
     title: "CTO, TechCorp",
     avatar: "assets/images/testimonials/sarah.jpg"
   };
+
+  // Social signup properties
+  isSocialLoading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -196,6 +200,41 @@ export class SignupTenantAdminComponent implements OnInit, OnDestroy {
 
   togglePasswordVisibility() {
     this.showPassword = !this.showPassword;
+  }
+
+  onSocialSignup(provider: 'google' | 'linkedin'): void {
+    this.isSocialLoading = true;
+    this.error = null;
+    
+    // Store the signup flow for social signup
+    localStorage.setItem('socialSignupFlow', 'tenant-admin');
+    
+    // Store the provider for callback identification
+    localStorage.setItem('socialLoginProvider', provider);
+    
+    // Generate a random state parameter for CSRF protection
+    const state = this.generateState();
+    localStorage.setItem('socialLoginState', state);
+    
+    const keycloakUrl = environment.keycloak.issuer;
+    const clientId = environment.keycloak.clientId;
+    const redirectUri = environment.keycloak.redirectUri;
+    const scope = environment.keycloak.scope;
+    const responseType = environment.keycloak.responseType;
+    
+    const authUrl = `${keycloakUrl}/protocol/openid-connect/auth?` +
+      `client_id=${clientId}&` +
+      `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+      `scope=${scope}&` +
+      `response_type=${responseType}&` +
+      `state=${state}&` +
+      `kc_idp_hint=${provider}`;
+    
+    window.location.href = authUrl;
+  }
+
+  private generateState(): string {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
   }
 
   toggleConfirmPasswordVisibility() {

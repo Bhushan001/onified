@@ -72,11 +72,11 @@ authentication-service:
 
 ## Client 2: Web Application Client
 
-### Client ID: `onified-web-app`
+### Client ID: `onified-auth-service`
 
 #### General Settings
 ```
-Client ID: onified-web-app
+Client ID: onified-auth-service
 Name: Onified Web Application
 Description: Frontend Angular application for Onified platform
 Client Protocol: openid-connect
@@ -177,7 +177,7 @@ Logout URL +: (leave empty)
 
 2. **General Settings**
    ```
-   Client ID: onified-web-app
+   Client ID: onified-auth-service
    Name: Onified Web Application
    Description: Frontend Angular application for Onified platform
    Client Protocol: openid-connect
@@ -219,7 +219,7 @@ export const environment = {
   // ... other settings
   keycloak: {
     issuer: 'http://localhost:9090/realms/onified',
-    clientId: 'onified-web-app',
+    clientId: 'onified-auth-service',
     redirectUri: 'http://localhost:4200',
     postLogoutRedirectUri: 'http://localhost:4200',
     scope: 'openid profile email',
@@ -244,7 +244,7 @@ curl -X POST http://localhost:9090/realms/onified/protocol/openid-connect/token 
 ### Test Web Application Client
 ```bash
 # Test authorization code flow (browser)
-# Navigate to: http://localhost:9090/realms/onified/protocol/openid-connect/auth?client_id=onified-web-app&response_type=code&scope=openid&redirect_uri=http://localhost:4200
+# Navigate to: http://localhost:9090/realms/onified/protocol/openid-connect/auth?client_id=onified-auth-service&response_type=code&scope=openid&redirect_uri=http://localhost:4200
 ```
 
 ## Common Issues and Solutions

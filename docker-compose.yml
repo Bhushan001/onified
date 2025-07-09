@@ -147,6 +147,7 @@ services:
       AUTH_DB_USERNAME: ${AUTH_DB_USERNAME}
       AUTH_DB_PASSWORD: ${AUTH_DB_PASSWORD}
       KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
+      USER_MANAGEMENT_URL: http://user-management-service:9085
     volumes:
       - ./logs/authentication-service:/app/logs
     depends_on:

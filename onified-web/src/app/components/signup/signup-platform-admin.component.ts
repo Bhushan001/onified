@@ -5,6 +5,7 @@ import { PasswordPolicyService, PasswordValidationResult, PasswordPolicy } from 
 import { Subscription } from 'rxjs';
 import { AuthService } from '../../services/auth.service';
 import { RegisterRequest, SocialProvider } from '../../models/auth.models';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-signup-platform-admin',
@@ -221,24 +222,39 @@ export class SignupPlatformAdminComponent implements OnInit, OnDestroy {
       : '0%';
   }
 
-  onSocialSignup(provider: SocialProvider): void {
+  onSocialSignup(provider: 'google' | 'linkedin'): void {
     this.isSocialLoading = true;
     this.error = null;
     
     // Store the signup flow for social signup
     localStorage.setItem('socialSignupFlow', 'platform-admin');
     
-    this.authService.initiateSocialLogin(provider).subscribe({
-      next: (result) => {
-        // The initiateSocialLogin method will redirect to OAuth provider
-        // This code won't execute immediately due to redirect
-        this.isSocialLoading = false;
-      },
-      error: (error) => {
-        this.isSocialLoading = false;
-        this.error = error.message || `Failed to connect with ${provider}`;
-      }
-    });
+    // Store the provider for callback identification
+    localStorage.setItem('socialLoginProvider', provider);
+    
+    // Generate a random state parameter for CSRF protection
+    const state = this.generateState();
+    localStorage.setItem('socialLoginState', state);
+    
+    const keycloakUrl = environment.keycloak.issuer;
+    const clientId = environment.keycloak.clientId;
+    const redirectUri = environment.keycloak.redirectUri;
+    const scope = environment.keycloak.scope;
+    const responseType = environment.keycloak.responseType;
+    
+    const authUrl = `${keycloakUrl}/protocol/openid-connect/auth?` +
+      `client_id=${clientId}&` +
+      `redirect_uri=${encodeURIComponent(redirectUri)}&` +
+      `scope=${scope}&` +
+      `response_type=${responseType}&` +
+      `state=${state}&` +
+      `kc_idp_hint=${provider}`;
+    
+    window.location.href = authUrl;
+  }
+
+  private generateState(): string {
+    return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
   }
 
   debugPasswordValidation(): void {

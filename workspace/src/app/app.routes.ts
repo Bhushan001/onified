@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { DashboardComponent } from './dashboard/dashboard.component';
 import { AuthConfigComponent } from './components/auth-config/auth-config.component';
+import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
 import { UserManagementComponent } from './users/user-management/user-management.component';
 import { NotificationsAlertsComponent } from './users/notifications-alerts/notifications-alerts.component';
 import { HelpSupportComponent } from './users/help-support/help-support.component';
@@ -19,6 +20,7 @@ export const routes: Routes = [
       { path: 'users/feedback-settings', component: FeedbackSettingsComponent },
     ]
   },
-  { path: 'auth-config', component: AuthConfigComponent }
+  { path: 'auth-config', component: AuthConfigComponent },
+  { path: 'auth-callback', component: AuthCallbackComponent }
   // Add more routes as needed
 ];

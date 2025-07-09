@@ -47,7 +47,7 @@ docker-compose up -d keycloak keycloak-db
 
 ### 3. Create Client for Web Application
 1. Create another client:
-   - **Client ID**: `onified-web-app`
+   - **Client ID**: `onified-auth-service`
    - **Client Protocol**: `openid-connect`
    - **Root URL**: `http://localhost:4200`
 

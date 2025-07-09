@@ -29,16 +29,15 @@ export class AuthService {
 
   private checkAuthStatus(): void {
     const token = localStorage.getItem(this.TOKEN_KEY);
-    const userProfile = localStorage.getItem('userProfile');
+    const userData = localStorage.getItem(this.USER_KEY);
     
-    if (token && userProfile) {
+    if (token && userData) {
       try {
-        const parsedUserProfile = JSON.parse(userProfile);
+        const parsedUser = JSON.parse(userData);
         if (this.isTokenExpired(token)) {
           this.refreshToken().subscribe({
             next: () => {
-              const user = this.createUserFromUserProfile(parsedUserProfile);
-              this.currentUserSubject.next(user);
+              this.currentUserSubject.next(parsedUser);
               this.isAuthenticatedSubject.next(true);
             },
             error: () => {
@@ -46,8 +45,7 @@ export class AuthService {
             }
           });
         } else {
-          const user = this.createUserFromUserProfile(parsedUserProfile);
-          this.currentUserSubject.next(user);
+          this.currentUserSubject.next(parsedUser);
           this.isAuthenticatedSubject.next(true);
           this.setTokenExpirationTimer(token);
         }
@@ -126,6 +124,19 @@ export class AuthService {
 
   private extractDataFromToken(token: string): any {
     try {
+      // Check if this is a placeholder token (social login)
+      if (token && token.startsWith('social-token-')) {
+        // For placeholder tokens, return basic data structure
+        const username = token.split('-')[2]; // Extract username from token
+        return {
+          sub: username,
+          preferred_username: username,
+          realm_access: {
+            roles: ['PLATFORM.Management.User'] // Default role for social users
+          }
+        };
+      }
+      
       if (!token || typeof token !== 'string' || token.split('.').length < 2) {
         throw new Error('Invalid or missing JWT token');
       }
@@ -261,6 +272,21 @@ export class AuthService {
 
   private isTokenExpired(token: string): boolean {
     try {
+      // Check if this is a placeholder token (social login)
+      if (token && token.startsWith('social-token-')) {
+        // For placeholder tokens, we consider them valid for 24 hours
+        // Extract timestamp from token (format: social-token-username-timestamp)
+        const parts = token.split('-');
+        if (parts.length >= 4) {
+          const timestamp = parseInt(parts[3]);
+          const now = Date.now();
+          const tokenAge = now - timestamp;
+          const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+          return tokenAge > maxAge;
+        }
+        return false; // If we can't parse the timestamp, assume it's valid
+      }
+      
       const payload = this.extractDataFromToken(token);
       const exp = payload.exp;
       if (!exp) {
@@ -275,6 +301,24 @@ export class AuthService {
 
   private setTokenExpirationTimer(token: string): void {
     try {
+      // Check if this is a placeholder token (social login)
+      if (token && token.startsWith('social-token-')) {
+        // For placeholder tokens, set a timer for 24 hours
+        const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+        
+        // Clear existing timer
+        if (this.tokenExpirationTimer) {
+          clearTimeout(this.tokenExpirationTimer);
+        }
+        
+        // Set new timer
+        this.tokenExpirationTimer = setTimeout(() => {
+          // For social login tokens, we don't refresh them, just logout
+          this.logout();
+        }, maxAge);
+        return;
+      }
+      
       const payload = this.extractDataFromToken(token);
       const exp = payload.exp;
       if (!exp) {

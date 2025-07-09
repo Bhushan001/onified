@@ -51,7 +51,7 @@ public class SocialAuthController {
     @GetMapping("/oauth2/authorize/{provider}")
     public ResponseEntity<Void> initiateOAuth2Flow(
             @PathVariable String provider,
-            @RequestParam String redirectUri,
+            @RequestParam("redirect_uri") String redirectUri,
             @RequestParam String state) {
         
         log.info("Initiating OAuth2 flow for provider: {}", provider);
@@ -59,5 +59,17 @@ public class SocialAuthController {
         return ResponseEntity.status(HttpStatus.FOUND)
             .header("Location", authUrl)
             .build();
+    }
+
+    @GetMapping("/test-connection")
+    public ResponseEntity<ApiResponse<String>> testKeycloakConnection() {
+        try {
+            socialAuthService.testKeycloakConnection();
+            return ResponseEntity.ok(new ApiResponse<String>(200, "SUCCESS", "Keycloak connection successful"));
+        } catch (Exception e) {
+            log.error("Keycloak connection test failed", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("Keycloak connection failed: " + e.getMessage()));
+        }
     }
 } 

@@ -9,7 +9,7 @@ Now that Keycloak is working and returning access tokens, this guide helps you t
 - [x] Keycloak server running on http://localhost:9090
 - [x] Realm `onified` created
 - [x] Client `onified-auth-service` configured
-- [x] Client `onified-web-app` configured
+- [x] Client `onified-auth-service` configured
 - [x] Access tokens being returned successfully
 
 ## 🔍 Step-by-Step Testing

@@ -15,7 +15,10 @@ import { SocialProvider } from '../../models/auth.models';
         <p>{{ statusMessage }}</p>
         <div *ngIf="errorMessage" class="error-message">
           <p>{{ errorMessage }}</p>
-          <button class="btn btn-primary" (click)="goToLogin()">Back to Login</button>
+          <div class="button-group">
+            <button class="btn btn-primary" (click)="retryAuth()">Try Again</button>
+            <button class="btn btn-secondary" (click)="goToLogin()">Back to Login</button>
+          </div>
         </div>
       </div>
     </div>
@@ -58,15 +61,19 @@ export class AuthCallbackComponent implements OnInit {
       return;
     }
 
-    // Determine provider from URL path or parameter
+    // Determine provider from URL path, parameter, or localStorage
     const pathProvider = this.getProviderFromPath();
-    const finalProvider = provider || pathProvider;
+    const storedProvider = localStorage.getItem('socialLoginProvider') as SocialProvider;
+    const finalProvider = provider || pathProvider || storedProvider;
 
     if (!finalProvider) {
       this.errorMessage = 'Unable to determine authentication provider';
       this.statusMessage = 'Authentication failed';
       return;
     }
+
+    // Clear stored provider
+    localStorage.removeItem('socialLoginProvider');
 
     // Check if this is a social signup (check for stored signup flow)
     const signupFlow = localStorage.getItem('socialSignupFlow');
@@ -94,7 +101,16 @@ export class AuthCallbackComponent implements OnInit {
           }
         },
         error: (error) => {
-          this.errorMessage = error.message || 'Signup failed';
+          let errorMsg = error.message || 'Signup failed';
+          
+          // Provide more helpful error messages for common issues
+          if (errorMsg.includes('400 Bad Request') || errorMsg.includes('authorization code has expired')) {
+            errorMsg = 'The authorization code has expired. Please try the signup process again.';
+          } else if (errorMsg.includes('401 Unauthorized')) {
+            errorMsg = 'Authentication failed. Please check your credentials and try again.';
+          }
+          
+          this.errorMessage = errorMsg;
           this.statusMessage = 'Signup failed';
         }
       });
@@ -127,7 +143,16 @@ export class AuthCallbackComponent implements OnInit {
           }
         },
         error: (error) => {
-          this.errorMessage = error.message || 'Authentication failed';
+          let errorMsg = error.message || 'Authentication failed';
+          
+          // Provide more helpful error messages for common issues
+          if (errorMsg.includes('400 Bad Request') || errorMsg.includes('authorization code has expired')) {
+            errorMsg = 'The authorization code has expired. Please try the login process again.';
+          } else if (errorMsg.includes('401 Unauthorized')) {
+            errorMsg = 'Authentication failed. Please check your credentials and try again.';
+          }
+          
+          this.errorMessage = errorMsg;
           this.statusMessage = 'Authentication failed';
         }
       });
@@ -156,6 +181,14 @@ export class AuthCallbackComponent implements OnInit {
     }
     
     this.router.navigate(['/host', remote]);
+  }
+
+  retryAuth(): void {
+    // Clear any stored state and redirect to login
+    localStorage.removeItem('socialLoginProvider');
+    localStorage.removeItem('socialSignupFlow');
+    localStorage.removeItem('socialLoginState');
+    this.router.navigate(['/login']);
   }
 
   goToLogin(): void {

@@ -11,6 +11,7 @@ import com.onified.ai.authentication_service.model.ApiResponse;
 import com.onified.ai.authentication_service.security.JwtUtil;
 import feign.FeignException;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,13 +34,19 @@ public class AuthService {
         UserAuthDetailsResponse userAuthDetails;
         try {
             // 1. Fetch user authentication details from User Management Service
-            ApiResponse<UserAuthDetailsResponse> umsResponse =
-                    userManagementFeignClient.getUserAuthDetailsByUsername(request.getUsername());
+            ResponseEntity<Object> response = userManagementFeignClient.getUserAuthDetailsByUsername(request.getUsername());
 
-            if (umsResponse == null || umsResponse.getStatusCode() != HttpStatus.OK.value() || umsResponse.getBody() == null) {
+            if (response == null || response.getStatusCode().value() != HttpStatus.OK.value()) {
                 throw new UserNotFoundException(String.format(ErrorConstants.USER_NOT_FOUND_USERNAME, request.getUsername()));
             }
-            userAuthDetails = umsResponse.getBody();
+
+            Object responseBody = response.getBody();
+            if (responseBody == null) {
+                throw new UserNotFoundException(String.format(ErrorConstants.USER_NOT_FOUND_USERNAME, request.getUsername()));
+            }
+
+            // Extract UserAuthDetailsResponse from response body
+            userAuthDetails = extractUserAuthDetailsFromResponse(responseBody);
 
         } catch (FeignException.NotFound ex) {
             // User not found in UMS
@@ -64,5 +71,31 @@ public class AuthService {
             .username(userAuthDetails.getUsername())
             .userProfile(userAuthDetails)
             .build();
+    }
+
+    private UserAuthDetailsResponse extractUserAuthDetailsFromResponse(Object responseBody) {
+        try {
+            if (responseBody instanceof java.util.Map) {
+                @SuppressWarnings("unchecked")
+                java.util.Map<String, Object> responseMap = (java.util.Map<String, Object>) responseBody;
+                Object body = responseMap.get("body");
+                if (body instanceof java.util.Map) {
+                    @SuppressWarnings("unchecked")
+                    java.util.Map<String, Object> userMap = (java.util.Map<String, Object>) body;
+                    
+                    java.util.List<String> roles = (java.util.List<String>) userMap.get("roles");
+                    
+                    return UserAuthDetailsResponse.builder()
+                        .id(java.util.UUID.fromString((String) userMap.get("id")))
+                        .username((String) userMap.get("username"))
+                        .passwordHash((String) userMap.get("passwordHash"))
+                        .roles(roles)
+                        .build();
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to parse UserAuthDetailsResponse from response body: " + e.getMessage());
+        }
+        throw new RuntimeException("Failed to extract user authentication details from response");
     }
 }

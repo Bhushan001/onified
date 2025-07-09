@@ -29,15 +29,15 @@ export class AuthService {
 
   private checkAuthStatus(): void {
     const token = localStorage.getItem(this.TOKEN_KEY);
-    const userProfile = localStorage.getItem('userProfile');
+    const userData = localStorage.getItem(this.USER_KEY);
     
-    if (token && userProfile) {
+    if (token && userData) {
       try {
-        const parsedUserProfile = JSON.parse(userProfile);
+        const parsedUserData = JSON.parse(userData);
         if (this.isTokenExpired(token)) {
           this.refreshToken().subscribe({
             next: () => {
-              const user = this.createUserFromUserProfile(parsedUserProfile);
+              const user = this.createUserFromUserProfile(parsedUserData);
               this.currentUserSubject.next(user);
               this.isAuthenticatedSubject.next(true);
             },
@@ -46,7 +46,7 @@ export class AuthService {
             }
           });
         } else {
-          const user = this.createUserFromUserProfile(parsedUserProfile);
+          const user = this.createUserFromUserProfile(parsedUserData);
           this.currentUserSubject.next(user);
           this.isAuthenticatedSubject.next(true);
           this.setTokenExpirationTimer(token);
@@ -64,13 +64,25 @@ export class AuthService {
       .pipe(
         map(response => {
           if (response.statusCode === 200 && response.status === 'SUCCESS' && response.body) {
+            // Store user data using the correct key
             if (response.body.userProfile) {
-              localStorage.setItem('userProfile', JSON.stringify(response.body.userProfile));
+              localStorage.setItem(this.USER_KEY, JSON.stringify(response.body.userProfile));
+            } else if (response.body.user) {
+              localStorage.setItem(this.USER_KEY, JSON.stringify(response.body.user));
             }
+            
             const token = response.body.accessToken || response.body.jwtToken;
             if (!token) {
               throw new Error('No access token found in login response');
             }
+            
+            // Handle placeholder tokens (social login)
+            if (token.startsWith('placeholder_')) {
+              const user = this.createUserFromResponse({ ...response.body, jwtToken: token });
+              this.handleAuthSuccess(token, user, response.body.refreshToken);
+              return { success: true };
+            }
+            
             const user = this.createUserFromResponse({ ...response.body, jwtToken: token });
             this.handleAuthSuccess(token, user, response.body.refreshToken);
             return { success: true };
@@ -88,19 +100,21 @@ export class AuthService {
   private createUserFromResponse(responseBody: any): User {
     const token = responseBody.accessToken || responseBody.jwtToken;
     const tokenData = this.extractDataFromToken(token);
+    
+    // For social login, use user data from response
     const user: User = {
-      id: tokenData.sub || '',
-      username: responseBody.username || tokenData.preferred_username || '',
-      name: responseBody.username || tokenData.preferred_username || '',
-      roles: tokenData.realm_access?.roles || [],
+      id: responseBody.id || responseBody.userId || tokenData.sub || '',
+      username: responseBody.username || responseBody.email || tokenData.preferred_username || '',
+      name: responseBody.name || responseBody.username || responseBody.email || tokenData.preferred_username || '',
+      roles: responseBody.roles || tokenData.realm_access?.roles || ['user'],
       lastLogin: new Date().toISOString(),
       email: responseBody.email || tokenData.email,
-      firstName: responseBody.firstName || tokenData.given_name,
-      lastName: responseBody.lastName || tokenData.family_name,
-      phone: responseBody.phone,
-      tenant: responseBody.tenant,
-      avatar: responseBody.avatar,
-      department: responseBody.department,
+      firstName: responseBody.firstName || responseBody.givenName || tokenData.given_name || '',
+      lastName: responseBody.lastName || responseBody.familyName || tokenData.family_name || '',
+      phone: responseBody.phone || '',
+      tenant: responseBody.tenant || '',
+      avatar: responseBody.avatar || responseBody.picture || '',
+      department: responseBody.department || '',
       status: responseBody.status || 'active'
     };
     return user;
@@ -126,6 +140,16 @@ export class AuthService {
 
   private extractDataFromToken(token: string): any {
     try {
+      // Handle placeholder tokens (social login)
+      if (token.startsWith('placeholder_')) {
+        return {
+          sub: 'social_user',
+          preferred_username: 'social_user',
+          email: 'social@example.com',
+          realm_access: { roles: ['user'] }
+        };
+      }
+      
       if (!token || typeof token !== 'string' || token.split('.').length < 2) {
         throw new Error('Invalid or missing JWT token');
       }
@@ -250,6 +274,7 @@ export class AuthService {
     localStorage.removeItem(this.TOKEN_KEY);
     localStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.REFRESH_TOKEN_KEY);
+    // Clean up old keys
     localStorage.removeItem('userProfile');
     this.currentUserSubject.next(null);
     this.isAuthenticatedSubject.next(false);
@@ -261,6 +286,19 @@ export class AuthService {
 
   private isTokenExpired(token: string): boolean {
     try {
+      // Handle placeholder tokens (social login)
+      if (token.startsWith('placeholder_')) {
+        // Extract timestamp from placeholder token
+        const timestampStr = token.replace('placeholder_', '');
+        const timestamp = parseInt(timestampStr, 10);
+        if (isNaN(timestamp)) {
+          return true;
+        }
+        const now = Date.now();
+        const expirationTime = timestamp + (24 * 60 * 60 * 1000); // 24 hours
+        return now >= expirationTime;
+      }
+      
       const payload = this.extractDataFromToken(token);
       const exp = payload.exp;
       if (!exp) {
@@ -275,6 +313,24 @@ export class AuthService {
 
   private setTokenExpirationTimer(token: string): void {
     try {
+      // Handle placeholder tokens (social login)
+      if (token.startsWith('placeholder_')) {
+        const timestampStr = token.replace('placeholder_', '');
+        const timestamp = parseInt(timestampStr, 10);
+        if (isNaN(timestamp)) {
+          return;
+        }
+        const now = Date.now();
+        const expirationTime = timestamp + (24 * 60 * 60 * 1000); // 24 hours
+        const expiresIn = expirationTime - now;
+        if (expiresIn > 0) {
+          this.tokenExpirationTimer = setTimeout(() => {
+            this.logout(); // For placeholder tokens, just logout when expired
+          }, expiresIn - 60000); // Logout 1 minute before expiry
+        }
+        return;
+      }
+      
       const payload = this.extractDataFromToken(token);
       const exp = payload.exp;
       if (!exp) {

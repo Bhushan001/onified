@@ -141,14 +141,78 @@ public class KeycloakUserService {
     }
 
     private void assignRolesToUser(String userId, Set<String> roles) {
-        RealmResource realmResource = keycloak.realm(realm);
-        UserResource userResource = realmResource.users().get(userId);
-        RolesResource rolesResource = realmResource.roles();
-        // Fetch all role representations
-        java.util.List<RoleRepresentation> roleReps = roles.stream()
-            .map(roleName -> rolesResource.get(roleName).toRepresentation())
-            .collect(Collectors.toList());
-        // Assign roles at realm level
-        userResource.roles().realmLevel().add(roleReps);
+        try {
+            System.out.println("Assigning roles to user " + userId + ": " + roles);
+            
+            RealmResource realmResource = keycloak.realm(realm);
+            UserResource userResource = realmResource.users().get(userId);
+            RolesResource rolesResource = realmResource.roles();
+            
+            // Fetch all role representations
+            java.util.List<RoleRepresentation> roleReps = roles.stream()
+                .map(roleName -> {
+                    try {
+                        System.out.println("Fetching role representation for: " + roleName);
+                        RoleRepresentation roleRep = rolesResource.get(roleName).toRepresentation();
+                        System.out.println("Successfully fetched role: " + roleName + " -> " + roleRep.getName());
+                        return roleRep;
+                    } catch (Exception e) {
+                        System.err.println("Failed to fetch role " + roleName + ": " + e.getMessage());
+                        throw e;
+                    }
+                })
+                .collect(Collectors.toList());
+            
+            System.out.println("Assigning " + roleReps.size() + " roles to user " + userId);
+            
+            // Assign roles at realm level
+            userResource.roles().realmLevel().add(roleReps);
+            
+            System.out.println("Successfully assigned roles to user " + userId);
+            
+        } catch (Exception e) {
+            System.err.println("Failed to assign roles to user " + userId + ": " + e.getMessage());
+            throw new RuntimeException("Failed to assign roles to user: " + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Assign roles to an existing user in Keycloak by username
+     * @param username The username of the user
+     * @param roles The roles to assign
+     */
+    public void assignRolesToExistingUser(String username, Set<String> roles) {
+        try {
+            System.out.println("Assigning roles to existing user " + username + ": " + roles);
+            
+            RealmResource realmResource = keycloak.realm(realm);
+            UsersResource usersResource = realmResource.users();
+            
+            // Search for user by username
+            List<UserRepresentation> users = usersResource.search(username, true);
+            
+            if (users.isEmpty()) {
+                throw new RuntimeException("User not found in Keycloak: " + username);
+            }
+            
+            // Find the exact match
+            UserRepresentation user = users.stream()
+                .filter(u -> username.equals(u.getUsername()))
+                .findFirst()
+                .orElse(null);
+            
+            if (user == null) {
+                throw new RuntimeException("User not found in Keycloak: " + username);
+            }
+            
+            System.out.println("Found existing user in Keycloak: " + user.getId());
+            
+            // Assign roles using the user ID
+            assignRolesToUser(user.getId(), roles);
+            
+        } catch (Exception e) {
+            System.err.println("Failed to assign roles to existing user " + username + ": " + e.getMessage());
+            throw new RuntimeException("Failed to assign roles to existing user: " + e.getMessage(), e);
+        }
     }
 } 

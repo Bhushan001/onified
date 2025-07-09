@@ -15,7 +15,7 @@ export const environment = {
   },
   keycloak: {
     issuer: 'http://localhost:9090/realms/onified',
-    clientId: 'onified-web-app',
+    clientId: 'onified-auth-service',
     redirectUri: 'http://localhost:4200',
     postLogoutRedirectUri: 'http://localhost:4200',
     scope: 'openid profile email',

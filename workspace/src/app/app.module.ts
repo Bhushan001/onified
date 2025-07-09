@@ -9,6 +9,7 @@ import { routes } from './app.routes';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { DashboardWrapperComponent } from './dashboard-wrapper.component';
 import { AuthConfigComponent } from './components/auth-config/auth-config.component';
+import { AuthCallbackComponent } from './components/auth-callback/auth-callback.component';
 // User subcomponents
 import { NotificationsAlertsComponent } from './users/notifications-alerts/notifications-alerts.component';
 import { FeedbackSettingsComponent } from './users/feedback-settings/feedback-settings.component';
@@ -21,6 +22,7 @@ import { UserManagementComponent } from './users/user-management/user-management
     AppComponent,
     DashboardWrapperComponent,
     AuthConfigComponent,
+    AuthCallbackComponent,
     NotificationsAlertsComponent,
     FeedbackSettingsComponent,
     HelpSupportComponent,

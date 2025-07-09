@@ -10,7 +10,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -61,16 +63,33 @@ public class KeycloakAuthService {
 
             if (response != null && response.containsKey("access_token")) {
                 // Fetch user profile from UMS
-                ApiResponse<UserAuthDetailsResponse> umsResponse = userManagementFeignClient.getUserAuthDetailsByUsername(loginRequest.getUsername());
-                UserAuthDetailsResponse userProfile = umsResponse != null ? umsResponse.getBody() : null;
-                return LoginResponse.builder()
-                        .accessToken((String) response.get("access_token"))
-                        .refreshToken((String) response.get("refresh_token"))
-                        .tokenType((String) response.get("token_type"))
-                        .expiresIn((Integer) response.get("expires_in"))
-                        .username(loginRequest.getUsername())
-                        .userProfile(userProfile)
-                        .build();
+                try {
+                    ResponseEntity<Object> umsResponse = userManagementFeignClient.getUserAuthDetailsByUsername(loginRequest.getUsername());
+                    UserAuthDetailsResponse userProfile = null;
+                    if (umsResponse != null && umsResponse.getStatusCode().value() == 200) {
+                        Object responseBody = umsResponse.getBody();
+                        if (responseBody != null) {
+                            userProfile = extractUserAuthDetailsFromResponse(responseBody);
+                        }
+                    }
+                    return LoginResponse.builder()
+                            .accessToken((String) response.get("access_token"))
+                            .refreshToken((String) response.get("refresh_token"))
+                            .tokenType((String) response.get("token_type"))
+                            .expiresIn((Integer) response.get("expires_in"))
+                            .username(loginRequest.getUsername())
+                            .userProfile(userProfile)
+                            .build();
+                } catch (Exception e) {
+                    log.warn("Failed to fetch user profile from UMS: {}", e.getMessage());
+                    return LoginResponse.builder()
+                            .accessToken((String) response.get("access_token"))
+                            .refreshToken((String) response.get("refresh_token"))
+                            .tokenType((String) response.get("token_type"))
+                            .expiresIn((Integer) response.get("expires_in"))
+                            .username(loginRequest.getUsername())
+                            .build();
+                }
             } else {
                 throw new RuntimeException("Authentication failed: Invalid credentials");
             }
@@ -114,5 +133,31 @@ public class KeycloakAuthService {
             log.error("Token refresh error: {}", e.getMessage());
             throw new RuntimeException("Token refresh failed: " + e.getMessage());
         }
+    }
+
+    private UserAuthDetailsResponse extractUserAuthDetailsFromResponse(Object responseBody) {
+        try {
+            if (responseBody instanceof java.util.Map) {
+                @SuppressWarnings("unchecked")
+                java.util.Map<String, Object> responseMap = (java.util.Map<String, Object>) responseBody;
+                Object body = responseMap.get("body");
+                if (body instanceof java.util.Map) {
+                    @SuppressWarnings("unchecked")
+                    java.util.Map<String, Object> userMap = (java.util.Map<String, Object>) body;
+                    
+                    java.util.List<String> roles = (java.util.List<String>) userMap.get("roles");
+                    
+                    return UserAuthDetailsResponse.builder()
+                        .id(java.util.UUID.fromString((String) userMap.get("id")))
+                        .username((String) userMap.get("username"))
+                        .passwordHash((String) userMap.get("passwordHash"))
+                        .roles(roles)
+                        .build();
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to parse UserAuthDetailsResponse from response body: {}", e.getMessage());
+        }
+        throw new RuntimeException("Failed to extract user authentication details from response");
     }
 } 
